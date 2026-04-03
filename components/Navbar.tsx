@@ -61,8 +61,10 @@ export default function Navbar({ setShowModal }: NavbarProps) {
         <div className="flex items-center gap-3 md:gap-6">
           <Link 
             href="/pricing"
-            className={`hidden md:block font-dm font-[600] text-[15px] transition-opacity duration-200 ${
-              pathname === '/pricing' ? 'text-white opacity-100' : 'text-white opacity-75 hover:opacity-100'
+            className={`font-dm font-[600] text-[13px] md:text-[15px] transition-opacity duration-200 ${
+              pathname === '/pricing' 
+                ? 'text-white md:opacity-100' 
+                : 'text-[#888] md:text-white md:opacity-75 md:hover:opacity-100'
             }`}
           >
             Pricing
@@ -70,7 +72,7 @@ export default function Navbar({ setShowModal }: NavbarProps) {
           <div className="flex items-center gap-3 md:gap-4">
             <button 
               onClick={() => setShowModal?.(true)}
-              className="hidden md:block text-[#ffffff] opacity-75 hover:opacity-100 font-dm font-[600] text-[15px] transition-opacity duration-200 pointer-events-auto"
+              className="text-[#888] md:text-white md:opacity-75 md:hover:opacity-100 font-dm font-[600] text-[13px] md:text-[15px] transition-opacity duration-200 pointer-events-auto"
             >
               Login
             </button>
@@ -93,7 +95,7 @@ export default function Navbar({ setShowModal }: NavbarProps) {
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
-      <div className="no-scrollbar h-full flex items-center overflow-x-auto gap-2 px-4 whitespace-nowrap">
+      <div className="no-scrollbar h-full flex items-center justify-center overflow-x-auto gap-2 px-4 whitespace-nowrap">
         {navLinks.map((link) => {
           const isActive = pathname === link.href;
           return (
