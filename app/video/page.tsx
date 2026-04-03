@@ -4,16 +4,15 @@ import Navbar from '../../components/Navbar';
 
 export default function VideoDashboard() {
   return (
-    <div className="h-screen w-full bg-[var(--bg)] overflow-hidden flex flex-col relative">
+    <div className="min-h-screen w-full bg-[var(--bg)] md:overflow-hidden flex flex-col relative pt-[92px] md:pt-[64px]">
       <Navbar />
 
       {/* Main 3-column area */}
-      <div className="flex-1 flex w-full pt-[64px] h-screen overflow-hidden">
+      <div className="flex-1 flex flex-col md:flex-row w-full h-full overflow-hidden transition-all">
         
         {/* LEFT PANEL */}
         <div
-          className="bg-[#0a0a0a] border-r border-white/[0.06] p-4 shrink-0 flex flex-col"
-          style={{ width: '280px', minWidth: '280px', height: 'calc(100vh - 54px)', overflow: 'hidden' }}
+          className="bg-[#0a0a0a] border-b md:border-b-0 md:border-r border-white/[0.06] p-4 shrink-0 flex flex-col w-full md:w-[280px] h-auto md:h-[calc(100vh-64px)]"
         >
           {/* TABS */}
           <div className="flex items-center gap-4 border-b border-white/[0.06] pb-3 mb-2 shrink-0">
@@ -71,7 +70,7 @@ export default function VideoDashboard() {
           {/* Bottom Module Items */}
           <div style={{ marginTop: 'auto' }} className="flex flex-col gap-4">
             {/* E) MODEL BADGE */}
-            <div className="w-full py-2.5 px-3 bg-[rgba(255,51,119,0.1)] border border-[rgba(255,51,119,0.2)] rounded-full flex items-center justify-center gap-2 cursor-pointer transition-colors hover:bg-[rgba(255,51,119,0.15)]">
+            <div className="w-full py-2.5 px-3 bg-[rgba(255,51,119,0.1)] border border-[rgba(255,51,119,0.2)] rounded-full flex items-center justify-center gap-2 cursor-pointer transition-colors hover:bg-[rgba(255,51,119,0.15)] md:flex">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
               <span className="text-[var(--accent)] font-dm text-[13px] font-[600]">New Seedance 2.0</span>
             </div>
@@ -84,7 +83,7 @@ export default function VideoDashboard() {
         </div>
 
         {/* CENTER PANEL */}
-        <div className="flex-1 bg-[#080808] p-6 flex flex-col h-full overflow-hidden">
+        <div className="flex-1 bg-[#080808] p-4 md:p-6 flex flex-col min-h-[400px] md:h-full">
           <div className="w-full flex items-center justify-end mb-4 gap-4">
             <button className="flex items-center gap-1.5 text-[#555] hover:text-white transition-colors text-[13px] font-dm">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
@@ -114,7 +113,7 @@ export default function VideoDashboard() {
         </div>
 
         {/* RIGHT PANEL */}
-        <div className="w-[280px] bg-[#0a0a0a] border-l border-white/[0.06] flex flex-col h-full overflow-y-auto p-5 gap-6 shrink-0 custom-scrollbar">
+        <div className="hidden md:flex w-[280px] bg-[#0a0a0a] border-l border-white/[0.06] flex-col h-full overflow-y-auto p-5 gap-6 shrink-0 custom-scrollbar">
           
           {/* A) Model label */}
           <div className="flex items-center gap-2 text-[#888] font-dm text-[13px]">

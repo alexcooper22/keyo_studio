@@ -3,9 +3,9 @@ import React from 'react';
 
 export default function FeatureCards() {
   return (
-    <section className="px-4 max-w-7xl mx-auto w-full mb-16 flex flex-col gap-3 z-10 relative">
+<section className="px-4 md:px-6 max-w-7xl mx-auto w-full mb-16 flex flex-col gap-4 z-10 relative">
       {/* Row 1: 3 columns */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {/* Card 1: Text */}
         <div className="animate-fadeUp delay-100 bg-[var(--bg2)] rounded-2xl border border-white/[0.06] hover:border-[var(--accent)]/20 hover:-translate-y-1 hover:shadow-xl transition-all duration-300 ease-in-out p-6 flex flex-col h-[280px]">
           <div className="flex justify-between items-start mb-auto">

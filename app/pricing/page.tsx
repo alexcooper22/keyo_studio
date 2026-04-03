@@ -70,10 +70,9 @@ export default function PricingPage() {
     <div className="min-h-screen bg-[#080808] text-white flex flex-col relative overflow-x-hidden">
       <Navbar setShowModal={setShowModal} />
       
-      <main className="flex-1 pt-[100px] pb-20 px-6 max-w-7xl mx-auto w-full">
-        {/* PAGE HEADER */}
+      <main className="flex-1 pt-[120px] md:pt-[100px] pb-20 px-6 max-w-7xl mx-auto w-full">
         <div className="text-center flex flex-col items-center">
-          <h1 className="font-syne font-[800] text-[48px] tracking-tight text-white leading-tight">
+          <h1 className="font-syne font-[800] text-[36px] md:text-[48px] tracking-tight text-white leading-tight">
             Pick your plan
           </h1>
           <p className="font-dm text-[14px] text-[#555] mt-2 max-w-[400px]">
@@ -81,17 +80,17 @@ export default function PricingPage() {
           </p>
 
           {/* MONTHLY/ANNUAL TOGGLE */}
-          <div className="mt-10 flex items-center gap-4">
-            <span className={`font-dm text-sm transition-colors ${!isAnnual ? 'text-white' : 'text-[#555]'}`}>Monthly</span>
+          <div className="mt-10 flex items-center gap-3 md:gap-4">
+            <span className={`font-dm text-[13px] md:text-sm transition-colors ${!isAnnual ? 'text-white' : 'text-[#555]'}`}>Monthly</span>
             <button 
               onClick={() => setIsAnnual(!isAnnual)}
-              className="w-[52px] h-[28px] bg-[#1a1a1a] border border-white/10 rounded-full relative transition-colors p-1"
+              className="w-[48px] h-[26px] md:w-[52px] md:h-[28px] bg-[#1a1a1a] border border-white/10 rounded-full relative transition-colors p-1"
             >
-              <div className={`w-5 h-5 rounded-full transition-all duration-300 ${isAnnual ? 'translate-x-[24px] bg-[#ff3377]' : 'translate-x-0 bg-[#555]'}`}></div>
+              <div className={`w-4 h-4 md:w-5 md:h-5 rounded-full transition-all duration-300 ${isAnnual ? 'translate-x-[22px] md:translate-x-[24px] bg-[#ff3377]' : 'translate-x-0 bg-[#555]'}`}></div>
             </button>
             <div className="flex items-center gap-2">
-              <span className={`font-dm text-sm transition-colors ${isAnnual ? 'text-white' : 'text-[#555]'}`}>Annual</span>
-              <div className="bg-[#ff3377] text-black font-dm font-bold text-[10px] px-2.5 py-1 rounded-full uppercase tracking-wider">
+              <span className={`font-dm text-[13px] md:text-sm transition-colors ${isAnnual ? 'text-white' : 'text-[#555]'}`}>Annual</span>
+              <div className="bg-[#ff3377] text-black font-dm font-bold text-[9px] md:text-[10px] px-2 md:px-2.5 py-1 rounded-full uppercase tracking-wider">
                 30% OFF
               </div>
             </div>
@@ -111,7 +110,7 @@ export default function PricingPage() {
                 </div>
               )}
               
-              <div className={`p-7 flex flex-col h-full ${plan.highlight ? 'pt-12' : ''}`}>
+              <div className={`p-5 md:p-7 flex flex-col h-full ${plan.highlight ? 'pt-12' : ''}`}>
                 <h3 className="font-syne font-[700] text-2xl text-white">{plan.name}</h3>
                 <p className="font-dm text-[13px] text-[#555] mt-1 line-clamp-1">{plan.description}</p>
                 

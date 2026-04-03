@@ -4,10 +4,10 @@ import Navbar from '../../components/Navbar';
 
 export default function ImageDashboard() {
   return (
-    <div className="min-h-screen bg-[var(--bg)] pl-[48px] pt-[64px] pb-[120px] relative">
+    <div className="min-h-screen bg-[var(--bg)] pl-0 md:pl-[48px] pt-[92px] md:pt-[64px] pb-[130px] md:pb-[120px] relative">
       <Navbar />
       {/* Left Sidebar */}
-      <aside className="fixed top-[64px] left-0 bottom-0 w-[48px] bg-[#0a0a0a] border-r border-white/[0.06] z-40 flex flex-col items-center py-6 gap-6">
+      <aside className="fixed top-[64px] left-0 bottom-0 w-[48px] bg-[#0a0a0a] border-r border-white/[0.06] z-40 hidden md:flex flex-col items-center py-6 gap-6">
         {/* History Icon */}
         <button className="text-[#555] hover:text-[var(--accent)] transition-colors">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -27,8 +27,8 @@ export default function ImageDashboard() {
       </aside>
 
       {/* Main Canvas Area (Masonry Grid) */}
-      <main className="max-w-[1600px] mx-auto w-full px-6 pt-6 relative z-10">
-        <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
+      <main className="max-w-[1600px] mx-auto w-full px-4 md:px-6 pt-4 md:pt-6 relative z-10">
+        <div className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
           {[
             'aspect-[9/16]', 'aspect-square', 'aspect-video', 'aspect-[4/5]',
             'aspect-[16/9]', 'aspect-[4/3]', 'aspect-[9/16]', 'aspect-square'
@@ -54,12 +54,12 @@ export default function ImageDashboard() {
       </main>
 
       {/* Bottom Prompt Bar */}
-      <div className="fixed bottom-0 left-[48px] right-0 z-50 px-4 md:px-8 pb-8 pointer-events-none">
+      <div className="fixed bottom-0 left-0 md:left-[48px] right-0 z-50 px-2 md:px-8 pb-3 md:pb-8 pointer-events-none">
         <div className="w-full max-w-4xl mx-auto rounded-t-2xl rounded-b-xl border-t border-l border-r border-white/[0.08] shadow-2xl overflow-hidden pointer-events-auto" style={{ backgroundColor: 'rgba(15,15,15,0.95)', backdropFilter: 'blur(16px)' }}>
           {/* Top Row: Input */}
-          <div className="p-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-4 border-b border-white/[0.06]">
+          <div className="p-3 md:p-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 md:gap-4 border-b border-white/[0.06]">
             {/* Add Button */}
-            <button className="w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-xl bg-[#080808] border border-white/[0.04] text-[#888] hover:text-white hover:border-white/20 transition-colors">
+            <button className="w-10 h-10 md:w-12 md:h-12 flex-shrink-0 flex items-center justify-center rounded-xl bg-[#080808] border border-white/[0.04] text-[#888] hover:text-white hover:border-white/20 transition-colors">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             </button>
             
@@ -67,33 +67,27 @@ export default function ImageDashboard() {
             <input 
               type="text" 
               placeholder="Describe the image you imagine..." 
-              className="flex-1 bg-transparent border-none outline-none text-white font-dm text-lg placeholder:text-[#555]"
+              className="flex-1 bg-transparent border-none outline-none text-white font-dm text-base md:text-lg placeholder:text-[#555]"
             />
             
             {/* Generate Button */}
-            <button className="px-7 py-3.5 bg-[var(--accent)] text-black font-dm font-[700] rounded-xl flex items-center justify-center gap-2 hover:bg-[var(--accent2)] hover:shadow-[0_0_20px_rgba(255,51,119,0.3)] transition-all flex-shrink-0">
+            <button className="px-4 md:px-7 py-3 md:py-3.5 bg-[var(--accent)] text-black font-dm font-[700] rounded-xl flex items-center justify-center gap-2 hover:bg-[var(--accent2)] hover:shadow-[0_0_20px_rgba(255,51,119,0.3)] transition-all flex-shrink-0">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
               Generate
             </button>
           </div>
 
           {/* Bottom Row: Settings */}
-          <div className="px-5 py-3 flex flex-wrap items-center gap-3">
+          <div className="px-4 md:px-5 py-2 md:py-3 flex flex-wrap items-center gap-2 md:gap-3">
             {[
               { label: 'Flux Pro ▾', active: false },
               { label: '1:1', active: false },
               { label: '2K', active: false },
-              { label: '— 1/4 +', active: false },
-              { divider: true },
               { label: 'Style', active: false }
             ].map((pill, idx) => (
-              pill.divider ? (
-                <div key={idx} className="w-[1px] h-4 bg-white/10 mx-1"></div>
-              ) : (
-                <button key={idx} className="px-3 py-1.5 rounded-full bg-white/[0.06] border border-white/[0.1] text-[#888] font-dm text-xs hover:bg-white/10 hover:text-white transition-colors">
-                  {pill.label}
-                </button>
-              )
+              <button key={idx} className="px-2.5 py-1 rounded-full bg-white/[0.06] border border-white/[0.1] text-[#888] font-dm text-[11px] md:text-xs hover:bg-white/10 hover:text-white transition-colors">
+                {pill.label}
+              </button>
             ))}
           </div>
         </div>

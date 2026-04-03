@@ -27,10 +27,10 @@ export default function TextChat() {
       <Navbar />
 
       {/* Main content layout starting below navbar (54px + 10px banner) */}
-      <main className="flex-1 flex flex-col pt-[64px] overflow-hidden">
+      <main className="flex-1 flex flex-col pt-[92px] md:pt-[64px] overflow-hidden">
         
         {/* Chat Messages Area */}
-        <section className="flex-1 overflow-y-auto px-[20%] py-10 flex flex-col gap-5 scrollbar-thin">
+        <section className="flex-1 overflow-y-auto px-4 md:px-[20%] py-6 md:py-10 flex flex-col gap-5 scrollbar-thin">
           {messages.map((msg, idx) => (
             <div 
               key={idx} 
@@ -56,7 +56,7 @@ export default function TextChat() {
         </section>
 
         {/* Input Bar Area */}
-        <footer className="w-full bg-[#080808] border-t border-white/[0.06] px-[20%] py-4 flex flex-col gap-3">
+        <footer className="w-full bg-[#080808] border-t border-white/[0.06] px-4 md:px-[20%] py-4 flex flex-col gap-3">
           <div className="bg-[#111] border border-white/[0.08] rounded-xl p-[10px_14px] flex items-end gap-[10px] focus-within:border-[rgba(255,51,119,0.3)] transition-colors shadow-sm">
             <textarea 
               className="flex-1 bg-transparent border-none outline-none text-[#f0f0f0] font-dm text-[13px] placeholder:text-[#444] resize-none h-10 py-2"
