@@ -20,9 +20,9 @@ export default function Navbar({ setShowModal }: NavbarProps) {
   return (
     <>
       {/* Top Solid Line */}
-      <div className="fixed top-0 left-0 right-0 h-[10px] bg-[var(--accent)] z-[101] hidden md:block" />
+      <div className="fixed top-0 left-0 right-0 h-[3px] bg-[var(--accent)] z-[101]" />
       
-      <nav className="fixed top-0 md:top-[10px] left-0 right-0 h-[48px] md:h-[54px] z-[100] border-b border-[var(--border)] backdrop-blur-xl transition-all" style={{ backgroundColor: 'rgba(8,8,8,0.92)' }}>
+      <nav className="fixed top-[3px] left-0 right-0 h-[48px] md:h-[54px] z-[100] border-b border-[var(--border)] backdrop-blur-xl transition-all" style={{ backgroundColor: 'rgba(8,8,8,0.92)' }}>
         <div className="h-full max-w-7xl mx-auto px-4 md:px-6 flex items-center justify-between">
         
         {/* Logo */}
@@ -89,13 +89,13 @@ export default function Navbar({ setShowModal }: NavbarProps) {
 
     {/* Mobile Subordinate Nav Bar */}
     <div 
-      className="flex md:hidden fixed top-[48px] left-0 right-0 h-[44px] bg-[#0a0a0a] border-b border-white/[0.06] z-[99] overflow-hidden"
+      className="flex md:hidden fixed top-[51px] left-0 right-0 h-[44px] bg-[#0a0a0a] border-b border-white/[0.06] z-[99] overflow-hidden"
     >
       <style jsx>{`
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
-      <div className="no-scrollbar h-full flex items-center justify-center overflow-x-auto gap-2 px-4 whitespace-nowrap">
+      <div className="no-scrollbar h-full flex items-center justify-center overflow-x-auto gap-3 px-4 whitespace-nowrap">
         {navLinks.map((link) => {
           const isActive = pathname === link.href;
           return (
