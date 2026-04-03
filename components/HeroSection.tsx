@@ -3,7 +3,7 @@ import React from 'react';
 
 export default function HeroSection() {
   return (
-    <section className="pt-[95px] md:pt-[88px] pb-16 flex flex-col items-center text-center px-4 relative overflow-hidden">
+    <section className="pt-[105px] md:pt-[88px] pb-16 flex flex-col items-center text-center px-4 relative overflow-hidden">
       {/* Radial glow background */}
       <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-[var(--accent)]/10 blur-[120px] rounded-full -z-10 hidden md:block pointer-events-none" />
 
