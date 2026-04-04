@@ -400,17 +400,17 @@ export default function ImageDashboard() {
 
       {/* Lightbox Modal */}
       {selectedFullImage && (
-        <div 
-          className="fixed inset-0 z-[1000] flex flex-col md:flex-row"
-          style={{ backgroundColor: 'rgba(0,0,0,0.95)' }}
-          onMouseDown={(e) => {
+        <div
+          className="fixed inset-0 z-[1000] flex select-none"
+          style={{ backgroundColor: 'rgba(0,0,0,0.95)', cursor: 'default' }}
+          onClick={(e) => {
             if (e.target === e.currentTarget) {
               setSelectedFullImage(null);
             }
           }}
         >
           {/* LEFT SIDE: Image */}
-          <div className="flex-1 flex justify-center items-center p-4 relative" onMouseDown={(e) => e.stopPropagation()}>
+          <div className="flex-1 flex justify-center items-center p-8 relative" onMouseDown={(e) => e.stopPropagation()}>
             <img
               src={selectedFullImage.url}
               alt="Full view"
