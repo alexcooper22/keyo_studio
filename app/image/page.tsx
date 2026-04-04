@@ -432,8 +432,32 @@ export default function ImageDashboard() {
           >
             {/* Header Row */}
             <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full flex items-center justify-center bg-gradient-to-br from-[#00ffc8] to-[#0088ff] text-black font-syne font-bold text-[14px]">
+              <a 
+                href="/dashboard"
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '10px',
+                  cursor: 'pointer',
+                  textDecoration: 'none'
+                }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div 
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: 'linear-gradient(135deg, #00ffc8, #00d4a8)',
+                    color: 'black',
+                    fontFamily: 'var(--font-syne)',
+                    fontWeight: 800,
+                    fontSize: '13px'
+                  }}
+                >
                   {user?.primaryEmailAddress?.emailAddress?.charAt(0).toUpperCase() || 'U'}
                 </div>
                 <div>
@@ -442,7 +466,7 @@ export default function ImageDashboard() {
                   </div>
                   <div className="text-[#555] text-[12px] font-dm mt-1">Author</div>
                 </div>
-              </div>
+              </a>
               <button 
                 onClick={() => setSelectedFullImage(null)}
                 className="text-[#555] hover:text-white transition-colors flex items-center justify-center w-8 h-8 bg-white/[0.04] hover:bg-white/10 rounded-full"
