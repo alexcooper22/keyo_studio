@@ -464,7 +464,10 @@ export default function ImageDashboard() {
                   copy
                 </button>
               </div>
-              <p className="text-[14px] text-[#888] font-dm leading-relaxed">
+              <p 
+                className="text-[14px] text-[#888] font-dm leading-relaxed"
+                style={{ userSelect: 'text', cursor: 'text' }}
+              >
                 {selectedFullImage.prompt}
               </p>
             </div>
