@@ -2,14 +2,26 @@
 import React, { useState } from 'react';
 import Navbar from '../../components/Navbar';
 import Image from 'next/image';
+import { useAuth } from '../../context/AuthContext';
+import { useUser } from '@clerk/nextjs';
 
 export default function ImageDashboard() {
+  const { setShowModal } = useAuth();
+  const { isLoaded, isSignedIn } = useUser();
   const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [error, setError] = useState('');
 
   async function handleGenerate() {
+    if (!isLoaded) return;
+    
+    // Redirect guests to the auth modal
+    if (!isSignedIn) {
+      setShowModal(true);
+      return;
+    }
+
     if (!prompt.trim()) return;
     
     setIsLoading(true);
@@ -126,23 +138,30 @@ export default function ImageDashboard() {
               placeholder="Describe the image you imagine..." 
               className="flex-1 bg-transparent border-none outline-none text-white font-dm text-base md:text-lg placeholder:text-[#555]"
             />
-            <button 
-              onClick={handleGenerate}
-              disabled={isLoading || !prompt.trim()}
-              className={`px-4 md:px-7 py-3 md:py-3.5 bg-[var(--accent)] text-black font-dm font-[700] rounded-xl flex items-center justify-center gap-2 hover:bg-[var(--accent2)] hover:shadow-[0_0_20px_rgba(255,51,119,0.3)] transition-all flex-shrink-0 ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
-            >
-              {isLoading ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-                  Generate
-                </>
+            <div className="flex flex-col gap-1.5 items-center">
+              <button 
+                onClick={handleGenerate}
+                disabled={isLoaded && isSignedIn && (isLoading || !prompt.trim())}
+                className={`px-4 md:px-7 py-3 md:py-3.5 bg-[var(--accent)] text-black font-dm font-[700] rounded-xl flex items-center justify-center gap-2 hover:bg-[var(--accent2)] hover:shadow-[0_0_20px_rgba(255,51,119,0.3)] transition-all flex-shrink-0 ${(isLoading || (isLoaded && !isSignedIn)) ? 'opacity-70 cursor-pointer' : ''}`}
+              >
+                {isLoading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                    Generate
+                  </>
+                )}
+              </button>
+              {isLoaded && !isSignedIn && (
+                <span className="font-dm text-[12px] text-[#555] text-center">
+                  Sign in to generate images
+                </span>
               )}
-            </button>
+            </div>
           </div>
 
           {/* Bottom Row: Settings */}

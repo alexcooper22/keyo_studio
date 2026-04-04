@@ -1,8 +1,18 @@
 import { fal } from "@fal-ai/client";
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 
 export async function POST(request: NextRequest) {
   try {
+    const { userId } = await auth();
+    
+    if (!userId) {
+      return NextResponse.json(
+        { error: "Unauthorized. Please sign in to generate images." },
+        { status: 401 }
+      );
+    }
+
     const { prompt } = await request.json();
     
     if (!prompt) {
@@ -13,7 +23,6 @@ export async function POST(request: NextRequest) {
     }
 
     // Configure fal.ai credentials
-    // Note: ensure FAL_KEY is present in .env.local
     fal.config({
       credentials: process.env.FAL_KEY,
     });
