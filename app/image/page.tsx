@@ -252,29 +252,38 @@ export default function ImageDashboard() {
       {/* Lightbox Modal */}
       {selectedFullImage && (
         <div 
-          className="fixed inset-0 bg-black/90 z-[1000] flex items-center justify-center p-4 md:p-10 animate-in fade-in duration-300"
+          className="fixed inset-0 z-[1000] flex items-center justify-center"
+          style={{ backgroundColor: 'rgba(0,0,0,0.85)' }}
           onClick={() => setSelectedFullImage(null)}
         >
-          <button 
-            className="absolute top-6 right-6 text-white/60 hover:text-white text-3xl font-light transition-colors z-[1001]"
+          <img
+            src={selectedFullImage}
+            alt="Full view"
+            style={{
+              maxWidth: '60vw',
+              maxHeight: '85vh',
+              objectFit: 'contain',
+              borderRadius: '8px',
+              cursor: 'default'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          />
+          <button
+            style={{
+              position: 'fixed',
+              top: '20px',
+              right: '20px',
+              color: 'white',
+              fontSize: '28px',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              zIndex: 1001
+            }}
             onClick={() => setSelectedFullImage(null)}
           >
             ×
           </button>
-          <div 
-            className="relative max-w-[90vw] max-h-[90vh] flex items-center justify-center animate-in zoom-in-95 duration-300"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <Image 
-              src={selectedFullImage} 
-              alt="Full view" 
-              width={1600} 
-              height={1200} 
-              className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
-              unoptimized
-              onClick={(e) => e.stopPropagation()}
-            />
-          </div>
         </div>
       )}
 
