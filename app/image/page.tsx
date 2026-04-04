@@ -627,13 +627,6 @@ export default function ImageDashboard() {
               )}
             </div>
 
-            {[
-              { label: 'Seed: Auto', active: false }
-            ].map((pill, idx) => (
-              <button key={idx} className={`px-2.5 py-1 rounded-full bg-white/[0.06] border border-white/[0.1] text-[#888] font-dm text-[11px] md:text-xs hover:bg-white/10 hover:text-white transition-colors ${pill.active ? 'border-[#ff3377]/30 text-white' : ''}`}>
-                {pill.label}
-              </button>
-            ))}
           </div>
         </div>
       </div>
