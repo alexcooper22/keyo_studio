@@ -38,13 +38,20 @@ const compressImage = async (base64: string): Promise<Blob> => {
   });
 };
 
+interface ImageDetails {
+  url: string;
+  prompt: string;
+  model: string;
+  aspectRatio: string;
+}
+
 export default function ImageDashboard() {
   const { setShowModal } = useAuth();
-  const { isLoaded, isSignedIn } = useUser();
+  const { isLoaded, isSignedIn, user } = useUser();
   
   const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [generatedImages, setGeneratedImages] = useState<string[]>([]);
+  const [generatedImages, setGeneratedImages] = useState<ImageDetails[]>([]);
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [creditCount, setCreditCount] = useState<number | null>(null);
@@ -99,7 +106,7 @@ export default function ImageDashboard() {
   
   // Interaction states
   const [likedImages, setLikedImages] = useState<Set<string>>(new Set());
-  const [selectedFullImage, setSelectedFullImage] = useState<string | null>(null);
+  const [selectedFullImage, setSelectedFullImage] = useState<ImageDetails | null>(null);
   
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -156,7 +163,12 @@ export default function ImageDashboard() {
       const res = await fetch('/api/user-images');
       const data = await res.json();
       if (data.images) {
-        setGeneratedImages(data.images.map((img: any) => img.image_url));
+        setGeneratedImages(data.images.map((img: any) => ({
+          url: img.image_url,
+          prompt: img.prompt || 'Generated with Keyo AI',
+          model: img.model || 'Unknown',
+          aspectRatio: '4:3'
+        })));
       }
     } catch (err) {
       console.error("Failed to fetch images", err);
@@ -206,7 +218,12 @@ export default function ImageDashboard() {
       }
       
       // Update with the new generated image URLs and credits
-      setGeneratedImages((prev) => [data.images[0].url, ...prev]);
+      setGeneratedImages((prev) => [{
+        url: data.images[0].url,
+        prompt,
+        model: selectedModel,
+        aspectRatio
+      }, ...prev]);
       if (data.remainingCredits !== undefined) {
         setCreditCount(data.remainingCredits);
       }
@@ -320,16 +337,16 @@ export default function ImageDashboard() {
           )}
 
           {/* Generated Results */}
-          {generatedImages.map((url, i) => {
-            const isLiked = likedImages.has(url);
+          {generatedImages.map((img, i) => {
+            const isLiked = likedImages.has(img.url);
             return (
               <div 
-                key={url} 
+                key={img.url} 
                 className="relative rounded-xl overflow-hidden bg-[#161616] border border-white/[0.06] hover:border-white/10 group break-inside-avoid shadow-lg transition-colors cursor-zoom-in"
-                onClick={() => setSelectedFullImage(url)}
+                onClick={() => setSelectedFullImage(img)}
               >
                 <Image 
-                  src={url} 
+                  src={img.url} 
                   alt={`Generated ${i}`} 
                   width={800} 
                   height={600} 
@@ -349,13 +366,13 @@ export default function ImageDashboard() {
                 {/* Interaction Overlay */}
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-start justify-end p-3 gap-2 backdrop-blur-[2px] z-10">
                   <button 
-                    onClick={(e) => { e.stopPropagation(); handleDownload(url); }}
+                    onClick={(e) => { e.stopPropagation(); handleDownload(img.url); }}
                     className="w-8 h-8 rounded-full bg-white/10 hover:bg-[var(--accent)] flex items-center justify-center text-white backdrop-blur-md transition-colors"
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                   </button>
                   <button 
-                    onClick={(e) => { e.stopPropagation(); toggleLike(url); }}
+                    onClick={(e) => { e.stopPropagation(); toggleLike(img.url); }}
                     className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center backdrop-blur-md transition-colors"
                   >
                     <svg 
@@ -384,38 +401,98 @@ export default function ImageDashboard() {
       {/* Lightbox Modal */}
       {selectedFullImage && (
         <div 
-          className="fixed inset-0 z-[1000] flex items-center justify-center"
-          style={{ backgroundColor: 'rgba(0,0,0,0.85)' }}
+          className="fixed inset-0 z-[1000] flex flex-col md:flex-row bg-[rgba(0,0,0,0.95)]"
           onClick={() => setSelectedFullImage(null)}
         >
-          <img
-            src={selectedFullImage}
-            alt="Full view"
-            style={{
-              maxWidth: '60vw',
-              maxHeight: '85vh',
-              objectFit: 'contain',
-              borderRadius: '8px',
-              cursor: 'default'
-            }}
+          {/* LEFT SIDE: Image */}
+          <div className="flex-1 flex justify-center items-center p-4 relative" onClick={(e) => e.stopPropagation()}>
+            <img
+              src={selectedFullImage.url}
+              alt="Full view"
+              className="max-h-[90vh] w-auto object-contain rounded-lg shadow-[0_0_40px_rgba(0,0,0,0.9)]"
+            />
+            {/* Mobile Close Button */}
+            <button
+              className="md:hidden absolute top-4 right-4 text-white hover:text-[#ff3377] transition-colors w-10 h-10 flex items-center justify-center bg-black/40 rounded-full"
+              onClick={() => setSelectedFullImage(null)}
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+          </div>
+
+          {/* RIGHT SIDEBAR */}
+          <div 
+            className="hidden md:flex flex-col w-[300px] h-[100vh] bg-[#0f0f0f] border-l border-white/[0.06] flex-shrink-0 p-6 overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
-          />
-          <button
-            style={{
-              position: 'fixed',
-              top: '20px',
-              right: '20px',
-              color: 'white',
-              fontSize: '28px',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              zIndex: 1001
-            }}
-            onClick={() => setSelectedFullImage(null)}
           >
-            ×
-          </button>
+            {/* Header Row */}
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full flex items-center justify-center bg-gradient-to-br from-[#00ffc8] to-[#0088ff] text-black font-syne font-bold text-[14px]">
+                  {user?.primaryEmailAddress?.emailAddress?.charAt(0).toUpperCase() || 'U'}
+                </div>
+                <div>
+                  <div className="text-white text-[14px] font-dm font-bold leading-none">
+                    {user?.fullName || user?.primaryEmailAddress?.emailAddress?.split('@')[0] || 'User'}
+                  </div>
+                  <div className="text-[#555] text-[12px] font-dm mt-1">Author</div>
+                </div>
+              </div>
+              <button 
+                onClick={() => setSelectedFullImage(null)}
+                className="text-[#555] hover:text-white transition-colors flex items-center justify-center w-8 h-8 bg-white/[0.04] hover:bg-white/10 rounded-full"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              </button>
+            </div>
+
+            <div className="h-[1px] w-full bg-white/[0.06] mb-8"></div>
+
+            {/* Prompt Section */}
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[11px] text-[#444] uppercase tracking-[1px] font-syne font-bold">Prompt</span>
+                <button 
+                  onClick={() => navigator.clipboard.writeText(selectedFullImage.prompt)}
+                  className="text-[11px] text-[#555] border border-white/[0.08] hover:border-white/20 hover:text-white transition-colors rounded-[6px] px-2 py-[3px]"
+                >
+                  copy
+                </button>
+              </div>
+              <p className="text-[14px] text-[#888] font-dm leading-relaxed">
+                {selectedFullImage.prompt}
+              </p>
+            </div>
+
+            <div className="h-[1px] w-full bg-white/[0.06] mb-8"></div>
+
+            {/* Information Section */}
+            <div className="mb-8 flex-1">
+              <span className="text-[11px] text-[#444] uppercase tracking-[1px] font-syne font-bold block mb-4">Information</span>
+              
+              <div className="flex items-center justify-between py-2 border-b border-white/[0.04]">
+                <span className="text-[13px] text-[#555] font-dm">Model</span>
+                <span className="text-[13px] text-white font-dm">{selectedFullImage.model}</span>
+              </div>
+              
+              <div className="flex items-center justify-between py-2 border-b border-white/[0.04]">
+                <span className="text-[13px] text-[#555] font-dm">Aspect ratio</span>
+                <span className="text-[13px] text-white font-dm">{selectedFullImage.aspectRatio}</span>
+              </div>
+            </div>
+
+            {/* Bottom Buttons */}
+            <div>
+              <button 
+                onClick={() => handleDownload(selectedFullImage.url)}
+                className="w-full text-[#888] hover:text-white border border-white/[0.1] hover:border-white/20 bg-transparent hover:bg-white/[0.02] transition-colors rounded-lg py-[10px] text-[13px] font-dm font-medium flex items-center justify-center gap-2"
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                Download image
+              </button>
+            </div>
+
+          </div>
         </div>
       )}
 
