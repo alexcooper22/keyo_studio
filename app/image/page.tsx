@@ -498,7 +498,7 @@ export default function ImageDashboard() {
               </button>
               
               {showRatioDropdown && (
-                <div className="absolute bottom-full mb-2 left-0 bg-[#111] border border-white/10 rounded-xl p-2 flex flex-col gap-1 z-50 min-w-[100px]">
+                <div className="absolute bottom-full mb-2 left-0 bg-[#111] border border-white/10 rounded-xl p-2 flex flex-col gap-1 z-50 min-w-[100px] max-h-[200px] overflow-y-auto scrollbar-hide">
                   {ratioOptions.map(ratio => (
                     <button
                       key={ratio.value}
