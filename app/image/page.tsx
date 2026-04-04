@@ -571,7 +571,7 @@ export default function ImageDashboard() {
                   </>
                 ) : (
                   <>
-                    ⚡ Generate · {uploadedImages.length > 0 ? '2' : '1'}
+                    ⚡ Generate · 1
                   </>
                 )}
               </button>
