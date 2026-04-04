@@ -53,13 +53,26 @@ export default function ImageDashboard() {
   const [error, setError] = useState('');
   const [aspectRatio, setAspectRatio] = useState('4:3');
   const [showRatioDropdown, setShowRatioDropdown] = useState(false);
+  const ratioButtonRef = useRef<HTMLButtonElement>(null);
+  const [popupPosition, setPopupPosition] = useState({ bottom: 0, left: 0 });
+
+  const handleOpenRatio = () => {
+    if (ratioButtonRef.current) {
+      const rect = ratioButtonRef.current.getBoundingClientRect();
+      setPopupPosition({
+        bottom: window.innerHeight - rect.top + 8,
+        left: rect.left + rect.width / 2
+      });
+    }
+    setShowRatioDropdown(true);
+  };
   
   const ratioOptions = [
-    { label: '1:1', value: '1:1', icon: '□', w: 32, h: 32 },
-    { label: '4:3', value: '4:3', icon: '▭', w: 38, h: 28 },
-    { label: '3:4', value: '3:4', icon: '▯', w: 28, h: 38 },
-    { label: '16:9', value: '16:9', icon: '▬', w: 42, h: 24 },
-    { label: '9:16', value: '9:16', icon: '▮', w: 24, h: 42 },
+    { label: '1:1', value: '1:1', icon: '□', w: 20, h: 20 },
+    { label: '4:3', value: '4:3', icon: '▭', w: 24, h: 18 },
+    { label: '3:4', value: '3:4', icon: '▯', w: 18, h: 24 },
+    { label: '16:9', value: '16:9', icon: '▬', w: 28, h: 16 },
+    { label: '9:16', value: '9:16', icon: '▮', w: 16, h: 28 },
   ];
   
   // Interaction states
@@ -497,7 +510,8 @@ export default function ImageDashboard() {
 
             <div>
               <button
-                onClick={(e) => { e.stopPropagation(); setShowRatioDropdown(!showRatioDropdown); }}
+                ref={ratioButtonRef}
+                onClick={(e) => { e.stopPropagation(); handleOpenRatio(); }}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] text-[#888] border border-white/10 hover:text-white transition-colors"
               >
                 {ratioOptions.find(r => r.value === aspectRatio)?.icon} {aspectRatio}
@@ -512,8 +526,8 @@ export default function ImageDashboard() {
                   <div 
                     className="fixed z-[50] bg-[#141414] border border-white/10 rounded-2xl p-4 w-[160px]"
                     style={{
-                      bottom: '90px',
-                      left: '50%',
+                      bottom: `${popupPosition.bottom}px`,
+                      left: `${popupPosition.left}px`,
                       transform: 'translateX(-50%)'
                     }}
                   >
