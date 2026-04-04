@@ -261,7 +261,9 @@ export default function ImageDashboard() {
           >
             ×
           </button>
-          <div className="relative max-w-[90vw] max-h-[90vh] flex items-center justify-center animate-in zoom-in-95 duration-300">
+          <div 
+            className="relative max-w-[90vw] max-h-[90vh] flex items-center justify-center animate-in zoom-in-95 duration-300"
+          >
             <Image 
               src={selectedFullImage} 
               alt="Full view" 
