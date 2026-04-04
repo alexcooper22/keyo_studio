@@ -407,28 +407,27 @@ export default function ImageDashboard() {
             zIndex: 1000,
             backgroundColor: 'rgba(0,0,0,0.95)',
             display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             userSelect: 'none',
-            cursor: 'default'
+            cursor: 'default',
+            paddingRight: '300px'
           }}
           onClick={(e) => {
             if (e.target === e.currentTarget) setSelectedFullImage(null);
           }}
         >
-          {/* LEFT SIDE: Image */}
-          <div
-            style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px' }}
+          {/* Image area */}
+          <img
+            src={selectedFullImage.url}
+            alt="Full view"
+            style={{ maxWidth: '100%', maxHeight: '85vh', objectFit: 'contain', borderRadius: '8px' }}
             onClick={(e) => e.stopPropagation()}
-          >
-            <img
-              src={selectedFullImage.url}
-              alt="Full view"
-              style={{ maxWidth: '100%', maxHeight: '85vh', objectFit: 'contain', borderRadius: '8px' }}
-            />
-          </div>
+          />
 
           {/* RIGHT SIDEBAR */}
           <div
-            style={{ width: '300px', background: '#0f0f0f', borderLeft: '1px solid rgba(255,255,255,0.06)', padding: '24px', overflowY: 'auto' }}
+            style={{ position: 'fixed', right: 0, top: 0, height: '100vh', width: '300px', background: '#0f0f0f', borderLeft: '1px solid rgba(255,255,255,0.06)', padding: '24px', overflowY: 'auto' }}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header Row */}
