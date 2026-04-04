@@ -13,10 +13,8 @@ export default function SettingsPage() {
 
   if (!isLoaded) return null;
 
-  // Derive avatar initial
-  const avatarLetter = user?.firstName?.[0]
-    ?? user?.emailAddresses?.[0]?.emailAddress?.[0]?.toUpperCase()
-    ?? '?';
+  // Derive avatar initial from email
+  const avatarLetter = user?.emailAddresses?.[0]?.emailAddress?.[0]?.toUpperCase() || 'K';
 
   const displayName =
     user?.fullName ??
@@ -62,12 +60,11 @@ export default function SettingsPage() {
           
           {/* User Snippet */}
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-[#ff3377] flex items-center justify-center overflow-hidden border border-white/10">
-              {user?.imageUrl ? (
-                <Image src={user.imageUrl} alt={displayName} width={32} height={32} className="w-full h-full object-cover" />
-              ) : (
-                <span className="font-syne font-[700] text-[14px] text-white">{avatarLetter}</span>
-              )}
+            <div 
+              className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden border border-white/10"
+              style={{ background: 'linear-gradient(135deg, #00ffc8, #00d4a8)' }}
+            >
+              <span className="font-syne font-[800] text-[13px] text-black">{avatarLetter}</span>
             </div>
             <span className="font-dm text-[14px] font-[500] text-white truncate max-w-[150px]">
               {displayName}
@@ -121,12 +118,11 @@ export default function SettingsPage() {
               <div className="bg-[#0f0f0f] border border-white/[0.06] rounded-xl p-6">
                 <div className="flex items-center justify-between mb-8">
                   <div className="flex items-center gap-4">
-                    <div className="w-[60px] h-[60px] rounded-full bg-[#ff3377] flex items-center justify-center border border-white/10 shadow-[0_0_20px_rgba(255,51,119,0.15)]">
-                      {user?.imageUrl ? (
-                        <Image src={user.imageUrl} alt={displayName} width={60} height={60} className="w-full h-full object-cover rounded-full" />
-                      ) : (
-                        <span className="font-syne font-[700] text-[24px] text-white">{avatarLetter}</span>
-                      )}
+                    <div 
+                      className="w-[60px] h-[60px] rounded-full flex items-center justify-center border border-white/10 shadow-[0_0_20px_rgba(0,255,200,0.15)]"
+                      style={{ background: 'linear-gradient(135deg, #00ffc8, #00d4a8)' }}
+                    >
+                      <span className="font-syne font-[800] text-[24px] text-black">{avatarLetter}</span>
                     </div>
                     <div>
                       <h2 className="font-syne font-[700] text-[18px] text-white">{displayName}</h2>

@@ -19,10 +19,8 @@ export default function Navbar() {
     { name: 'Text', href: '/text', badge: 'NEW' },
   ];
 
-  /* Derive avatar letter from name or email */
-  const avatarLetter = user?.firstName?.[0]
-    ?? user?.emailAddresses?.[0]?.emailAddress?.[0]?.toUpperCase()
-    ?? '?';
+  /* Derive avatar initial from email */
+  const avatarLetter = user?.emailAddresses?.[0]?.emailAddress?.[0]?.toUpperCase() || 'K';
 
   const displayName =
     user?.fullName ??
@@ -93,22 +91,13 @@ export default function Navbar() {
                 <div className="relative group" style={{ paddingBottom: '8px' }}>
                   {/* Avatar trigger */}
                   <button
-                    className="w-[34px] h-[34px] rounded-full bg-[#ff3377] flex items-center justify-center overflow-hidden cursor-pointer shrink-0 ring-2 ring-transparent group-hover:ring-[#ff3377]/40 transition-all duration-200"
+                    className="w-[34px] h-[34px] rounded-full flex items-center justify-center overflow-hidden cursor-pointer shrink-0 transition-transform duration-200 hover:scale-105 active:scale-95 shadow-sm"
+                    style={{ background: 'linear-gradient(135deg, #00ffc8, #00d4a8)' }}
                     aria-label="User menu"
                   >
-                    {user?.imageUrl ? (
-                      <Image
-                        src={user.imageUrl}
-                        alt={displayName}
-                        width={34}
-                        height={34}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <span className="font-syne font-[800] text-black text-[14px] leading-none">
-                        {avatarLetter}
-                      </span>
-                    )}
+                    <span className="font-syne font-[800] text-black text-[15px] leading-none">
+                      {avatarLetter}
+                    </span>
                   </button>
 
                   {/* Hover dropdown */}

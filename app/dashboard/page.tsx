@@ -10,10 +10,8 @@ export default function DashboardPage() {
 
   if (!isLoaded) return null;
 
-  // Derive avatar initial
-  const avatarLetter = user?.firstName?.[0]
-    ?? user?.emailAddresses?.[0]?.emailAddress?.[0]?.toUpperCase()
-    ?? '?';
+  // Derive avatar initial from email
+  const avatarLetter = user?.emailAddresses?.[0]?.emailAddress?.[0]?.toUpperCase() || 'K';
 
   const displayName =
     user?.fullName ??
@@ -34,18 +32,11 @@ export default function DashboardPage() {
             <div className="w-full lg:w-[400px] flex flex-col items-center lg:items-start text-center lg:text-left">
               {/* Avatar Container */}
               <div className="relative group">
-                <div className="w-[90px] h-[90px] rounded-full bg-[#ff3377] border-[3px] border-white/10 flex items-center justify-center overflow-hidden transition-transform duration-300 group-hover:scale-[1.02]">
-                  {user?.imageUrl ? (
-                    <Image 
-                      src={user.imageUrl} 
-                      alt={displayName} 
-                      width={90} 
-                      height={90} 
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <span className="font-syne font-[700] text-[36px] text-white">{avatarLetter}</span>
-                  )}
+                <div 
+                  className="w-[90px] h-[90px] rounded-full border-[3px] border-white/10 flex items-center justify-center overflow-hidden transition-transform duration-300 group-hover:scale-[1.02] shadow-lg"
+                  style={{ background: 'linear-gradient(135deg, #00ffc8, #00d4a8)' }}
+                >
+                  <span className="font-syne font-[800] text-[36px] text-black">{avatarLetter}</span>
                 </div>
               </div>
 
