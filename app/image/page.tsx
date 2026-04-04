@@ -401,34 +401,35 @@ export default function ImageDashboard() {
       {/* Lightbox Modal */}
       {selectedFullImage && (
         <div
-          className="fixed inset-0 z-[1000] flex select-none"
-          style={{ backgroundColor: 'rgba(0,0,0,0.95)', cursor: 'default' }}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 1000,
+            backgroundColor: 'rgba(0,0,0,0.95)',
+            display: 'flex',
+            userSelect: 'none',
+            cursor: 'default'
+          }}
           onClick={(e) => {
-            if (e.target === e.currentTarget) {
-              setSelectedFullImage(null);
-            }
+            if (e.target === e.currentTarget) setSelectedFullImage(null);
           }}
         >
           {/* LEFT SIDE: Image */}
-          <div className="flex-1 flex justify-center items-center p-8 relative" onMouseDown={(e) => e.stopPropagation()}>
+          <div
+            style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px' }}
+            onClick={(e) => e.stopPropagation()}
+          >
             <img
               src={selectedFullImage.url}
               alt="Full view"
-              className="max-h-[90vh] w-auto object-contain rounded-lg shadow-[0_0_40px_rgba(0,0,0,0.9)]"
+              style={{ maxWidth: '100%', maxHeight: '85vh', objectFit: 'contain', borderRadius: '8px' }}
             />
-            {/* Mobile Close Button */}
-            <button
-              className="md:hidden absolute top-4 right-4 text-white hover:text-[#ff3377] transition-colors w-10 h-10 flex items-center justify-center bg-black/40 rounded-full"
-              onClick={() => setSelectedFullImage(null)}
-            >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-            </button>
           </div>
 
           {/* RIGHT SIDEBAR */}
-          <div 
-            className="hidden md:flex flex-col w-[300px] h-[100vh] bg-[#0f0f0f] border-l border-white/[0.06] flex-shrink-0 p-6 overflow-y-auto"
-            onMouseDown={(e) => e.stopPropagation()}
+          <div
+            style={{ width: '300px', background: '#0f0f0f', borderLeft: '1px solid rgba(255,255,255,0.06)', padding: '24px', overflowY: 'auto' }}
+            onClick={(e) => e.stopPropagation()}
           >
             {/* Header Row */}
             <div className="flex items-center justify-between mb-8">
