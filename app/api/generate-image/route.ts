@@ -14,6 +14,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Get prompt and model from body
+    const { prompt, model } = await request.json();
+    
+    if (!prompt) {
+      return NextResponse.json(
+        { error: "Prompt is required" },
+        { status: 400 }
+      );
+    }
+
     // 1. Get or create user in Supabase
     const { data: user, error: userError } = await supabaseAdmin
       .from('users')
@@ -45,27 +55,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { prompt } = await request.json();
-    
-    if (!prompt) {
-      return NextResponse.json(
-        { error: "Prompt is required" },
-        { status: 400 }
-      );
-    }
-
     // Configure fal.ai credentials
     fal.config({
       credentials: process.env.FAL_KEY,
     });
 
-    // 3. Call fal-ai/flux-pro with the prompt
-    const result: any = await fal.subscribe("fal-ai/flux-pro", {
+    const modelId = model === 'nano-banana-pro' 
+      ? 'fal-ai/gemini-3-pro-image-preview'
+      : 'fal-ai/flux-pro';
+
+    // 3. Call selected model with prompt
+    const result: any = await fal.subscribe(modelId, {
       input: {
         prompt: prompt,
-        image_size: "landscape_4_3",
-        num_images: 1,
-        enable_safety_checker: true,
+        ...(model === 'nano-banana-pro' 
+          ? {} 
+          : { image_size: "landscape_4_3", num_images: 1, enable_safety_checker: true }
+        )
       },
     });
 
@@ -78,7 +84,7 @@ export async function POST(request: NextRequest) {
         clerk_id: userId,
         prompt: prompt,
         image_url: imageUrl,
-        model: 'flux-pro'
+        model: model || 'flux-pro'
       });
 
     if (saveError) throw saveError;

@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Navbar from '../../components/Navbar';
 import Image from 'next/image';
 import { useAuth } from '../../context/AuthContext';
@@ -13,7 +13,22 @@ export default function ImageDashboard() {
   const [isLoading, setIsLoading] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [creditCount, setCreditCount] = useState<number | null>(null);
+  const [selectedModel, setSelectedModel] = useState('flux-pro');
+  const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
   const [error, setError] = useState('');
+  
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsModelDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // 1. Fetch initial data on load
   useEffect(() => {
@@ -65,7 +80,7 @@ export default function ImageDashboard() {
       const response = await fetch('/api/generate-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt }),
+        body: JSON.stringify({ prompt, model: selectedModel }),
       });
       
       const data = await response.json();
@@ -85,6 +100,11 @@ export default function ImageDashboard() {
       setIsLoading(false);
     }
   }
+
+  const modelOptions = [
+    { id: 'flux-pro', name: 'Flux Pro', price: '1 credit' },
+    { id: 'nano-banana-pro', name: 'Nano Banana Pro', price: '1 credit' }
+  ];
 
   return (
     <div className="min-h-screen bg-[var(--bg)] pl-0 md:pl-[48px] pt-[92px] md:pt-[64px] pb-[130px] md:pb-[120px] relative">
@@ -211,8 +231,39 @@ export default function ImageDashboard() {
 
           {/* Bottom Row: Settings */}
           <div className="px-4 md:px-5 py-2 md:py-3 flex flex-wrap items-center gap-2 md:gap-3">
+            {/* Model Selector Dropdown */}
+            <div className="relative" ref={dropdownRef}>
+              <button 
+                onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
+                className={`px-3 py-1 rounded-full bg-white/[0.06] border font-dm text-[11px] md:text-xs transition-all flex items-center gap-1.5 ${isModelDropdownOpen ? 'border-[#ff3377] text-white bg-white/10' : 'border-white/10 text-[#888] hover:text-white hover:bg-white/10'}`}
+              >
+                {modelOptions.find(m => m.id === selectedModel)?.name} ▾
+              </button>
+              
+              {isModelDropdownOpen && (
+                <div className="absolute bottom-full left-0 mb-2 w-[220px] bg-[#161616] border border-white/[0.08] rounded-xl overflow-hidden shadow-2xl z-[60] backdrop-blur-xl animate-in fade-in slide-in-from-bottom-2 duration-200">
+                  {modelOptions.map((model) => (
+                    <button
+                      key={model.id}
+                      onClick={() => {
+                        setSelectedModel(model.id);
+                        setIsModelDropdownOpen(false);
+                      }}
+                      className={`w-full text-left px-4 py-3 hover:bg-white/[0.04] transition-colors flex flex-col gap-0.5 ${selectedModel === model.id ? 'bg-[#ff3377]/5' : ''}`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className={`font-dm font-[600] text-sm ${selectedModel === model.id ? 'text-[#ff3377]' : 'text-white/90'}`}>{model.name}</span>
+                        {selectedModel === model.id && <div className="w-1 h-1 rounded-full bg-[#ff3377]" />}
+                      </div>
+                      <span className="font-dm text-[11px] text-[#555]">{model.price}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Other Static Settings */}
             {[
-              { label: 'Flux Pro ▾', active: true },
               { label: '4:3', active: false },
               { label: 'High Quality', active: false },
               { label: 'Seed: Auto', active: false }
