@@ -12,6 +12,8 @@ export default function ImageDashboard() {
   const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [creditCount, setCreditCount] = useState<number | null>(null);
   const [selectedModel, setSelectedModel] = useState('flux-pro');
   const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
@@ -93,7 +95,7 @@ export default function ImageDashboard() {
       const response = await fetch('/api/generate-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, model: selectedModel }),
+        body: JSON.stringify({ prompt, model: selectedModel, imageUrls: uploadedImages }),
       });
       
       const data = await response.json();
@@ -138,6 +140,35 @@ export default function ImageDashboard() {
       else next.add(imageUrl);
       return next;
     });
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    const files = Array.from(e.target.files);
+    
+    const remainingSlots = 14 - uploadedImages.length;
+    const filesToProcess = files.slice(0, remainingSlots);
+
+    const promises = filesToProcess.map(file => {
+      return new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (event) => resolve(event.target?.result as string);
+        reader.onerror = (error) => reject(error);
+        reader.readAsDataURL(file);
+      });
+    });
+
+    Promise.all(promises).then(base64Images => {
+      setUploadedImages(prev => [...prev, ...base64Images].slice(0, 14));
+    }).catch(err => {
+      console.error("Failed to read files", err);
+    });
+
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const removeImage = (indexToRemove: number) => {
+    setUploadedImages(prev => prev.filter((_, i) => i !== indexToRemove));
   };
 
   const modelOptions = [
@@ -290,9 +321,39 @@ export default function ImageDashboard() {
       {/* Bottom Prompt Bar */}
       <div className="fixed bottom-0 left-0 md:left-[48px] right-0 z-50 px-2 md:px-8 pb-3 md:pb-8 pointer-events-none">
         <div className="w-full max-w-4xl mx-auto rounded-t-2xl rounded-b-xl border-t border-l border-r border-white/[0.08] shadow-2xl overflow-hidden pointer-events-auto" style={{ backgroundColor: 'rgba(15,15,15,0.95)', backdropFilter: 'blur(16px)' }}>
+          {/* Hidden File Input */}
+          <input 
+            ref={fileInputRef}
+            type="file" 
+            accept="image/*" 
+            multiple
+            className="hidden"
+            onChange={handleImageUpload}
+          />
+
+          {/* Uploaded Images Preview */}
+          {uploadedImages.length > 0 && (
+            <div className="flex items-center gap-2 px-3 md:px-4 pt-3 overflow-x-auto">
+              {uploadedImages.map((src, idx) => (
+                <div key={idx} className="relative flex-shrink-0" style={{ width: '60px', height: '60px' }}>
+                  <img src={src} alt="Uploaded preview" className="w-full h-full object-cover" style={{ borderRadius: '8px', background: '#111', border: '1px solid rgba(255,255,255,0.1)' }} />
+                  <button 
+                    onClick={() => removeImage(idx)}
+                    className="absolute -top-2 -right-2 w-5 h-5 bg-white/20 hover:bg-white/40 rounded-full text-white flex items-center justify-center text-xs shadow-md border border-[#111]"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
           {/* Top Row: Input */}
           <div className="p-3 md:p-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 md:gap-4 border-b border-white/[0.06]">
-            <button className="w-10 h-10 md:w-12 md:h-12 flex-shrink-0 flex items-center justify-center rounded-xl bg-[#080808] border border-white/[0.04] text-[#888] hover:text-white hover:border-white/20 transition-colors">
+            <button 
+              onClick={() => fileInputRef.current?.click()}
+              className="w-10 h-10 md:w-12 md:h-12 flex-shrink-0 flex items-center justify-center rounded-xl bg-[#080808] border border-white/[0.04] text-[#888] hover:text-white hover:border-white/20 transition-colors"
+            >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             </button>
             <input 

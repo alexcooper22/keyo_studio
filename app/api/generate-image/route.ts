@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get prompt and model from body
-    const { prompt, model } = await request.json();
+    const { prompt, model, imageUrls } = await request.json();
     
     if (!prompt) {
       return NextResponse.json(
@@ -60,19 +60,41 @@ export async function POST(request: NextRequest) {
       credentials: process.env.FAL_KEY,
     });
 
-    const modelId = model === 'nano-banana-pro' 
-      ? 'fal-ai/gemini-3-pro-image-preview'
-      : 'fal-ai/flux-pro';
+    // Upload base64 images if provided
+    let uploadedUrls: string[] = [];
+    if (imageUrls && imageUrls.length > 0) {
+      for (const base64Str of imageUrls) {
+        try {
+          const fetchResponse = await fetch(base64Str);
+          const blob = await fetchResponse.blob();
+          
+          // Next.js polyfills Blob globally, but fal.storage might want a File, Blob is compatible
+          // Cast to any if there's type conflicts, but blob is Blob standard API
+          const fileUrl = await fal.storage.upload(blob as any);
+          uploadedUrls.push(fileUrl);
+        } catch (e) {
+          console.error("Failed to upload image to fal", e);
+        }
+      }
+    }
+
+    let modelId = 'fal-ai/flux-pro';
+    let inputPayload: any = { prompt };
+
+    if (model === 'nano-banana-pro') {
+      if (uploadedUrls.length > 0) {
+        modelId = 'fal-ai/gemini-3-pro-image-preview/edit';
+        inputPayload = { prompt, image_urls: uploadedUrls };
+      } else {
+        modelId = 'fal-ai/gemini-3-pro-image-preview';
+      }
+    } else {
+      inputPayload = { prompt, image_size: "landscape_4_3", num_images: 1, enable_safety_checker: true };
+    }
 
     // 3. Call selected model with prompt
     const result: any = await fal.subscribe(modelId, {
-      input: {
-        prompt: prompt,
-        ...(model === 'nano-banana-pro' 
-          ? {} 
-          : { image_size: "landscape_4_3", num_images: 1, enable_safety_checker: true }
-        )
-      },
+      input: inputPayload,
     });
 
     const imageUrl = result.data.images[0].url;
