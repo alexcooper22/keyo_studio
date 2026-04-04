@@ -4,6 +4,12 @@ import Navbar from '../../components/Navbar';
 import Image from 'next/image';
 import { useAuth } from '../../context/AuthContext';
 import { useUser } from '@clerk/nextjs';
+import ReactDOM from 'react-dom';
+
+const Portal = ({ children }: { children: React.ReactNode }) => {
+  if (typeof window === 'undefined') return null;
+  return ReactDOM.createPortal(children, document.body);
+};
 
 const compressImage = async (base64: string): Promise<Blob> => {
   return new Promise((resolve) => {
@@ -498,7 +504,7 @@ export default function ImageDashboard() {
               </button>
               
               {showRatioDropdown && (
-                <>
+                <Portal>
                   <div 
                     className="fixed inset-0 z-[40]"
                     onClick={() => setShowRatioDropdown(false)}
@@ -536,7 +542,7 @@ export default function ImageDashboard() {
                       ))}
                     </div>
                   </div>
-                </>
+                </Portal>
               )}
             </div>
 
