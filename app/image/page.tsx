@@ -17,6 +17,10 @@ export default function ImageDashboard() {
   const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
   const [error, setError] = useState('');
   
+  // Interaction states
+  const [likedImages, setLikedImages] = useState<Set<string>>(new Set());
+  const [selectedFullImage, setSelectedFullImage] = useState<string | null>(null);
+  
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown on click outside
@@ -28,6 +32,15 @@ export default function ImageDashboard() {
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Handle ESC key for modal
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setSelectedFullImage(null);
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
   }, []);
 
   // 1. Fetch initial data on load
@@ -101,6 +114,25 @@ export default function ImageDashboard() {
     }
   }
 
+  const handleDownload = (imageUrl: string) => {
+    const link = document.createElement('a');
+    link.href = imageUrl;
+    link.download = 'keyo-studio-image.jpg';
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const toggleLike = (imageUrl: string) => {
+    setLikedImages((prev) => {
+      const next = new Set(prev);
+      if (next.has(imageUrl)) next.delete(imageUrl);
+      else next.add(imageUrl);
+      return next;
+    });
+  };
+
   const modelOptions = [
     { id: 'flux-pro', name: 'Flux Pro', price: '1 credit' },
     { id: 'nano-banana-pro', name: 'Nano Banana Pro', price: '1 credit' }
@@ -149,29 +181,59 @@ export default function ImageDashboard() {
           )}
 
           {/* Generated Results */}
-          {generatedImages.map((url, i) => (
-            <div key={url} className="relative rounded-xl overflow-hidden bg-[#161616] border border-white/[0.06] hover:border-white/10 group break-inside-avoid shadow-lg transition-colors">
-              <Image 
-                src={url} 
-                alt={`Generated ${i}`} 
-                width={800} 
-                height={600} 
-                className="w-full h-auto object-cover"
-                unoptimized
-              />
-              {/* Hover Overlay */}
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-start justify-end p-3 gap-2 backdrop-blur-[2px]">
-                <button className="w-8 h-8 rounded-full bg-white/10 hover:bg-[var(--accent)] flex items-center justify-center text-white backdrop-blur-md transition-colors">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                </button>
-                <button className="w-8 h-8 rounded-full bg-white/10 hover:bg-[var(--accent)] flex items-center justify-center text-white backdrop-blur-md transition-colors">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
-                </button>
-              </div>
-            </div>
-          ))}
+          {generatedImages.map((url, i) => {
+            const isLiked = likedImages.has(url);
+            return (
+              <div 
+                key={url} 
+                className="relative rounded-xl overflow-hidden bg-[#161616] border border-white/[0.06] hover:border-white/10 group break-inside-avoid shadow-lg transition-colors cursor-zoom-in"
+                onClick={() => setSelectedFullImage(url)}
+              >
+                <Image 
+                  src={url} 
+                  alt={`Generated ${i}`} 
+                  width={800} 
+                  height={600} 
+                  className="w-full h-auto object-cover"
+                  unoptimized
+                />
+                
+                {/* Liked state persistence (Heart stays visible if liked) */}
+                {isLiked && (
+                  <div className="absolute top-3 right-3 z-20 pointer-events-none group-hover:opacity-0 transition-opacity">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="#ff3377" stroke="#ff3377" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                    </svg>
+                  </div>
+                )}
 
-          {/* Initial Placeholders (shown when no images and not loading) */}
+                {/* Interaction Overlay */}
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-start justify-end p-3 gap-2 backdrop-blur-[2px] z-10">
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); handleDownload(url); }}
+                    className="w-8 h-8 rounded-full bg-white/10 hover:bg-[var(--accent)] flex items-center justify-center text-white backdrop-blur-md transition-colors"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                  </button>
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); toggleLike(url); }}
+                    className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center backdrop-blur-md transition-colors"
+                  >
+                    <svg 
+                      width="14" height="14" viewBox="0 0 24 24" 
+                      fill={isLiked ? "#ff3377" : "none"} 
+                      stroke={isLiked ? "#ff3377" : "white"} 
+                      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                    >
+                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Initial Placeholders */}
           {generatedImages.length === 0 && !isLoading && (
             [1, 2, 3, 4, 5, 6].map((i) => (
               <div key={i} className="relative rounded-xl overflow-hidden bg-gradient-to-br from-[#161616] to-[#0f0f0f] border border-white/[0.06] aspect-square break-inside-avoid shadow-lg opacity-20"></div>
@@ -179,6 +241,31 @@ export default function ImageDashboard() {
           )}
         </div>
       </main>
+
+      {/* Lightbox Modal */}
+      {selectedFullImage && (
+        <div 
+          className="fixed inset-0 bg-black/90 z-[1000] flex items-center justify-center p-4 md:p-10 animate-in fade-in duration-300"
+          onClick={() => setSelectedFullImage(null)}
+        >
+          <button 
+            className="absolute top-6 right-6 text-white/60 hover:text-white text-3xl font-light transition-colors z-[1001]"
+            onClick={() => setSelectedFullImage(null)}
+          >
+            ×
+          </button>
+          <div className="relative max-w-[90vw] max-height-[90vh] flex items-center justify-center animate-in zoom-in-95 duration-300" onClick={(e) => e.stopPropagation()}>
+            <Image 
+              src={selectedFullImage} 
+              alt="Full view" 
+              width={1600} 
+              height={1200} 
+              className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
+              unoptimized
+            />
+          </div>
+        </div>
+      )}
 
       {/* Bottom Prompt Bar */}
       <div className="fixed bottom-0 left-0 md:left-[48px] right-0 z-50 px-2 md:px-8 pb-3 md:pb-8 pointer-events-none">
@@ -231,7 +318,6 @@ export default function ImageDashboard() {
 
           {/* Bottom Row: Settings */}
           <div className="px-4 md:px-5 py-2 md:py-3 flex flex-wrap items-center gap-2 md:gap-3">
-            {/* Model Selector Dropdown */}
             <div className="relative" ref={dropdownRef}>
               <button 
                 onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
@@ -262,7 +348,6 @@ export default function ImageDashboard() {
               )}
             </div>
 
-            {/* Other Static Settings */}
             {[
               { label: '4:3', active: false },
               { label: 'High Quality', active: false },
