@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    const { prompt, model, imageUrls } = body;
+    const { prompt, model, imageUrls, aspectRatio } = body;
     
     if (!prompt) {
       return NextResponse.json(
@@ -85,7 +85,14 @@ export async function POST(request: NextRequest) {
         modelId = 'fal-ai/gemini-3-pro-image-preview';
       }
     } else {
-      inputPayload = { prompt, image_size: "landscape_4_3", num_images: 1, enable_safety_checker: true };
+      const imageSizeMap: Record<string, string> = {
+        '1:1': 'square',
+        '4:3': 'landscape_4_3',
+        '3:4': 'portrait_4_3',
+        '16:9': 'landscape_16_9',
+        '9:16': 'portrait_16_9',
+      }
+      inputPayload = { prompt, image_size: imageSizeMap[aspectRatio] || 'landscape_4_3', num_images: 1, enable_safety_checker: true };
     }
 
     // 3. Call selected model with prompt

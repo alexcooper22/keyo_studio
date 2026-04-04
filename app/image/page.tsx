@@ -45,12 +45,30 @@ export default function ImageDashboard() {
   const [selectedModel, setSelectedModel] = useState('flux-pro');
   const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
   const [error, setError] = useState('');
+  const [aspectRatio, setAspectRatio] = useState('4:3');
+  const [showRatioDropdown, setShowRatioDropdown] = useState(false);
+  
+  const ratioOptions = [
+    { label: '1:1', value: '1:1', icon: '□' },
+    { label: '4:3', value: '4:3', icon: '▭' },
+    { label: '3:4', value: '3:4', icon: '▯' },
+    { label: '16:9', value: '16:9', icon: '▬' },
+    { label: '9:16', value: '9:16', icon: '▮' },
+  ];
   
   // Interaction states
   const [likedImages, setLikedImages] = useState<Set<string>>(new Set());
   const [selectedFullImage, setSelectedFullImage] = useState<string | null>(null);
   
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClick = () => setShowRatioDropdown(false);
+    if (showRatioDropdown) {
+      setTimeout(() => document.addEventListener('click', handleClick), 0);
+      return () => document.removeEventListener('click', handleClick);
+    }
+  }, [showRatioDropdown]);
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -137,7 +155,7 @@ export default function ImageDashboard() {
       const response = await fetch('/api/generate-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, model: selectedModel, imageUrls: uploadedUrls }),
+        body: JSON.stringify({ prompt, model: selectedModel, imageUrls: uploadedUrls, aspectRatio }),
       });
       
       const data = await response.json();
@@ -471,8 +489,32 @@ export default function ImageDashboard() {
               )}
             </div>
 
+            <div className="relative">
+              <button
+                onClick={() => setShowRatioDropdown(!showRatioDropdown)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] text-[#888] border border-white/10 hover:text-white transition-colors"
+              >
+                {ratioOptions.find(r => r.value === aspectRatio)?.icon} {aspectRatio}
+              </button>
+              
+              {showRatioDropdown && (
+                <div className="absolute bottom-full mb-2 left-0 bg-[#111] border border-white/10 rounded-xl p-2 flex flex-col gap-1 z-50 min-w-[100px]">
+                  {ratioOptions.map(ratio => (
+                    <button
+                      key={ratio.value}
+                      onClick={() => { setAspectRatio(ratio.value); setShowRatioDropdown(false); }}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-lg text-[12px] text-left hover:bg-white/5 transition-colors ${
+                        aspectRatio === ratio.value ? 'text-[#ff3377]' : 'text-[#888]'
+                      }`}
+                    >
+                      {ratio.icon} {ratio.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
             {[
-              { label: '4:3', active: false },
               { label: 'High Quality', active: false },
               { label: 'Seed: Auto', active: false }
             ].map((pill, idx) => (
