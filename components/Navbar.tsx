@@ -3,10 +3,12 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
+import { useUser, UserButton } from '@clerk/nextjs';
 
 export default function Navbar() {
   const pathname = usePathname();
   const { setShowModal } = useAuth();
+  const { isSignedIn } = useUser();
 
   const navLinks = [
     { name: 'Explore', href: '/' },
@@ -68,18 +70,33 @@ export default function Navbar() {
             Pricing
           </Link>
           <div className="flex items-center gap-3 md:gap-4">
-            <button 
-              onClick={() => setShowModal(true)}
-              className="text-[#888] md:text-white md:opacity-75 md:hover:opacity-100 font-dm font-[600] text-[13px] md:text-[15px] transition-opacity duration-200 pointer-events-auto"
-            >
-              Login
-            </button>
-            <button 
-              onClick={() => setShowModal(true)}
-              className="bg-[var(--accent)] text-black font-dm font-[600] text-[12px] md:text-[15px] px-3 md:px-4 py-1.5 rounded-lg hover:scale-105 transition-transform duration-200 pointer-events-auto shrink-0"
-            >
-              Sign up
-            </button>
+            {isSignedIn ? (
+              /* Clerk UserButton — shown when signed in */
+              <UserButton
+                afterSignOutUrl="/"
+                appearance={{
+                  elements: {
+                    avatarBox: 'w-8 h-8',
+                  },
+                }}
+              />
+            ) : (
+              /* Login + Sign up — shown when signed out */
+              <>
+                <button
+                  onClick={() => setShowModal(true)}
+                  className="text-[#888] md:text-white md:opacity-75 md:hover:opacity-100 font-dm font-[600] text-[13px] md:text-[15px] transition-opacity duration-200 pointer-events-auto"
+                >
+                  Login
+                </button>
+                <button
+                  onClick={() => setShowModal(true)}
+                  className="bg-[var(--accent)] text-black font-dm font-[600] text-[12px] md:text-[15px] px-3 md:px-4 py-1.5 rounded-lg hover:scale-105 transition-transform duration-200 pointer-events-auto shrink-0"
+                >
+                  Sign up
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
