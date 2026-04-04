@@ -498,43 +498,45 @@ export default function ImageDashboard() {
               </button>
               
               {showRatioDropdown && (
-                <div 
-                  className="fixed z-[100] bg-[#111] border border-white/[0.1] rounded-[16px] p-4 flex flex-col"
-                  style={{
-                    bottom: '100px',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                  }}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <div className="text-[12px] text-[#555] mb-3 font-dm">Aspect ratio</div>
-                  <div className="flex flex-row gap-2">
-                    {ratioOptions.map(ratio => {
-                      const isActive = aspectRatio === ratio.value;
-                      return (
+                <>
+                  <div 
+                    className="fixed inset-0 z-[40]"
+                    onClick={() => setShowRatioDropdown(false)}
+                  />
+                  <div 
+                    className="fixed z-[50] bg-[#141414] border border-white/10 rounded-2xl p-4 w-[160px]"
+                    style={{
+                      bottom: '90px',
+                      left: '50%',
+                      transform: 'translateX(-50%)'
+                    }}
+                  >
+                    <p className="text-[11px] text-[#444] mb-3 uppercase tracking-wider">Aspect ratio</p>
+                    <div className="flex flex-col gap-1">
+                      {ratioOptions.map(ratio => (
                         <button
                           key={ratio.value}
                           onClick={() => { setAspectRatio(ratio.value); setShowRatioDropdown(false); }}
-                          className={`group flex flex-col items-center justify-center gap-[6px] w-[72px] h-[72px] bg-[#1a1a1a] border rounded-xl transition-colors ${
-                            isActive ? 'border-white/20' : 'border-white/[0.08] hover:border-white/10'
+                          className={`flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] transition-colors text-left w-full ${
+                            aspectRatio === ratio.value 
+                              ? 'text-white bg-white/[0.08]' 
+                              : 'text-[#666] hover:text-white hover:bg-white/[0.04]'
                           }`}
                         >
-                          <div 
-                            style={{ width: ratio.w, height: ratio.h }} 
-                            className={`border-[1.5px] rounded-[3px] transition-colors ${
-                              isActive ? 'border-[#ff3377]' : 'border-[#333] group-hover:border-[#555]'
-                            }`} 
-                          />
-                          <span className={`text-[11px] font-dm transition-colors ${
-                              isActive ? 'text-[#ff3377]' : 'text-[#555] group-hover:text-[#888]'
-                          }`}>
-                            {ratio.label}
-                          </span>
+                          <div style={{
+                            width: ratio.w,
+                            height: ratio.h,
+                            border: aspectRatio === ratio.value ? '1.5px solid white' : '1.5px solid #444',
+                            borderRadius: '2px',
+                            flexShrink: 0
+                          }} />
+                          {ratio.label}
+                          {aspectRatio === ratio.value && <span className="ml-auto">✓</span>}
                         </button>
-                      );
-                    })}
+                      ))}
+                    </div>
                   </div>
-                </div>
+                </>
               )}
             </div>
 
