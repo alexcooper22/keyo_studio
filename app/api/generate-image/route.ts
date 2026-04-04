@@ -3,6 +3,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { supabaseAdmin } from "../../../lib/supabase";
 
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '10mb',
+    },
+  },
+};
+
 export async function POST(request: NextRequest) {
   try {
     const { userId } = await auth();
@@ -15,7 +23,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Get prompt and model from body
-    const { prompt, model, imageUrls } = await request.json();
+    let body;
+    try {
+      body = await request.json();
+    } catch (e) {
+      return NextResponse.json(
+        { error: "Invalid request body" },
+        { status: 400 }
+      );
+    }
+    const { prompt, model, imageUrls } = body;
     
     if (!prompt) {
       return NextResponse.json(
