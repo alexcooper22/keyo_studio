@@ -114,14 +114,21 @@ export default function ImageDashboard() {
     }
   }
 
-  const handleDownload = (imageUrl: string) => {
-    const link = document.createElement('a');
-    link.href = imageUrl;
-    link.download = 'keyo-studio-image.jpg';
-    link.target = '_blank';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const handleDownload = async (imageUrl: string) => {
+    try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'keyo-studio-image.jpg';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Download failed:', error);
+    }
   };
 
   const toggleLike = (imageUrl: string) => {
@@ -254,7 +261,7 @@ export default function ImageDashboard() {
           >
             ×
           </button>
-          <div className="relative max-w-[90vw] max-height-[90vh] flex items-center justify-center animate-in zoom-in-95 duration-300" onClick={(e) => e.stopPropagation()}>
+          <div className="relative max-w-[90vw] max-h-[90vh] flex items-center justify-center animate-in zoom-in-95 duration-300">
             <Image 
               src={selectedFullImage} 
               alt="Full view" 
@@ -262,6 +269,7 @@ export default function ImageDashboard() {
               height={1200} 
               className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
               unoptimized
+              onClick={(e) => e.stopPropagation()}
             />
           </div>
         </div>
