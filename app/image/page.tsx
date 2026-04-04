@@ -56,6 +56,28 @@ export default function ImageDashboard() {
   const ratioButtonRef = useRef<HTMLButtonElement>(null);
   const [popupPosition, setPopupPosition] = useState({ bottom: 0, left: 0 });
 
+  const [quality, setQuality] = useState('1K');
+  const [showQualityModal, setShowQualityModal] = useState(false);
+  const qualityButtonRef = useRef<HTMLButtonElement>(null);
+  const [qualityPopupPos, setQualityPopupPos] = useState({ bottom: 0, left: 0 });
+
+  const qualityOptions = [
+    { label: '1K', value: '1K' },
+    { label: '2K', value: '2K' },
+    { label: '4K', value: '4K' },
+  ];
+
+  const handleOpenQuality = () => {
+    if (qualityButtonRef.current) {
+      const rect = qualityButtonRef.current.getBoundingClientRect();
+      setQualityPopupPos({
+        bottom: window.innerHeight - rect.top + 8,
+        left: rect.left + rect.width / 2
+      });
+    }
+    setShowQualityModal(true);
+  };
+
   const handleOpenRatio = () => {
     if (ratioButtonRef.current) {
       const rect = ratioButtonRef.current.getBoundingClientRect();
@@ -560,8 +582,52 @@ export default function ImageDashboard() {
               )}
             </div>
 
+            <div>
+              <button 
+                ref={qualityButtonRef}
+                onClick={handleOpenQuality}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] text-[#888] border border-white/10 hover:text-white transition-colors"
+              >
+                ♡ {quality}
+              </button>
+
+              {showQualityModal && (
+                <Portal>
+                  <div 
+                    className="fixed inset-0 z-[40]"
+                    onClick={() => setShowQualityModal(false)}
+                  />
+                  <div
+                    className="fixed z-[50] bg-[#141414] border border-white/10 rounded-2xl p-4 w-[160px]"
+                    style={{
+                      bottom: `${qualityPopupPos.bottom}px`,
+                      left: `${qualityPopupPos.left}px`,
+                      transform: 'translateX(-50%)'
+                    }}
+                  >
+                    <p className="text-[11px] text-[#444] mb-3 uppercase tracking-wider">Select quality</p>
+                    <div className="flex flex-col gap-1">
+                      {qualityOptions.map(q => (
+                        <button
+                          key={q.value}
+                          onClick={() => { setQuality(q.value); setShowQualityModal(false); }}
+                          className={`flex items-center justify-between px-3 py-2 rounded-lg text-[13px] w-full text-left transition-colors ${
+                            quality === q.value 
+                              ? 'text-white bg-white/[0.08]' 
+                              : 'text-[#666] hover:text-white'
+                          }`}
+                        >
+                          {q.label}
+                          {quality === q.value && <span>✓</span>}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </Portal>
+              )}
+            </div>
+
             {[
-              { label: 'High Quality', active: false },
               { label: 'Seed: Auto', active: false }
             ].map((pill, idx) => (
               <button key={idx} className={`px-2.5 py-1 rounded-full bg-white/[0.06] border border-white/[0.1] text-[#888] font-dm text-[11px] md:text-xs hover:bg-white/10 hover:text-white transition-colors ${pill.active ? 'border-[#ff3377]/30 text-white' : ''}`}>
