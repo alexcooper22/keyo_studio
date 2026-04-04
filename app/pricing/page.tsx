@@ -1,11 +1,9 @@
 'use client';
 import React, { useState } from 'react';
 import Navbar from '../../components/Navbar';
-import AuthModal from '../../components/AuthModal';
 
 export default function PricingPage() {
   const [isAnnual, setIsAnnual] = useState(true);
-  const [showModal, setShowModal] = useState(false);
 
   const plans = [
     {
@@ -68,7 +66,7 @@ export default function PricingPage() {
 
   return (
     <div className="min-h-screen bg-[#080808] text-white flex flex-col relative overflow-x-hidden">
-      <Navbar setShowModal={setShowModal} />
+      <Navbar />
       
       <main className="flex-1 pt-[120px] md:pt-[100px] pb-20 px-6 max-w-7xl mx-auto w-full">
         <div className="text-center flex flex-col items-center">
@@ -150,8 +148,6 @@ export default function PricingPage() {
           ))}
         </div>
       </main>
-
-      {showModal && <AuthModal onClose={() => setShowModal(false)} />}
     </div>
   );
 }
