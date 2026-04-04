@@ -263,6 +263,7 @@ export default function ImageDashboard() {
           </button>
           <div 
             className="relative max-w-[90vw] max-h-[90vh] flex items-center justify-center animate-in zoom-in-95 duration-300"
+            onClick={(e) => e.stopPropagation()}
           >
             <Image 
               src={selectedFullImage} 
