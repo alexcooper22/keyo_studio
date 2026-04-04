@@ -401,11 +401,16 @@ export default function ImageDashboard() {
       {/* Lightbox Modal */}
       {selectedFullImage && (
         <div 
-          className="fixed inset-0 z-[1000] flex flex-col md:flex-row bg-[rgba(0,0,0,0.95)]"
-          onClick={() => setSelectedFullImage(null)}
+          className="fixed inset-0 z-[1000] flex flex-col md:flex-row"
+          style={{ backgroundColor: 'rgba(0,0,0,0.95)' }}
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) {
+              setSelectedFullImage(null);
+            }
+          }}
         >
           {/* LEFT SIDE: Image */}
-          <div className="flex-1 flex justify-center items-center p-4 relative" onClick={(e) => e.stopPropagation()}>
+          <div className="flex-1 flex justify-center items-center p-4 relative" onMouseDown={(e) => e.stopPropagation()}>
             <img
               src={selectedFullImage.url}
               alt="Full view"
@@ -423,7 +428,7 @@ export default function ImageDashboard() {
           {/* RIGHT SIDEBAR */}
           <div 
             className="hidden md:flex flex-col w-[300px] h-[100vh] bg-[#0f0f0f] border-l border-white/[0.06] flex-shrink-0 p-6 overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
           >
             {/* Header Row */}
             <div className="flex items-center justify-between mb-8">
