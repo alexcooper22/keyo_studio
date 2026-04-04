@@ -49,11 +49,11 @@ export default function ImageDashboard() {
   const [showRatioDropdown, setShowRatioDropdown] = useState(false);
   
   const ratioOptions = [
-    { label: '1:1', value: '1:1', icon: '□' },
-    { label: '4:3', value: '4:3', icon: '▭' },
-    { label: '3:4', value: '3:4', icon: '▯' },
-    { label: '16:9', value: '16:9', icon: '▬' },
-    { label: '9:16', value: '9:16', icon: '▮' },
+    { label: '1:1', value: '1:1', icon: '□', w: 32, h: 32 },
+    { label: '4:3', value: '4:3', icon: '▭', w: 38, h: 28 },
+    { label: '3:4', value: '3:4', icon: '▯', w: 28, h: 38 },
+    { label: '16:9', value: '16:9', icon: '▬', w: 42, h: 24 },
+    { label: '9:16', value: '9:16', icon: '▮', w: 24, h: 42 },
   ];
   
   // Interaction states
@@ -489,27 +489,51 @@ export default function ImageDashboard() {
               )}
             </div>
 
-            <div className="relative">
+            <div>
               <button
-                onClick={() => setShowRatioDropdown(!showRatioDropdown)}
+                onClick={(e) => { e.stopPropagation(); setShowRatioDropdown(!showRatioDropdown); }}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] text-[#888] border border-white/10 hover:text-white transition-colors"
               >
                 {ratioOptions.find(r => r.value === aspectRatio)?.icon} {aspectRatio}
               </button>
               
               {showRatioDropdown && (
-                <div className="absolute bottom-full mb-2 left-0 bg-[#111] border border-white/10 rounded-xl p-2 flex flex-col gap-1 z-50 min-w-[100px] max-h-[200px] overflow-y-auto scrollbar-hide">
-                  {ratioOptions.map(ratio => (
-                    <button
-                      key={ratio.value}
-                      onClick={() => { setAspectRatio(ratio.value); setShowRatioDropdown(false); }}
-                      className={`flex items-center gap-2 px-3 py-2 rounded-lg text-[12px] text-left hover:bg-white/5 transition-colors ${
-                        aspectRatio === ratio.value ? 'text-[#ff3377]' : 'text-[#888]'
-                      }`}
-                    >
-                      {ratio.icon} {ratio.label}
-                    </button>
-                  ))}
+                <div 
+                  className="fixed z-[100] bg-[#111] border border-white/[0.1] rounded-[16px] p-4 flex flex-col"
+                  style={{
+                    bottom: '100px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="text-[12px] text-[#555] mb-3 font-dm">Aspect ratio</div>
+                  <div className="flex flex-row gap-2">
+                    {ratioOptions.map(ratio => {
+                      const isActive = aspectRatio === ratio.value;
+                      return (
+                        <button
+                          key={ratio.value}
+                          onClick={() => { setAspectRatio(ratio.value); setShowRatioDropdown(false); }}
+                          className={`group flex flex-col items-center justify-center gap-[6px] w-[72px] h-[72px] bg-[#1a1a1a] border rounded-xl transition-colors ${
+                            isActive ? 'border-white/20' : 'border-white/[0.08] hover:border-white/10'
+                          }`}
+                        >
+                          <div 
+                            style={{ width: ratio.w, height: ratio.h }} 
+                            className={`border-[1.5px] rounded-[3px] transition-colors ${
+                              isActive ? 'border-[#ff3377]' : 'border-[#333] group-hover:border-[#555]'
+                            }`} 
+                          />
+                          <span className={`text-[11px] font-dm transition-colors ${
+                              isActive ? 'text-[#ff3377]' : 'text-[#555] group-hover:text-[#888]'
+                          }`}>
+                            {ratio.label}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
             </div>
