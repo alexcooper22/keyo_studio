@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 
 export const maxDuration = 30;
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   const { userId } = await auth();
