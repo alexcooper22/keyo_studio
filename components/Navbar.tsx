@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -11,6 +11,21 @@ export default function Navbar() {
   const { setShowModal } = useAuth();
   const { isSignedIn, user } = useUser();
   const { signOut } = useClerk();
+  
+  const [credits, setCredits] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (isSignedIn) {
+      fetch('/api/user-credits')
+        .then(res => res.json())
+        .then(data => {
+          if (data.credits !== undefined) {
+            setCredits(data.credits);
+          }
+        })
+        .catch(() => setCredits(null));
+    }
+  }, [isSignedIn]);
 
   const navLinks = [
     { name: 'Explore', href: '/' },
@@ -113,7 +128,9 @@ export default function Navbar() {
                           <svg width="11" height="11" viewBox="0 0 24 24" fill="#ff3377" stroke="none">
                             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                           </svg>
-                          <span className="font-dm text-[12px] text-[#ff3377]">20 credits</span>
+                          <span className="font-dm text-[12px] text-[#ff3377]">
+                            {credits !== null ? `${credits} credits` : '... credits'}
+                          </span>
                         </div>
                       </div>
 
