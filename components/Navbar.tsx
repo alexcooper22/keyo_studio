@@ -90,7 +90,7 @@ export default function Navbar() {
             <div className="flex items-center gap-3 md:gap-4">
               {isSignedIn ? (
                 /* ── SIGNED IN: avatar + hover dropdown ── */
-                <div className="relative group">
+                <div className="relative group" style={{ paddingBottom: '8px' }}>
                   {/* Avatar trigger */}
                   <button
                     className="w-[34px] h-[34px] rounded-full bg-[#ff3377] flex items-center justify-center overflow-hidden cursor-pointer shrink-0 ring-2 ring-transparent group-hover:ring-[#ff3377]/40 transition-all duration-200"
@@ -113,7 +113,7 @@ export default function Navbar() {
 
                   {/* Hover dropdown */}
                   <div
-                    className="absolute top-[calc(100%+8px)] right-0 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200 z-[200]"
+                    className="absolute top-[calc(100%-8px)] right-0 pt-2 opacity-0 invisible pointer-events-none group-hover:opacity-100 group-hover:visible group-hover:pointer-events-auto transition-all duration-150 z-[200]"
                   >
                     <div className="bg-[#0f0f0f] border border-white/[0.08] rounded-xl p-2 min-w-[200px] shadow-2xl">
 
