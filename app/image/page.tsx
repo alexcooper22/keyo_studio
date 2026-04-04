@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../../components/Navbar';
 import Image from 'next/image';
 import { useAuth } from '../../context/AuthContext';
@@ -8,10 +8,44 @@ import { useUser } from '@clerk/nextjs';
 export default function ImageDashboard() {
   const { setShowModal } = useAuth();
   const { isLoaded, isSignedIn } = useUser();
+  
   const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
+  const [creditCount, setCreditCount] = useState<number | null>(null);
   const [error, setError] = useState('');
+
+  // 1. Fetch initial data on load
+  useEffect(() => {
+    if (isLoaded && isSignedIn) {
+      fetchCredits();
+      fetchImages();
+    } else if (isLoaded && !isSignedIn) {
+      setCreditCount(10); // Default for guests
+    }
+  }, [isLoaded, isSignedIn]);
+
+  const fetchCredits = async () => {
+    try {
+      const res = await fetch('/api/user-credits');
+      const data = await res.json();
+      if (data.credits !== undefined) setCreditCount(data.credits);
+    } catch (err) {
+      console.error("Failed to fetch credits", err);
+    }
+  };
+
+  const fetchImages = async () => {
+    try {
+      const res = await fetch('/api/user-images');
+      const data = await res.json();
+      if (data.images) {
+        setGeneratedImages(data.images.map((img: any) => img.image_url));
+      }
+    } catch (err) {
+      console.error("Failed to fetch images", err);
+    }
+  };
 
   async function handleGenerate() {
     if (!isLoaded) return;
@@ -40,8 +74,11 @@ export default function ImageDashboard() {
         throw new Error(data.error);
       }
       
-      // Update with the new generated image URLs
-      setGeneratedImages((prev) => [...data.images.map((img: any) => img.url), ...prev]);
+      // Update with the new generated image URLs and credits
+      setGeneratedImages((prev) => [data.images[0].url, ...prev]);
+      if (data.remainingCredits !== undefined) {
+        setCreditCount(data.remainingCredits);
+      }
     } catch (err: any) {
       setError(err.message || 'Generation failed');
     } finally {
@@ -100,6 +137,7 @@ export default function ImageDashboard() {
                 width={800} 
                 height={600} 
                 className="w-full h-auto object-cover"
+                unoptimized
               />
               {/* Hover Overlay */}
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-start justify-end p-3 gap-2 backdrop-blur-[2px]">
@@ -141,7 +179,7 @@ export default function ImageDashboard() {
             <div className="flex flex-col gap-1.5 items-center">
               <button 
                 onClick={handleGenerate}
-                disabled={isLoaded && isSignedIn && (isLoading || !prompt.trim())}
+                disabled={isLoaded && isSignedIn && (isLoading || !prompt.trim() || (creditCount !== null && creditCount <= 0))}
                 className={`px-4 md:px-7 py-3 md:py-3.5 bg-[var(--accent)] text-black font-dm font-[700] rounded-xl flex items-center justify-center gap-2 hover:bg-[var(--accent2)] hover:shadow-[0_0_20px_rgba(255,51,119,0.3)] transition-all flex-shrink-0 ${(isLoading || (isLoaded && !isSignedIn)) ? 'opacity-70 cursor-pointer' : ''}`}
               >
                 {isLoading ? (
@@ -156,11 +194,18 @@ export default function ImageDashboard() {
                   </>
                 )}
               </button>
-              {isLoaded && !isSignedIn && (
-                <span className="font-dm text-[12px] text-[#555] text-center">
-                  Sign in to generate images
-                </span>
-              )}
+              <div className="flex items-center gap-2">
+                {creditCount !== null && (
+                  <span className={`font-dm text-[12px] font-bold ${creditCount <= 0 ? 'text-[#ff3377]' : 'text-[#ff3377]/80'}`}>
+                    ✨ {creditCount} credits
+                  </span>
+                )}
+                {isLoaded && !isSignedIn && (
+                  <span className="font-dm text-[12px] text-[#555] text-center">
+                     — Sign in to generate
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 

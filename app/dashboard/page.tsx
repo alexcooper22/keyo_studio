@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import Navbar from '../../components/Navbar';
@@ -7,6 +7,30 @@ import { useUser } from '@clerk/nextjs';
 
 export default function DashboardPage() {
   const { isLoaded, isSignedIn, user } = useUser();
+  const [images, setImages] = useState<any[]>([]);
+  const [credits, setCredits] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (isLoaded && isSignedIn) {
+      fetchData();
+    }
+  }, [isLoaded, isSignedIn]);
+
+  const fetchData = async () => {
+    try {
+      const [creditsRes, imagesRes] = await Promise.all([
+        fetch('/api/user-credits'),
+        fetch('/api/user-images')
+      ]);
+      const creditsData = await creditsRes.json();
+      const imagesData = await imagesRes.json();
+      
+      setCredits(creditsData.credits);
+      setImages(imagesData.images);
+    } catch (err) {
+      console.error("Failed to fetch dashboard data", err);
+    }
+  };
 
   if (!isLoaded) return null;
 
@@ -53,6 +77,8 @@ export default function DashboardPage() {
 
               {/* Stats Row */}
               <div className="mt-2.5 flex items-center gap-2.5 font-dm text-[14px] text-[#555]">
+                <span className="text-[#ff3377] font-bold">✨ {credits ?? '...'} Credits</span>
+                <span className="w-1 h-1 rounded-full bg-[#333]"></span>
                 <span>0 Followers</span>
                 <span className="w-1 h-1 rounded-full bg-[#333]"></span>
                 <span>0 Following</span>
@@ -78,37 +104,60 @@ export default function DashboardPage() {
           {/* DIVIDER */}
           <div className="h-[1px] w-full bg-white/[0.06] my-10" />
 
-          {/* GALLERY SECTION (EMPTY) */}
+          {/* GALLERY SECTION */}
           <section className="relative">
             <h2 className="font-syne font-[700] text-[18px] text-white mb-6 uppercase tracking-wider opacity-60">Gallery</h2>
             
-            {/* Dark Placeholder Cards Grid */}
+            {/* Image Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-              {[1, 2, 3, 4, 5].map((idx) => (
-                <div 
-                  key={idx} 
-                  className="bg-[#0f0f0f] border border-white/[0.04] rounded-[10px] h-[180px] opacity-40 shadow-inner"
-                />
-              ))}
+              {images.length > 0 ? (
+                images.map((img) => (
+                  <Link 
+                    key={img.id} 
+                    href={`/image?id=${img.id}`}
+                    className="relative bg-[#0f0f0f] border border-white/[0.04] rounded-[10px] aspect-square overflow-hidden group hover:border-[#ff3377]/30 transition-all"
+                  >
+                    <Image 
+                      src={img.image_url} 
+                      alt={img.prompt} 
+                      fill 
+                      className="object-cover group-hover:scale-110 transition-transform duration-500"
+                      unoptimized
+                    />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2 pb-3">
+                       <p className="text-[10px] text-white/70 line-clamp-2 leading-tight">{img.prompt}</p>
+                    </div>
+                  </Link>
+                ))
+              ) : (
+                [1, 2, 3, 4, 5].map((idx) => (
+                  <div 
+                    key={idx} 
+                    className="bg-[#0f0f0f] border border-white/[0.04] rounded-[10px] aspect-square opacity-40 shadow-inner"
+                  />
+                ))
+              )}
             </div>
 
-            {/* CTA Overlay */}
-            <div className="absolute inset-0 flex items-center justify-center z-10">
-              <div className="flex flex-col items-center text-center p-8 backdrop-blur-[2px]">
-                <h3 className="font-syne font-[800] text-[22px] text-white leading-tight">
-                  READY TO SHOW YOUR WORK?
-                </h3>
-                <p className="mt-2 font-dm text-[14px] text-[#555] max-w-[300px]">
-                  Create your first image or video to showcase here
-                </p>
-                <Link 
-                  href="/image"
-                  className="mt-6 px-7 py-3 rounded-lg bg-[#ff3377] text-black font-syne font-[700] text-[14px] hover:scale-105 hover:brightness-110 active:scale-95 transition-all shadow-lg"
-                >
-                  Start creating →
-                </Link>
+            {/* CTA Overlay — only if no images */}
+            {images.length === 0 && (
+              <div className="absolute inset-0 flex items-center justify-center z-10">
+                <div className="flex flex-col items-center text-center p-8 backdrop-blur-[2px]">
+                  <h3 className="font-syne font-[800] text-[22px] text-white leading-tight">
+                    READY TO SHOW YOUR WORK?
+                  </h3>
+                  <p className="mt-2 font-dm text-[14px] text-[#555] max-w-[300px]">
+                    Create your first image or video to showcase here
+                  </p>
+                  <Link 
+                    href="/image"
+                    className="mt-6 px-7 py-3 rounded-lg bg-[#ff3377] text-black font-syne font-[700] text-[14px] hover:scale-105 hover:brightness-110 active:scale-95 transition-all shadow-lg"
+                  >
+                    Start creating →
+                  </Link>
+                </div>
               </div>
-            </div>
+            )}
           </section>
 
         </div>

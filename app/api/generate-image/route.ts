@@ -1,6 +1,7 @@
 import { fal } from "@fal-ai/client";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
+import { supabaseAdmin } from "../../../lib/supabase";
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,6 +11,37 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: "Unauthorized. Please sign in to generate images." },
         { status: 401 }
+      );
+    }
+
+    // 1. Get or create user in Supabase
+    const { data: user, error: userError } = await supabaseAdmin
+      .from('users')
+      .select('credits')
+      .eq('clerk_id', userId)
+      .single();
+
+    let currentCredits = 0;
+
+    if (userError && userError.code === 'PGRST116') {
+      // User not found, create new user with 10 credits
+      const { data: newUser, error: createError } = await supabaseAdmin
+        .from('users')
+        .insert({ clerk_id: userId, credits: 10 })
+        .select('credits')
+        .single();
+      
+      if (createError) throw createError;
+      currentCredits = newUser.credits;
+    } else if (user) {
+      currentCredits = user.credits;
+    }
+
+    // 2. Check credits
+    if (currentCredits <= 0) {
+      return NextResponse.json(
+        { error: "No credits left. Please upgrade your plan." },
+        { status: 403 }
       );
     }
 
@@ -27,7 +59,7 @@ export async function POST(request: NextRequest) {
       credentials: process.env.FAL_KEY,
     });
 
-    // Call fal-ai/flux-pro with the prompt
+    // 3. Call fal-ai/flux-pro with the prompt
     const result: any = await fal.subscribe("fal-ai/flux-pro", {
       input: {
         prompt: prompt,
@@ -37,9 +69,34 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    const imageUrl = result.data.images[0].url;
+
+    // 4. Save image to Supabase
+    const { error: saveError } = await supabaseAdmin
+      .from('generated_images')
+      .insert({
+        clerk_id: userId,
+        prompt: prompt,
+        image_url: imageUrl,
+        model: 'flux-pro'
+      });
+
+    if (saveError) throw saveError;
+
+    // 5. Deduct 1 credit
+    const { data: updatedUser, error: updateError } = await supabaseAdmin
+      .from('users')
+      .update({ credits: currentCredits - 1 })
+      .eq('clerk_id', userId)
+      .select('credits')
+      .single();
+
+    if (updateError) throw updateError;
+
     return NextResponse.json({
       images: result.data.images,
       prompt: prompt,
+      remainingCredits: updatedUser.credits
     });
 
   } catch (error) {
