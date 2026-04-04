@@ -123,10 +123,16 @@ export async function POST(request: NextRequest) {
       remainingCredits: updatedUser.credits
     });
 
-  } catch (error) {
-    console.error("Image generation error:", error);
+  } catch (error: any) {
+    console.error("Generation error details:", {
+      message: error?.message,
+      status: error?.status,
+      body: error?.body,
+      cause: error?.cause,
+      full: JSON.stringify(error, null, 2)
+    });
     return NextResponse.json(
-      { error: "Failed to generate image" },
+      { error: error?.message || "Failed to generate image" },
       { status: 500 }
     );
   }
