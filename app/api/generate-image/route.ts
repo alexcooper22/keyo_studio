@@ -71,23 +71,8 @@ export async function POST(request: NextRequest) {
       credentials: process.env.FAL_KEY,
     });
 
-    // Upload base64 images if provided
-    let uploadedUrls: string[] = [];
-    if (imageUrls && imageUrls.length > 0) {
-      for (const base64Str of imageUrls) {
-        try {
-          const fetchResponse = await fetch(base64Str);
-          const blob = await fetchResponse.blob();
-          
-          // Next.js polyfills Blob globally, but fal.storage might want a File, Blob is compatible
-          // Cast to any if there's type conflicts, but blob is Blob standard API
-          const fileUrl = await fal.storage.upload(blob as any);
-          uploadedUrls.push(fileUrl);
-        } catch (e) {
-          console.error("Failed to upload image to fal", e);
-        }
-      }
-    }
+    // imageUrls are already uploaded via frontend to fal storage
+    let uploadedUrls: string[] = imageUrls || [];
 
     let modelId = 'fal-ai/flux-pro';
     let inputPayload: any = { prompt };

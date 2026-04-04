@@ -4,6 +4,7 @@ import Navbar from '../../components/Navbar';
 import Image from 'next/image';
 import { useAuth } from '../../context/AuthContext';
 import { useUser } from '@clerk/nextjs';
+import { fal } from "@fal-ai/client";
 
 export default function ImageDashboard() {
   const { setShowModal } = useAuth();
@@ -92,10 +93,21 @@ export default function ImageDashboard() {
     setError('');
     
     try {
+      fal.config({ credentials: process.env.NEXT_PUBLIC_FAL_KEY });
+   
+      const uploadedUrls = await Promise.all(
+        uploadedImages.map(async (base64) => {
+          const blob = await fetch(base64).then(r => r.blob());
+          const file = new File([blob], 'image.jpg', { type: 'image/jpeg' });
+          const url = await fal.storage.upload(file);
+          return url;
+        })
+      );
+
       const response = await fetch('/api/generate-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, model: selectedModel, imageUrls: uploadedImages }),
+        body: JSON.stringify({ prompt, model: selectedModel, imageUrls: uploadedUrls }),
       });
       
       const data = await response.json();
