@@ -247,18 +247,21 @@ export default function ImageDashboard() {
 
   const handleDownload = async (imageUrl: string) => {
     try {
-      const response = await fetch(imageUrl);
+      const response = await fetch(imageUrl, { mode: 'cors' });
+      if (!response.ok) throw new Error('Fetch failed');
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'keyo-studio-image.jpg';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'keyo-studio-image.png';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Download failed:', error);
+      // Fallback: open image in new tab if CORS blocks fetch
+      console.warn('Direct download failed, opening in new tab:', error);
+      window.open(imageUrl, '_blank');
     }
   };
 
