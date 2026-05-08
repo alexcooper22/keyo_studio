@@ -559,9 +559,13 @@ export default function ImageDashboard() {
                   handleGenerate();
                 }
               }}
+              onInput={(e) => {
+                e.currentTarget.style.height = 'auto';
+                e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';
+              }}
               placeholder="Describe the image you imagine..." 
-              rows={3}
-              className="flex-1 bg-transparent border-none outline-none text-white font-dm text-sm placeholder:text-[#555] resize-none py-2"
+              rows={1}
+              className="flex-1 bg-transparent border-none outline-none text-white font-dm text-sm placeholder:text-[#555] resize-none py-2 overflow-hidden"
             />
             <div className="flex flex-col gap-1.5 items-center">
               <button 
