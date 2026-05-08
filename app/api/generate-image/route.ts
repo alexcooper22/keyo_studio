@@ -1,4 +1,3 @@
-import { fal } from "@fal-ai/client";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { supabaseAdmin } from "../../../lib/supabase";
@@ -16,7 +15,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get prompt and model from body
+    // Get prompt and settings from body
     let body;
     try {
       body = await request.json();
@@ -26,7 +25,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    const { prompt, model, imageUrls, aspectRatio } = body;
+    const { prompt, aspectRatio } = body;
     
     if (!prompt) {
       return NextResponse.json(
@@ -35,7 +34,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 1. Get or create user in Supabase
+    // 1. Get or create user in Supabase and check credits
     const { data: user, error: userError } = await supabaseAdmin
       .from('users')
       .select('credits')
@@ -66,55 +65,102 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Configure fal.ai credentials
-    fal.config({
-      credentials: process.env.FAL_KEY,
-    });
-
-    // imageUrls are already uploaded via frontend to fal storage
-    let uploadedUrls: string[] = imageUrls || [];
-
-    let modelId = 'fal-ai/flux-pro';
-    let inputPayload: any = { prompt };
-
-    if (model === 'nano-banana-pro') {
-      if (uploadedUrls.length > 0) {
-        modelId = 'fal-ai/gemini-3-pro-image-preview/edit';
-        inputPayload = { prompt, image_urls: uploadedUrls };
-      } else {
-        modelId = 'fal-ai/gemini-3-pro-image-preview';
-      }
-    } else {
-      const imageSizeMap: Record<string, string> = {
-        '1:1': 'square',
-        '4:3': 'landscape_4_3',
-        '3:4': 'portrait_4_3',
-        '16:9': 'landscape_16_9',
-        '9:16': 'portrait_16_9',
-      }
-      inputPayload = { prompt, image_size: imageSizeMap[aspectRatio] || 'landscape_4_3', num_images: 1, enable_safety_checker: true };
+    // 3. Call RunComfy API to start generation
+    const runComfyApiKey = process.env.RUNCOMFY_API_KEY;
+    if (!runComfyApiKey) {
+      throw new Error("RUNCOMFY_API_KEY is not configured");
     }
 
-    // 3. Call selected model with prompt
-    const result: any = await fal.subscribe(modelId, {
-      input: inputPayload,
+    const startResponse = await fetch("https://model-api.runcomfy.net/v1/models/google/nano-banana-2/text-to-image", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${runComfyApiKey}`
+      },
+      body: JSON.stringify({
+        prompt,
+        aspect_ratio: aspectRatio || "4:3",
+        resolution: "1K",
+        output_format: "png",
+        num_images: 1
+      })
     });
 
-    const imageUrl = result.data.images[0].url;
+    if (!startResponse.ok) {
+      const errorData = await startResponse.json().catch(() => ({}));
+      throw new Error(errorData.message || `RunComfy API error: ${startResponse.status}`);
+    }
 
-    // 4. Save image to Supabase
+    const { request_id } = await startResponse.json();
+
+    if (!request_id) {
+      throw new Error("Failed to receive request_id from RunComfy");
+    }
+
+    // 4. Polling for status (max 60 seconds)
+    let status = "pending";
+    let attempts = 0;
+    const maxAttempts = 30; // 30 attempts * 2 seconds = 60 seconds
+
+    while (status !== "completed" && attempts < maxAttempts) {
+      // Wait 2 seconds between polls
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      attempts++;
+
+      const statusResponse = await fetch(`https://model-api.runcomfy.net/v1/requests/${request_id}/status`, {
+        headers: {
+          "Authorization": `Bearer ${runComfyApiKey}`
+        }
+      });
+
+      if (statusResponse.ok) {
+        const statusData = await statusResponse.json();
+        status = statusData.status;
+        
+        if (status === "failed") {
+          throw new Error("Generation failed on RunComfy side");
+        }
+      } else {
+        console.warn(`Polling failed on attempt ${attempts}: ${statusResponse.status}`);
+      }
+    }
+
+    if (status !== "completed") {
+      throw new Error("Generation timed out after 60 seconds");
+    }
+
+    // 5. Get the result
+    const resultResponse = await fetch(`https://model-api.runcomfy.net/v1/requests/${request_id}/result`, {
+      headers: {
+        "Authorization": `Bearer ${runComfyApiKey}`
+      }
+    });
+
+    if (!resultResponse.ok) {
+      throw new Error(`Failed to fetch result: ${resultResponse.status}`);
+    }
+
+    const resultData = await resultResponse.json();
+    // Support both output.images[0] and output.image as requested
+    const imageUrl = resultData.output?.images?.[0] || resultData.output?.image;
+
+    if (!imageUrl) {
+      throw new Error("No image URL found in RunComfy result");
+    }
+
+    // 6. Save image to Supabase
     const { error: saveError } = await supabaseAdmin
       .from('generated_images')
       .insert({
         clerk_id: userId,
         prompt: prompt,
         image_url: imageUrl,
-        model: model || 'flux-pro'
+        model: 'nano-banana-2'
       });
 
     if (saveError) throw saveError;
 
-    // 5. Deduct 1 credit
+    // 7. Deduct 1 credit
     const { data: updatedUser, error: updateError } = await supabaseAdmin
       .from('users')
       .update({ credits: currentCredits - 1 })
@@ -124,20 +170,15 @@ export async function POST(request: NextRequest) {
 
     if (updateError) throw updateError;
 
+    // Return response in the format expected by the frontend
     return NextResponse.json({
-      images: result.data.images,
+      images: [{ url: imageUrl }],
       prompt: prompt,
       remainingCredits: updatedUser.credits
     });
 
   } catch (error: any) {
-    console.error("Generation error details:", {
-      message: error?.message,
-      status: error?.status,
-      body: error?.body,
-      cause: error?.cause,
-      full: JSON.stringify(error, null, 2)
-    });
+    console.error("Generation error details:", error);
     return NextResponse.json(
       { error: error?.message || "Failed to generate image" },
       { status: 500 }
