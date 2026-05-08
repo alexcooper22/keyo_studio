@@ -88,6 +88,8 @@ export async function POST(request: NextRequest) {
       apiBody.image_urls = imageUrls;
     }
 
+    console.log("RunComfy request:", { endpoint, body: JSON.stringify(apiBody) });
+
     const startResponse = await fetch(endpoint, {
       method: "POST",
       headers: {

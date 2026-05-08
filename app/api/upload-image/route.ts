@@ -45,6 +45,8 @@ export async function POST(request: NextRequest) {
       .from(bucketName)
       .getPublicUrl(fileName);
 
+    console.log("Upload success, publicUrl:", publicUrl);
+
     return NextResponse.json({ url: publicUrl });
   } catch (error: any) {
     console.error("Upload error:", error);
