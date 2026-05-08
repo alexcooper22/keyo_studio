@@ -4,6 +4,8 @@ export default function Page() {
   return (
     <div className="min-h-screen bg-[var(--bg)] flex items-center justify-center p-4">
       <SignIn 
+        routing="path"
+        path="/sign-in"
         afterSignInUrl="/"
         signUpUrl="/sign-up"
         appearance={{
