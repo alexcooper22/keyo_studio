@@ -78,6 +78,7 @@ export async function POST(request: NextRequest) {
     const ai = new GoogleGenAI({ apiKey });
 
     const isEdit = imageUrls && imageUrls.length > 0;
+    console.log("isEdit:", isEdit, "imageUrls:", imageUrls);
 
     // Build contents array
     let contents: any[];
@@ -117,7 +118,7 @@ export async function POST(request: NextRequest) {
       model: "gemini-3.1-flash-image-preview",
       contents,
       config: {
-        responseModalities: ["IMAGE"],
+        responseModalities: isEdit ? ["TEXT", "IMAGE"] : ["IMAGE"],
         imageConfig: {
           aspectRatio: aspectRatio || "4:3",
           imageSize: resolution || "1K"
