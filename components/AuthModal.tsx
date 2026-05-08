@@ -27,10 +27,8 @@ export default function AuthModal({ onClose }: AuthModalProps) {
 
         {mode === 'signin' ? (
           <SignIn
-            routing="path"
-            path="/sign-in"
+            routing="hash"
             afterSignInUrl="/"
-            signUpUrl="/sign-up"
             appearance={{
               variables: {
                 colorPrimary: '#ff3377',
@@ -50,10 +48,8 @@ export default function AuthModal({ onClose }: AuthModalProps) {
           />
         ) : (
           <SignUp
-            routing="path"
-            path="/sign-up"
+            routing="hash"
             afterSignUpUrl="/"
-            signInUrl="/sign-in"
             appearance={{
               variables: {
                 colorPrimary: '#ff3377',
