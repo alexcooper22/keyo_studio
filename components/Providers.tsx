@@ -2,9 +2,18 @@
 import React from 'react';
 import { AuthProvider, useAuth } from '../context/AuthContext';
 import AuthModal from './AuthModal';
+import { useUser } from '@clerk/nextjs';
+import { useEffect } from 'react';
 
 function AuthModalManager() {
   const { showModal, setShowModal } = useAuth();
+  const { isSignedIn } = useUser();
+  
+  useEffect(() => {
+    if (isSignedIn && showModal) {
+      setShowModal(false);
+    }
+  }, [isSignedIn, showModal, setShowModal]);
   
   if (!showModal) return null;
   
