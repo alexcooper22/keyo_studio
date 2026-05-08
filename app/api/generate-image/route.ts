@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    const { prompt, aspectRatio } = body;
+    const { prompt, aspectRatio, imageUrls } = body;
     
     if (!prompt) {
       return NextResponse.json(
@@ -71,19 +71,30 @@ export async function POST(request: NextRequest) {
       throw new Error("RUNCOMFY_API_KEY is not configured");
     }
 
-    const startResponse = await fetch("https://model-api.runcomfy.net/v1/models/google/nano-banana-2/text-to-image", {
+    const isEdit = imageUrls && imageUrls.length > 0;
+    const endpoint = isEdit 
+      ? "https://model-api.runcomfy.net/v1/models/google/nano-banana-2/edit"
+      : "https://model-api.runcomfy.net/v1/models/google/nano-banana-2/text-to-image";
+
+    const apiBody: any = {
+      prompt,
+      aspect_ratio: aspectRatio || "4:3",
+      resolution: "1K",
+      output_format: "png",
+      num_images: 1
+    };
+
+    if (isEdit) {
+      apiBody.image_urls = imageUrls;
+    }
+
+    const startResponse = await fetch(endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${runComfyApiKey}`
       },
-      body: JSON.stringify({
-        prompt,
-        aspect_ratio: aspectRatio || "4:3",
-        resolution: "1K",
-        output_format: "png",
-        num_images: 1
-      })
+      body: JSON.stringify(apiBody)
     });
 
     if (!startResponse.ok) {
