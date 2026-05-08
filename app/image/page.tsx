@@ -43,6 +43,7 @@ interface ImageDetails {
   prompt: string;
   model: string;
   aspectRatio: string;
+  resolution?: string;
 }
 
 export default function ImageDashboard() {
@@ -188,8 +189,9 @@ export default function ImageDashboard() {
         setGeneratedImages(data.images.map((img: any) => ({
           url: img.image_url,
           prompt: img.prompt || 'Generated with Keyo AI',
-          model: img.model || 'Unknown',
-          aspectRatio: '4:3'
+          model: 'Nano Banana 2',
+          aspectRatio: img.aspect_ratio || '4:3',
+          resolution: img.resolution || '1K'
         })));
       }
     } catch (err) {
@@ -243,8 +245,9 @@ export default function ImageDashboard() {
       setGeneratedImages((prev) => [{
         url: data.images[0].url,
         prompt,
-        model: selectedModel,
-        aspectRatio
+        model: 'Nano Banana 2',
+        aspectRatio,
+        resolution: quality
       }, ...prev]);
       if (data.remainingCredits !== undefined) {
         setCreditCount(data.remainingCredits);
@@ -502,12 +505,17 @@ export default function ImageDashboard() {
               
               <div className="flex items-center justify-between py-2 border-b border-white/[0.04]">
                 <span className="text-[13px] text-[#555] font-dm">Model</span>
-                <span className="text-[13px] text-white font-dm">{selectedFullImage.model}</span>
+                <span className="text-[13px] text-white font-dm">Nano Banana 2</span>
               </div>
               
               <div className="flex items-center justify-between py-2 border-b border-white/[0.04]">
                 <span className="text-[13px] text-[#555] font-dm">Aspect ratio</span>
                 <span className="text-[13px] text-white font-dm">{selectedFullImage.aspectRatio}</span>
+              </div>
+
+              <div className="flex items-center justify-between py-2 border-b border-white/[0.04]">
+                <span className="text-[13px] text-[#555] font-dm">Quality</span>
+                <span className="text-[13px] text-white font-dm">{selectedFullImage.resolution || '1K'}</span>
               </div>
             </div>
 

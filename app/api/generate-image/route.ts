@@ -177,7 +177,8 @@ export async function POST(request: NextRequest) {
         clerk_id: userId,
         prompt,
         image_url: publicUrl,
-        model: 'gemini-3.1-flash-image-preview'
+        model: 'gemini-3.1-flash-image-preview',
+        resolution: resolution || '1K'
       });
 
     if (saveError) throw saveError;
