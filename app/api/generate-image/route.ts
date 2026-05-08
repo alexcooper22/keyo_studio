@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { supabaseAdmin } from "../../../lib/supabase";
 
-export const maxDuration = 60;
+export const maxDuration = 120;
 
 export async function POST(request: NextRequest) {
   try {
@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
     // 4. Polling for status (max 60 seconds)
     let status = "pending";
     let attempts = 0;
-    const maxAttempts = 30; // 30 attempts * 2 seconds = 60 seconds
+    const maxAttempts = 60; // 60 attempts * 2 seconds = 120 seconds
 
     while (status !== "completed" && attempts < maxAttempts) {
       // Wait 2 seconds between polls
