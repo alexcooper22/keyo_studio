@@ -565,7 +565,14 @@ export default function ImageDashboard() {
               }}
               placeholder="Describe the image you imagine..." 
               rows={1}
-              className="flex-1 bg-transparent border-none outline-none text-white font-dm text-sm placeholder:text-[#555] resize-none py-2 overflow-hidden"
+              style={{
+                minHeight: '44px',
+                maxHeight: '120px',
+                overflowY: 'auto',
+                scrollbarWidth: 'thin',
+                scrollbarColor: '#333 transparent'
+              }}
+              className="flex-1 bg-transparent border-none outline-none text-white font-dm text-sm placeholder:text-[#555] resize-none py-2"
             />
             <div className="flex flex-col gap-1.5 items-center">
               <button 
