@@ -14,6 +14,7 @@ export async function POST(request: NextRequest) {
 
     const formData = await request.formData();
     const file = formData.get('file') as File;
+    console.log("Upload started, file:", file?.name, file?.size);
     
     if (!file) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
@@ -34,6 +35,7 @@ export async function POST(request: NextRequest) {
         contentType: file.type,
         upsert: true
       });
+    console.log("Supabase upload result:", data, uploadError);
 
     if (uploadError) {
       console.error("Supabase upload error:", uploadError);
@@ -44,6 +46,7 @@ export async function POST(request: NextRequest) {
     const { data: { publicUrl } } = supabaseAdmin.storage
       .from(bucketName)
       .getPublicUrl(fileName);
+    console.log("Public URL:", publicUrl);
 
     console.log("Upload success, publicUrl:", publicUrl);
 

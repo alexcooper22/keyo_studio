@@ -26,6 +26,7 @@ export async function POST(request: NextRequest) {
       );
     }
     const { prompt, aspectRatio, imageUrls } = body;
+    console.log("Request body received:", { prompt, aspectRatio, imageUrls });
     
     if (!prompt) {
       return NextResponse.json(
