@@ -55,7 +55,7 @@ export default function ImageDashboard() {
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [creditCount, setCreditCount] = useState<number | null>(null);
-  const [selectedModel, setSelectedModel] = useState('flux-pro');
+  const [selectedModel, setSelectedModel] = useState('google/nano-banana-2/text-to-image');
   const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
   const [error, setError] = useState('');
   const [aspectRatio, setAspectRatio] = useState('4:3');
@@ -290,8 +290,7 @@ export default function ImageDashboard() {
   };
 
   const modelOptions = [
-    { id: 'flux-pro', name: 'Flux Pro', price: '1 credit' },
-    { id: 'nano-banana-pro', name: 'Nano Banana Pro', price: '1 credit' }
+    { id: 'google/nano-banana-2/text-to-image', name: 'Nano Banana 2', price: '1 credit' }
   ];
 
   return (
