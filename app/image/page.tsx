@@ -83,6 +83,7 @@ export default function ImageDashboard() {
         left: rect.left + rect.width / 2
       });
     }
+    setShowRatioDropdown(false); // close ratio when opening quality
     setShowQualityModal(true);
   };
 
@@ -94,6 +95,7 @@ export default function ImageDashboard() {
         left: rect.left + rect.width / 2
       });
     }
+    setShowQualityModal(false); // close quality when opening ratio
     setShowRatioDropdown(true);
   };
   
@@ -117,13 +119,15 @@ export default function ImageDashboard() {
   
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  // Close all dropdowns on outside click
   useEffect(() => {
-    const handleClick = () => setShowRatioDropdown(false);
-    if (showRatioDropdown) {
-      setTimeout(() => document.addEventListener('click', handleClick), 0);
-      return () => document.removeEventListener('click', handleClick);
-    }
-  }, [showRatioDropdown]);
+    const handleClickOutside = () => {
+      setShowRatioDropdown(false);
+      setShowQualityModal(false);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -657,10 +661,11 @@ export default function ImageDashboard() {
                 <Portal>
                   <div 
                     className="fixed inset-0 z-[40]"
-                    onClick={() => setShowRatioDropdown(false)}
+                    onMouseDown={() => setShowRatioDropdown(false)}
                   />
                   <div 
                     className="fixed z-[50] bg-[#141414] border border-white/10 rounded-2xl p-4 w-[160px]"
+                    onMouseDown={(e) => e.stopPropagation()}
                     style={{
                       bottom: `${popupPosition.bottom}px`,
                       left: `${popupPosition.left}px`,
@@ -709,10 +714,11 @@ export default function ImageDashboard() {
                 <Portal>
                   <div 
                     className="fixed inset-0 z-[40]"
-                    onClick={() => setShowQualityModal(false)}
+                    onMouseDown={() => setShowQualityModal(false)}
                   />
                   <div
                     className="fixed z-[50] bg-[#141414] border border-white/10 rounded-2xl p-4 w-[160px]"
+                    onMouseDown={(e) => e.stopPropagation()}
                     style={{
                       bottom: `${qualityPopupPos.bottom}px`,
                       left: `${qualityPopupPos.left}px`,
