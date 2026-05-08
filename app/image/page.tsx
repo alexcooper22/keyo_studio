@@ -214,7 +214,7 @@ export default function ImageDashboard() {
       const response = await fetch('/api/generate-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, model: selectedModel, imageUrls: uploadedUrls, aspectRatio }),
+        body: JSON.stringify({ prompt, model: selectedModel, imageUrls: uploadedUrls, aspectRatio, resolution: quality }),
       });
       
       const data = await response.json();
