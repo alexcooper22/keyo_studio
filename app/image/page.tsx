@@ -140,14 +140,25 @@ export default function ImageDashboard() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Handle ESC key for modal
+  // Keyboard navigation for lightbox
   useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
+    if (!selectedFullImage) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') {
+        const currentIndex = generatedImages.findIndex(img => img.url === selectedFullImage.url);
+        if (currentIndex > 0) setSelectedFullImage(generatedImages[currentIndex - 1]);
+      }
+      if (e.key === 'ArrowRight') {
+        const currentIndex = generatedImages.findIndex(img => img.url === selectedFullImage.url);
+        if (currentIndex < generatedImages.length - 1) setSelectedFullImage(generatedImages[currentIndex + 1]);
+      }
       if (e.key === 'Escape') setSelectedFullImage(null);
     };
-    window.addEventListener('keydown', handleEsc);
-    return () => window.removeEventListener('keydown', handleEsc);
-  }, []);
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedFullImage, generatedImages]);
 
   // 1. Fetch initial data on load
   useEffect(() => {
