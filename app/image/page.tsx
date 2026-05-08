@@ -514,7 +514,7 @@ export default function ImageDashboard() {
 
       {/* Bottom Prompt Bar */}
       <div className="fixed bottom-0 left-0 md:left-[48px] right-0 z-50 px-2 md:px-8 pb-3 md:pb-8 pointer-events-none">
-        <div className="w-full max-w-4xl mx-auto rounded-t-2xl rounded-b-xl border-t border-l border-r border-white/[0.08] shadow-2xl overflow-hidden pointer-events-auto" style={{ backgroundColor: 'rgba(15,15,15,0.95)', backdropFilter: 'blur(16px)' }}>
+        <div className="w-full max-w-5xl mx-auto rounded-t-2xl rounded-b-xl border-t border-l border-r border-white/[0.08] shadow-2xl overflow-hidden pointer-events-auto" style={{ backgroundColor: 'rgba(15,15,15,0.95)', backdropFilter: 'blur(16px)' }}>
           {/* Hidden File Input */}
           <input 
             ref={fileInputRef}
@@ -556,7 +556,7 @@ export default function ImageDashboard() {
               onChange={(e) => setPrompt(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
               placeholder="Describe the image you imagine..." 
-              className="flex-1 bg-transparent border-none outline-none text-white font-dm text-base md:text-lg placeholder:text-[#555]"
+              className="flex-1 bg-transparent border-none outline-none text-white font-dm text-sm placeholder:text-[#555]"
             />
             <div className="flex flex-col gap-1.5 items-center">
               <button 
