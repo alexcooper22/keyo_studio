@@ -245,24 +245,14 @@ export default function ImageDashboard() {
     }
   }
 
-  const handleDownload = async (imageUrl: string) => {
-    try {
-      const response = await fetch(imageUrl, { mode: 'cors' });
-      if (!response.ok) throw new Error('Fetch failed');
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'keyo-studio-image.png';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      // Fallback: open image in new tab if CORS blocks fetch
-      console.warn('Direct download failed, opening in new tab:', error);
-      window.open(imageUrl, '_blank');
-    }
+  const handleDownload = (imageUrl: string) => {
+    const proxyUrl = `/api/download-image?url=${encodeURIComponent(imageUrl)}`;
+    const a = document.createElement('a');
+    a.href = proxyUrl;
+    a.download = 'keyo-studio-image.png';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   };
 
   const toggleLike = (imageUrl: string) => {
