@@ -514,7 +514,7 @@ export default function ImageDashboard() {
 
       {/* Bottom Prompt Bar */}
       <div className="fixed bottom-0 left-0 md:left-[48px] right-0 z-50 px-2 md:px-8 pb-3 md:pb-8 pointer-events-none">
-        <div className="w-full max-w-5xl mx-auto rounded-t-2xl rounded-b-xl border-t border-l border-r border-white/[0.08] shadow-2xl overflow-hidden pointer-events-auto" style={{ backgroundColor: 'rgba(15,15,15,0.95)', backdropFilter: 'blur(16px)' }}>
+        <div className="w-full max-w-4xl mx-auto rounded-t-2xl rounded-b-xl border-t border-l border-r border-white/[0.08] shadow-2xl overflow-hidden pointer-events-auto" style={{ backgroundColor: 'rgba(15,15,15,0.95)', backdropFilter: 'blur(16px)' }}>
           {/* Hidden File Input */}
           <input 
             ref={fileInputRef}
@@ -550,13 +550,18 @@ export default function ImageDashboard() {
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             </button>
-            <input 
-              type="text" 
+            <textarea 
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleGenerate();
+                }
+              }}
               placeholder="Describe the image you imagine..." 
-              className="flex-1 bg-transparent border-none outline-none text-white font-dm text-sm placeholder:text-[#555]"
+              rows={3}
+              className="flex-1 bg-transparent border-none outline-none text-white font-dm text-sm placeholder:text-[#555] resize-none py-2"
             />
             <div className="flex flex-col gap-1.5 items-center">
               <button 
