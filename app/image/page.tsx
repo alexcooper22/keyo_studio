@@ -64,6 +64,7 @@ export default function ImageDashboard() {
   const [popupPosition, setPopupPosition] = useState({ bottom: 0, left: 0 });
 
   const [quality, setQuality] = useState('1K');
+  const creditCost = quality === '4K' ? 4 : quality === '2K' ? 3 : 2;
   const [showQualityModal, setShowQualityModal] = useState(false);
   const qualityButtonRef = useRef<HTMLButtonElement>(null);
   const [qualityPopupPos, setQualityPopupPos] = useState({ bottom: 0, left: 0 });
@@ -592,7 +593,7 @@ export default function ImageDashboard() {
                   </>
                 ) : (
                   <>
-                    ⚡ Generate · 1
+                    ⚡ Generate · {creditCost}
                   </>
                 )}
               </button>
