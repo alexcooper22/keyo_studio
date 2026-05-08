@@ -25,8 +25,9 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    const { prompt, aspectRatio, imageUrls } = body;
-    console.log("Request body received:", { prompt, aspectRatio, imageUrls });
+    const { prompt, aspectRatio, imageUrls, resolution } = body;
+    const creditCost = resolution === '4K' ? 4 : resolution === '2K' ? 3 : 2;
+    console.log("Request body received:", { prompt, aspectRatio, imageUrls, resolution, creditCost });
     
     if (!prompt) {
       return NextResponse.json(
@@ -59,9 +60,9 @@ export async function POST(request: NextRequest) {
     }
 
     // 2. Check credits
-    if (currentCredits <= 0) {
+    if (currentCredits < creditCost) {
       return NextResponse.json(
-        { error: "No credits left. Please upgrade your plan." },
+        { error: `Not enough credits. This resolution requires ${creditCost} credits.` },
         { status: 403 }
       );
     }
@@ -80,7 +81,7 @@ export async function POST(request: NextRequest) {
     const apiBody: any = {
       prompt,
       aspect_ratio: aspectRatio || "4:3",
-      resolution: "1K",
+      resolution: resolution || "1K",
       output_format: "png",
       num_images: 1
     };
@@ -174,10 +175,10 @@ export async function POST(request: NextRequest) {
 
     if (saveError) throw saveError;
 
-    // 7. Deduct 1 credit
+    // 7. Deduct creditCost credits based on resolution
     const { data: updatedUser, error: updateError } = await supabaseAdmin
       .from('users')
-      .update({ credits: currentCredits - 1 })
+      .update({ credits: currentCredits - creditCost })
       .eq('clerk_id', userId)
       .select('credits')
       .single();
