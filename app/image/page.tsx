@@ -97,10 +97,16 @@ export default function ImageDashboard() {
   };
   
   const ratioOptions = [
-    { label: '1:1', value: '1:1', icon: '□', w: 20, h: 20 },
-    { label: '4:3', value: '4:3', icon: '▭', w: 24, h: 18 },
-    { label: '3:4', value: '3:4', icon: '▯', w: 18, h: 24 },
+    { label: 'Auto', value: 'auto', icon: '✦', w: 20, h: 20 },
+    { label: '21:9', value: '21:9', icon: '▬', w: 30, h: 13 },
     { label: '16:9', value: '16:9', icon: '▬', w: 28, h: 16 },
+    { label: '3:2', value: '3:2', icon: '▭', w: 24, h: 16 },
+    { label: '4:3', value: '4:3', icon: '▭', w: 24, h: 18 },
+    { label: '5:4', value: '5:4', icon: '▭', w: 22, h: 18 },
+    { label: '1:1', value: '1:1', icon: '□', w: 20, h: 20 },
+    { label: '4:5', value: '4:5', icon: '▯', w: 18, h: 22 },
+    { label: '3:4', value: '3:4', icon: '▯', w: 18, h: 24 },
+    { label: '2:3', value: '2:3', icon: '▯', w: 16, h: 24 },
     { label: '9:16', value: '9:16', icon: '▮', w: 16, h: 28 },
   ];
   
@@ -653,11 +659,13 @@ export default function ImageDashboard() {
                     onClick={() => setShowRatioDropdown(false)}
                   />
                   <div 
-                    className="fixed z-[50] bg-[#141414] border border-white/10 rounded-2xl p-4 w-[160px]"
+                    className="fixed z-[50] bg-[#141414] border border-white/10 rounded-2xl p-4 w-[160px] max-h-[300px] overflow-y-auto"
                     style={{
                       bottom: `${popupPosition.bottom}px`,
                       left: `${popupPosition.left}px`,
-                      transform: 'translateX(-50%)'
+                      transform: 'translateX(-50%)',
+                      scrollbarWidth: 'thin',
+                      scrollbarColor: '#333 transparent'
                     }}
                   >
                     <p className="text-[11px] text-[#444] mb-3 uppercase tracking-wider">Aspect ratio</p>
