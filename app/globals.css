@@ -16,6 +16,7 @@
   --teal: #00ffc8;
   --purple: #532fcf;
   --red: #532fcf;
+  --font-clash: 'Clash Display', sans-serif;
 }
 
 body {
@@ -67,4 +68,5 @@ body {
 
   .font-syne { font-family: var(--font-syne), sans-serif; }
   .font-dm { font-family: var(--font-dm), sans-serif; }
+  .font-clash { font-family: var(--font-clash); }
 }

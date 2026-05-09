@@ -94,8 +94,8 @@ export default function Home() {
             }}
           >
             <h1
-              className="font-syne font-[300] text-white"
-              style={{ fontSize: '30px', letterSpacing: '-0.02em', marginBottom: '8px' }}
+              className="font-[300] text-white"
+              style={{ fontSize: '30px', letterSpacing: '-0.02em', marginBottom: '8px', fontFamily: 'var(--font-clash)' }}
             >
               Welcome to keyo.studio
             </h1>
@@ -149,7 +149,7 @@ export default function Home() {
                 </span>
               </div>
               <div style={{ padding: '12px 14px' }}>
-                <p style={{ fontSize: '13px', fontWeight: 500, color: '#fff', margin: 0 }}>Image</p>
+                <p style={{ fontSize: '13px', fontWeight: 500, color: '#fff', margin: 0, fontFamily: 'var(--font-clash)' }}>Image</p>
                 <p style={{ fontSize: '11px', color: '#555', margin: '3px 0 0' }}>Generate stunning visuals with AI</p>
               </div>
             </Link>
@@ -192,7 +192,7 @@ export default function Home() {
                 </span>
               </div>
               <div style={{ padding: '12px 14px' }}>
-                <p style={{ fontSize: '13px', fontWeight: 500, color: '#fff', margin: 0 }}>Video</p>
+                <p style={{ fontSize: '13px', fontWeight: 500, color: '#fff', margin: 0, fontFamily: 'var(--font-clash)' }}>Video</p>
                 <p style={{ fontSize: '11px', color: '#555', margin: '3px 0 0' }}>Create AI-powered video content</p>
               </div>
             </Link>
@@ -224,7 +224,7 @@ export default function Home() {
                 </span>
               </div>
               <div style={{ padding: '12px 14px' }}>
-                <p style={{ fontSize: '13px', fontWeight: 500, color: '#fff', margin: 0 }}>Audio</p>
+                <p style={{ fontSize: '13px', fontWeight: 500, color: '#fff', margin: 0, fontFamily: 'var(--font-clash)' }}>Audio</p>
                 <p style={{ fontSize: '11px', color: '#555', margin: '3px 0 0' }}>Generate music & voices with AI</p>
               </div>
             </Link>
@@ -246,7 +246,7 @@ export default function Home() {
             {/* Gallery header */}
             <div className="flex items-center justify-between" style={{ marginBottom: '14px' }}>
               <div>
-                <p className="font-dm font-[600] text-white" style={{ fontSize: '12px', letterSpacing: '0.08em', textTransform: 'uppercase', margin: 0 }}>
+                <p className="font-[600] text-white" style={{ fontSize: '12px', letterSpacing: '0.08em', textTransform: 'uppercase', margin: 0, fontFamily: 'var(--font-clash)' }}>
                   Community Gallery
                 </p>
                 <p className="font-dm" style={{ fontSize: '11px', color: '#555', margin: '2px 0 0' }}>

@@ -51,9 +51,9 @@ export default function Navbar() {
 
           {/* ── Logo ── */}
           <Link href="/" className="flex items-baseline gap-0 cursor-pointer shrink-0">
-            <span className="font-syne font-[800] text-[#532fcf] text-[18px] tracking-tight">keyo</span>
-            <span className="font-syne font-[800] text-white/30 text-[18px]">.</span>
-            <span className="font-syne font-[600] text-[#aaa] text-[18px]">studio</span>
+            <span style={{ fontFamily: 'var(--font-clash)', fontWeight: 700, color: '#532fcf', fontSize: '18px', letterSpacing: '-0.01em' }}>keyo</span>
+            <span style={{ fontFamily: 'var(--font-clash)', fontWeight: 700, color: 'rgba(255,255,255,0.3)', fontSize: '18px' }}>.</span>
+            <span style={{ fontFamily: 'var(--font-clash)', fontWeight: 600, color: '#aaa', fontSize: '18px' }}>studio</span>
           </Link>
 
           {/* ── Center nav tabs — desktop only ── */}

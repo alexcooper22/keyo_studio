@@ -3,6 +3,7 @@ import { Syne, DM_Sans } from 'next/font/google';
 import './globals.css';
 import { ClerkProvider } from '@clerk/nextjs';
 import Providers from '../components/Providers';
+import type { ReactNode } from 'react';
 
 const syne = Syne({
   subsets: ['latin'],
@@ -23,18 +24,21 @@ export const metadata: Metadata = {
   description: 'Generate text, images and video using top AI models in one place.',
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
+      <head>
+        {/* Clash Display via Fontshare CDN */}
+        <link
+          rel="stylesheet"
+          href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&display=swap"
+        />
+      </head>
       <body className={`${syne.variable} ${dmSans.variable} font-dm antialiased`}>
         <ClerkProvider
           appearance={{
             variables: {
-              colorPrimary: '#ff3377',
+              colorPrimary: '#532fcf',
               colorBackground: '#0f0f0f',
               colorText: '#f0f0f0',
               colorInputBackground: '#161616',
