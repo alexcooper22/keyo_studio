@@ -79,7 +79,7 @@ export default function Home() {
 
       {/* Page wrapper — top padding accounts for fixed navbar + mobile sub-nav */}
       <main className="min-h-screen font-dm" style={{ paddingTop: '70px', background: '#080808' }}>
-        <div className="w-full px-4 md:px-6 pb-0">
+        <div className="w-full" style={{ padding: '16px' }}>
 
           {/* ══════════════════════════════════════
               HERO BLOCK
@@ -150,7 +150,7 @@ export default function Home() {
               </div>
               <div style={{ padding: '12px 14px' }}>
                 <p style={{ fontSize: '13px', fontWeight: 500, color: '#fff', margin: 0, fontFamily: 'var(--font-clash)' }}>Image</p>
-                <p style={{ fontSize: '11px', color: '#555', margin: '3px 0 0' }}>Generate stunning visuals with AI</p>
+
               </div>
             </Link>
 
@@ -193,7 +193,7 @@ export default function Home() {
               </div>
               <div style={{ padding: '12px 14px' }}>
                 <p style={{ fontSize: '13px', fontWeight: 500, color: '#fff', margin: 0, fontFamily: 'var(--font-clash)' }}>Video</p>
-                <p style={{ fontSize: '11px', color: '#555', margin: '3px 0 0' }}>Create AI-powered video content</p>
+
               </div>
             </Link>
 
@@ -225,7 +225,7 @@ export default function Home() {
               </div>
               <div style={{ padding: '12px 14px' }}>
                 <p style={{ fontSize: '13px', fontWeight: 500, color: '#fff', margin: 0, fontFamily: 'var(--font-clash)' }}>Audio</p>
-                <p style={{ fontSize: '11px', color: '#555', margin: '3px 0 0' }}>Generate music & voices with AI</p>
+
               </div>
             </Link>
           </div>
@@ -308,13 +308,9 @@ export default function Home() {
         {/* ══════════════════════════════════════
             FOOTER
         ══════════════════════════════════════ */}
-        <footer
-          style={{
-            background: '#532fcf',
-            padding: '36px 32px 20px',
-            marginTop: '0',
-          }}
-        >
+          <footer
+            style={{ background: '#532fcf', padding: '48px 48px 32px', marginTop: '12px' }}
+          >
           <div className="w-full">
             {/* Top grid: logo col + 3 link cols */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12" style={{ marginBottom: '28px' }}>
