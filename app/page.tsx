@@ -88,14 +88,14 @@ export default function Home() {
             className="w-full flex flex-col items-center justify-center text-center animate-fadeUp"
             style={{
               borderRadius: '14px',
-              height: 'calc(50vh - 80px)',
+              height: 'calc(50vh - 50px)',
               background: 'linear-gradient(135deg, #1a1535 0%, #0f1520 40%, #151025 70%, #0d0d0d 100%)',
               marginBottom: '30px',
             }}
           >
             <h1
               className="font-[300] text-white"
-              style={{ fontSize: '30px', letterSpacing: '-0.02em', marginBottom: '8px', fontFamily: 'var(--font-clash)' }}
+              style={{ fontSize: '39px', letterSpacing: '-0.02em', marginBottom: '8px', fontFamily: 'var(--font-clash)' }}
             >
               Welcome to keyo.studio
             </h1>
