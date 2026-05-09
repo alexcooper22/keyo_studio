@@ -90,7 +90,7 @@ export default function Home() {
               borderRadius: '14px',
               height: 'calc(50vh - 80px)',
               background: 'linear-gradient(135deg, #1a1535 0%, #0f1520 40%, #151025 70%, #0d0d0d 100%)',
-              marginBottom: '20px',
+              marginBottom: '30px',
             }}
           >
             <h1
@@ -111,8 +111,8 @@ export default function Home() {
               TOOL CARDS — 3 columns
           ══════════════════════════════════════ */}
           <div
-            className="grid grid-cols-1 md:grid-cols-3 gap-3 animate-fadeUp delay-100"
-            style={{ marginBottom: '20px' }}
+            className="grid grid-cols-1 md:grid-cols-3 animate-fadeUp delay-100"
+            style={{ gap: '30px', marginBottom: '30px' }}
           >
             {/* Image card */}
             <Link href="/image" className="group block" style={{ borderRadius: '12px', background: '#111', border: '0.5px solid #1e1e1e', overflow: 'hidden', textDecoration: 'none' }}>
@@ -240,7 +240,7 @@ export default function Home() {
               border: '0.5px solid #1e1e1e',
               borderRadius: '14px',
               padding: '16px',
-              marginBottom: '20px',
+              marginBottom: '30px',
             }}
           >
             {/* Gallery header */}
