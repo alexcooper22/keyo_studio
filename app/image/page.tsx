@@ -318,7 +318,7 @@ export default function ImageDashboard() {
 
 
       {/* Main Canvas Area (Masonry Grid) */}
-      <main className="max-w-[1600px] mx-auto w-full px-4 md:px-6 pt-4 md:pt-6 relative z-10">
+      <main className="max-w-[1600px] mx-auto w-full pt-4 md:pt-6 relative z-10" style={{ paddingLeft: '30px', paddingRight: '30px' }}>
         {error && (
           <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 font-dm text-sm">
             {error}
