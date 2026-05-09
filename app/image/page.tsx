@@ -312,13 +312,13 @@ export default function ImageDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-[var(--bg)] pl-0 md:pl-[48px] pb-[130px] md:pb-[120px] relative" style={{ paddingTop: '94px' }}>
+    <div className="min-h-screen bg-[var(--bg)] pb-[130px] md:pb-[120px] relative" style={{ paddingTop: '94px' }}>
       <Navbar />
       
 
 
       {/* Main Canvas Area (Masonry Grid) */}
-      <main className="max-w-[1600px] mx-auto w-full pt-4 md:pt-6 relative z-10" style={{ paddingLeft: '30px', paddingRight: '30px' }}>
+      <main className="w-full pt-4 md:pt-6 relative z-10" style={{ paddingLeft: '30px', paddingRight: '30px' }}>
         {error && (
           <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 font-dm text-sm">
             {error}
