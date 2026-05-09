@@ -86,14 +86,7 @@ export default function Home() {
           ══════════════════════════════════════ */}
           <section
             className="w-full flex flex-col items-center justify-center text-center animate-fadeUp group"
-            style={{
-              height: 'calc(50vh - 50px)',
-              borderRadius: '14px',
-              background: 'linear-gradient(135deg, #1a1535 0%, #0f1520 40%, #151025 70%, #0d0d0d 100%)',
-              marginBottom: '30px',
-              position: 'relative',
-              overflow: 'hidden',
-            }}
+            style={{ height: 'calc(50vh - 50px)', marginBottom: '30px' }}
           >
             <h1
               className="font-[300] text-white"
