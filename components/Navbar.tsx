@@ -42,11 +42,10 @@ export default function Navbar() {
 
   return (
     <>
-      <div style={{ padding: '0 30px' }}>
-      {/* Main navbar — card style rounded bottom */}
+      {/* Main navbar — fixed card style with offsets */}
       <nav
-        className="relative h-[64px] z-[100] transition-all"
-        style={{ backgroundColor: '#532fcf', borderRadius: '0 0 14px 14px' }}
+        className="fixed top-0 h-[64px] z-[100] transition-all"
+        style={{ left: '30px', right: '30px', backgroundColor: '#532fcf', borderRadius: '0 0 14px 14px' }}
       >
         <div className="h-full max-w-7xl mx-auto px-4 md:px-6 flex items-center justify-between">
 
@@ -211,12 +210,11 @@ export default function Navbar() {
           </div>
         </div>
       </nav>
-    </div>
 
       {/* ── Mobile subordinate nav bar ── */}
       <div
-        className="flex md:hidden relative h-[44px] z-[99] overflow-hidden"
-        style={{ background: '#532fcf', margin: '0 30px', borderRadius: '0 0 14px 14px' }}
+        className="flex md:hidden fixed h-[44px] z-[99] overflow-hidden"
+        style={{ top: '64px', left: '30px', right: '30px', background: '#532fcf', borderRadius: '0 0 14px 14px' }}
       >
         <style jsx>{`
           .no-scrollbar::-webkit-scrollbar { display: none; }
