@@ -79,7 +79,7 @@ export default function Home() {
 
       {/* Page wrapper — top padding accounts for fixed navbar + mobile sub-nav */}
       <main className="min-h-screen font-dm" style={{ paddingTop: '70px', background: '#080808' }}>
-        <div className="max-w-6xl mx-auto px-4 md:px-6 pb-0">
+        <div className="w-full px-4 md:px-6 pb-0">
 
           {/* ══════════════════════════════════════
               HERO BLOCK
@@ -315,7 +315,7 @@ export default function Home() {
             marginTop: '0',
           }}
         >
-          <div className="max-w-6xl mx-auto">
+          <div className="w-full">
             {/* Top grid: logo col + 3 link cols */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12" style={{ marginBottom: '28px' }}>
 
