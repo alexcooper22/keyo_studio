@@ -44,16 +44,16 @@ export default function Navbar() {
     <>
       {/* Main navbar — no border-bottom, blends with page background */}
       <nav
-        className="fixed top-0 left-0 right-0 h-[54px] z-[100] backdrop-blur-xl transition-all"
-        style={{ backgroundColor: 'rgba(8,8,8,0.95)' }}
+        className="fixed top-0 left-0 right-0 h-[64px] z-[100] backdrop-blur-xl transition-all"
+        style={{ backgroundColor: '#532fcf' }}
       >
         <div className="h-full max-w-7xl mx-auto px-4 md:px-6 flex items-center justify-between">
 
           {/* ── Logo ── */}
           <Link href="/" className="flex items-baseline gap-0 cursor-pointer shrink-0">
-            <span style={{ fontFamily: 'var(--font-clash)', fontWeight: 700, color: '#532fcf', fontSize: '18px', letterSpacing: '-0.01em' }}>keyo</span>
-            <span style={{ fontFamily: 'var(--font-clash)', fontWeight: 700, color: 'rgba(255,255,255,0.3)', fontSize: '18px' }}>.</span>
-            <span style={{ fontFamily: 'var(--font-clash)', fontWeight: 600, color: '#aaa', fontSize: '18px' }}>studio</span>
+            <span style={{ fontFamily: 'var(--font-clash)', fontWeight: 700, color: '#fff', fontSize: '20px', letterSpacing: '-0.01em' }}>keyo</span>
+            <span style={{ fontFamily: 'var(--font-clash)', fontWeight: 700, color: 'rgba(255,255,255,0.7)', fontSize: '20px' }}>.</span>
+            <span style={{ fontFamily: 'var(--font-clash)', fontWeight: 600, color: 'rgba(255,255,255,0.7)', fontSize: '20px' }}>studio</span>
           </Link>
 
           {/* ── Center nav tabs — desktop only ── */}
@@ -67,13 +67,13 @@ export default function Navbar() {
                   className={`
                     px-4 py-1.5 font-dm font-[500] text-[14px] transition-all duration-200
                     ${isActive
-                      ? 'text-white rounded-[20px]'
-                      : 'text-[#555] hover:text-[#999] rounded-[20px]'
+                      ? 'text-white'
+                      : 'text-white/60 hover:text-white'
                     }
                   `}
                   style={isActive ? {
-                    background: '#1e1e1e',
-                    border: '0.5px solid #2e2e2e',
+                    background: 'rgba(255,255,255,0.15)',
+                    border: '0.5px solid rgba(255,255,255,0.25)',
                     borderRadius: '20px',
                   } : undefined}
                 >
@@ -89,18 +89,17 @@ export default function Navbar() {
             {/* Pricing button with badge */}
             <Link
               href="/pricing"
-              className="hidden md:flex items-center gap-2 font-dm font-[500] text-[13px] text-[#aaa] hover:text-white transition-colors duration-200"
+              className="hidden md:flex items-center gap-2 font-dm font-[500] text-[13px] text-white/80 hover:text-white transition-colors duration-200"
               style={{
-                background: '#111',
-                border: '0.5px solid #1e1e1e',
+                background: 'rgba(255,255,255,0.15)',
+                border: '0.5px solid rgba(255,255,255,0.25)',
                 borderRadius: '8px',
                 padding: '5px 12px',
               }}
             >
               Pricing
               <span
-                className="font-dm font-[700] text-[10px] leading-none"
-                style={{ color: '#532fcf' }}
+                className="font-dm font-[700] text-[10px] leading-none text-white"
               >
                 30% OFF
               </span>
@@ -109,7 +108,7 @@ export default function Navbar() {
             {/* Vertical divider */}
             <div
               className="hidden md:block h-[20px] mx-1 shrink-0"
-              style={{ width: '0.5px', background: '#1e1e1e' }}
+              style={{ width: '0.5px', background: 'rgba(255,255,255,0.2)' }}
             />
 
             {isSignedIn ? (
@@ -118,7 +117,7 @@ export default function Navbar() {
                 {/* Purple avatar button */}
                 <button
                   className="w-[34px] h-[34px] rounded-full flex items-center justify-center overflow-hidden cursor-pointer shrink-0 transition-transform duration-200 hover:scale-105 active:scale-95"
-                  style={{ background: '#532fcf' }}
+                  style={{ background: 'rgba(255,255,255,0.2)' }}
                   aria-label="User menu"
                 >
                   <span className="font-syne font-[800] text-white text-[14px] leading-none">
@@ -136,10 +135,10 @@ export default function Navbar() {
                     <div className="px-2.5 py-2">
                       <p className="font-dm font-[500] text-[13px] text-white truncate">{displayName}</p>
                       <div className="flex items-center gap-1 mt-0.5">
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="#532fcf" stroke="none">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="white" stroke="none">
                           <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                         </svg>
-                        <span className="font-dm text-[12px]" style={{ color: '#532fcf' }}>
+                        <span className="font-dm text-[12px] text-white/70">
                           {credits !== null ? `${credits} credits` : '... credits'}
                         </span>
                       </div>
@@ -185,10 +184,10 @@ export default function Navbar() {
               <>
                 <button
                   onClick={() => router.push('/sign-in')}
-                  className="font-dm font-[500] text-[13px] text-[#aaa] hover:text-white transition-colors duration-200"
+                  className="font-dm font-[500] text-[13px] text-white hover:text-white/80 transition-colors duration-200"
                   style={{
-                    background: '#111',
-                    border: '0.5px solid #1e1e1e',
+                    background: 'rgba(255,255,255,0.15)',
+                    border: '0.5px solid rgba(255,255,255,0.25)',
                     borderRadius: '8px',
                     padding: '6px 14px',
                   }}
@@ -197,9 +196,9 @@ export default function Navbar() {
                 </button>
                 <button
                   onClick={() => router.push('/sign-up')}
-                  className="font-dm font-[600] text-[13px] text-white hover:opacity-90 transition-opacity duration-200"
+                  className="font-dm font-[600] text-[13px] text-[#532fcf] hover:opacity-90 transition-opacity duration-200"
                   style={{
-                    background: '#532fcf',
+                    background: '#fff',
                     borderRadius: '8px',
                     padding: '6px 14px',
                   }}
@@ -214,8 +213,8 @@ export default function Navbar() {
 
       {/* ── Mobile subordinate nav bar ── */}
       <div
-        className="flex md:hidden fixed top-[54px] left-0 right-0 h-[44px] z-[99] overflow-hidden"
-        style={{ background: '#080808' }}
+        className="flex md:hidden fixed top-[64px] left-0 right-0 h-[44px] z-[99] overflow-hidden"
+        style={{ background: '#532fcf' }}
       >
         <style jsx>{`
           .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -229,11 +228,11 @@ export default function Navbar() {
                 key={link.name}
                 href={link.href}
                 className={`px-4 py-1.5 font-dm font-[500] text-[13px] transition-all ${
-                  isActive ? 'text-white' : 'text-[#555]'
+                  isActive ? 'text-white' : 'text-white/60'
                 }`}
                 style={isActive ? {
-                  background: '#1e1e1e',
-                  border: '0.5px solid #2e2e2e',
+                  background: 'rgba(255,255,255,0.15)',
+                  border: '0.5px solid rgba(255,255,255,0.25)',
                   borderRadius: '20px',
                 } : undefined}
               >
