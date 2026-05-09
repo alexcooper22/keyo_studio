@@ -95,7 +95,7 @@ export default function Home() {
           >
             <h1
               className="font-[300] text-white"
-              style={{ fontSize: '39px', letterSpacing: '-0.02em', marginBottom: '8px', fontFamily: 'var(--font-clash)' }}
+              style={{ fontSize: '54px', fontWeight: 600, letterSpacing: '-0.02em', marginBottom: '8px', fontFamily: 'var(--font-clash)' }}
             >
               Welcome to keyo.studio
             </h1>
