@@ -88,9 +88,9 @@ export default function Home() {
             className="w-full flex flex-col items-center justify-center text-center animate-fadeUp"
             style={{
               borderRadius: '14px',
-              height: '220px',
+              height: '280px',
               background: 'linear-gradient(135deg, #1a1535 0%, #0f1520 40%, #151025 70%, #0d0d0d 100%)',
-              marginBottom: '12px',
+              marginBottom: '16px',
             }}
           >
             <h1
@@ -112,13 +112,13 @@ export default function Home() {
           ══════════════════════════════════════ */}
           <div
             className="grid grid-cols-1 md:grid-cols-3 gap-3 animate-fadeUp delay-100"
-            style={{ marginBottom: '12px' }}
+            style={{ marginBottom: '16px' }}
           >
             {/* Image card */}
             <Link href="/image" className="group block" style={{ borderRadius: '12px', background: '#111', border: '0.5px solid #1e1e1e', overflow: 'hidden', textDecoration: 'none' }}>
               <div
                 style={{
-                  height: '130px',
+                  height: '200px',
                   background: 'linear-gradient(160deg, #2a1f4a, #1a1535)',
                   display: 'flex',
                   alignItems: 'center',
@@ -158,7 +158,7 @@ export default function Home() {
             <Link href="/video" className="group block" style={{ borderRadius: '12px', background: '#111', border: '0.5px solid #1e1e1e', overflow: 'hidden', textDecoration: 'none' }}>
               <div
                 style={{
-                  height: '130px',
+                  height: '200px',
                   background: 'linear-gradient(160deg, #1a2535, #0f1520)',
                   display: 'flex',
                   alignItems: 'center',
@@ -201,7 +201,7 @@ export default function Home() {
             <Link href="/audio" className="group block" style={{ borderRadius: '12px', background: '#111', border: '0.5px solid #1e1e1e', overflow: 'hidden', textDecoration: 'none' }}>
               <div
                 style={{
-                  height: '130px',
+                  height: '200px',
                   background: 'linear-gradient(160deg, #2a1f2a, #1f1525)',
                   display: 'flex',
                   alignItems: 'center',
@@ -240,7 +240,7 @@ export default function Home() {
               border: '0.5px solid #1e1e1e',
               borderRadius: '14px',
               padding: '16px',
-              marginBottom: '12px',
+              marginBottom: '16px',
             }}
           >
             {/* Gallery header */}
