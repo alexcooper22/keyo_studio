@@ -85,7 +85,7 @@ export default function Home() {
               HERO BLOCK
           ══════════════════════════════════════ */}
           <section
-            className="w-full flex flex-col items-center justify-center text-center animate-fadeUp"
+            className="w-full flex flex-col items-center justify-center text-center animate-fadeUp group"
             style={{
               borderRadius: '14px',
               height: 'calc(50vh - 50px)',
@@ -95,16 +95,24 @@ export default function Home() {
           >
             <h1
               className="font-[300] text-white"
-              style={{ fontSize: '54px', fontWeight: 600, letterSpacing: '-0.02em', marginBottom: '8px', fontFamily: 'var(--font-clash)' }}
+              style={{ fontSize: '54px', fontWeight: 500, letterSpacing: '-0.02em', marginBottom: '8px', fontFamily: 'var(--font-clash)' }}
             >
               Welcome to keyo.studio
             </h1>
             <p
               className="font-dm"
-              style={{ fontSize: '12px', color: '#444', maxWidth: '340px', lineHeight: '1.6' }}
+              style={{ fontSize: '12px', color: '#444', maxWidth: '340px', lineHeight: '1.6', marginBottom: '24px' }}
             >
               Generate images, videos and audio with top AI models
             </p>
+            <div className="flex gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
+              <Link href="/image" className="flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-[500] text-white/80 hover:text-white border border-white/20 bg-white/10 hover:bg-white/20 transition-all duration-200" style={{ textDecoration: 'none' }}>
+                Generate Image →
+              </Link>
+              <Link href="/video" className="flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-[500] text-white/80 hover:text-white border border-white/20 bg-white/10 hover:bg-white/20 transition-all duration-200" style={{ textDecoration: 'none' }}>
+                Generate Video →
+              </Link>
+            </div>
           </section>
 
           {/* ══════════════════════════════════════
