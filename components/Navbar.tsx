@@ -41,7 +41,8 @@ export default function Navbar() {
     'User';
 
   return (
-    <div style={{ padding: '0 30px' }}>
+    <>
+      <div style={{ padding: '0 30px' }}>
       {/* Main navbar — card style rounded bottom */}
       <nav
         className="relative h-[64px] z-[100] transition-all"
