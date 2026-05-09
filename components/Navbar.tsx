@@ -41,11 +41,11 @@ export default function Navbar() {
     'User';
 
   return (
-    <>
-      {/* Main navbar — no border-bottom, blends with page background */}
+    <div style={{ padding: '0 30px' }}>
+      {/* Main navbar — card style rounded bottom */}
       <nav
-        className="fixed top-0 left-0 right-0 h-[64px] z-[100] backdrop-blur-xl transition-all"
-        style={{ backgroundColor: '#532fcf' }}
+        className="relative h-[64px] z-[100] transition-all"
+        style={{ backgroundColor: '#532fcf', borderRadius: '0 0 14px 14px' }}
       >
         <div className="h-full max-w-7xl mx-auto px-4 md:px-6 flex items-center justify-between">
 
@@ -210,11 +210,12 @@ export default function Navbar() {
           </div>
         </div>
       </nav>
+    </div>
 
       {/* ── Mobile subordinate nav bar ── */}
       <div
-        className="flex md:hidden fixed top-[64px] left-0 right-0 h-[44px] z-[99] overflow-hidden"
-        style={{ background: '#532fcf' }}
+        className="flex md:hidden relative h-[44px] z-[99] overflow-hidden"
+        style={{ background: '#532fcf', margin: '0 30px', borderRadius: '0 0 14px 14px' }}
       >
         <style jsx>{`
           .no-scrollbar::-webkit-scrollbar { display: none; }

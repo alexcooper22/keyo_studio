@@ -78,7 +78,7 @@ export default function Home() {
       <Navbar />
 
       {/* Page wrapper — top padding accounts for fixed navbar + mobile sub-nav */}
-      <main className="min-h-screen font-dm" style={{ paddingTop: '94px', background: '#080808' }}>
+      <main className="min-h-screen font-dm" style={{ paddingTop: '0', background: '#080808' }}>
         <div className="w-full" style={{ padding: '30px' }}>
 
           {/* ══════════════════════════════════════
