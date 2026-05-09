@@ -78,8 +78,8 @@ export default function Home() {
       <Navbar />
 
       {/* Page wrapper — top padding accounts for fixed navbar + mobile sub-nav */}
-      <main className="min-h-screen font-dm" style={{ paddingTop: '70px', background: '#080808' }}>
-        <div className="w-full" style={{ padding: '16px 16px 0 16px' }}>
+      <main className="min-h-screen font-dm" style={{ paddingTop: '94px', background: '#080808' }}>
+        <div className="w-full" style={{ padding: '30px' }}>
 
           {/* ══════════════════════════════════════
               HERO BLOCK
@@ -309,7 +309,7 @@ export default function Home() {
             FOOTER
         ══════════════════════════════════════ */}
           <footer
-            style={{ background: '#532fcf', padding: '48px 48px 32px', marginTop: '12px' }}
+            style={{ background: '#532fcf', padding: '48px 48px 32px', marginTop: '30px' }}
           >
           <div className="w-full">
             {/* Top grid: logo col + 3 link cols */}
