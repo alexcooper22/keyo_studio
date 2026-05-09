@@ -89,8 +89,7 @@ export default function Home() {
             style={{
               height: 'calc(50vh - 50px)',
               borderRadius: '14px',
-              background: 'linear-gradient(135deg, #1a1535 0%, #0f1520 40%, #151025 70%, #0d0d0d 100%)',
-              backgroundImage: 'url(/hero-bg)',
+              backgroundImage: 'url(/hero-bg.jpg)',
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               marginBottom: '30px',
