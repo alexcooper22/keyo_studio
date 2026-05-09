@@ -309,7 +309,7 @@ export default function Home() {
             FOOTER
         ══════════════════════════════════════ */}
           <footer
-            style={{ background: '#532fcf', padding: '48px 48px 32px', marginTop: '30px' }}
+            style={{ background: '#532fcf', padding: '48px 48px 32px', marginTop: '0px' }}
           >
           <div className="w-full">
             {/* Top grid: logo col + 3 link cols */}
