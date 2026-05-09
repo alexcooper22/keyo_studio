@@ -11,11 +11,11 @@
   --text: #f0f0f0;
   --muted: #555555;
   --muted2: #888888;
-  --accent: #ff3377;
-  --accent2: #80ffe5;
+  --accent: #532fcf;
+  --accent2: #532fcf;
   --teal: #00ffc8;
-  --purple: #a78bfa;
-  --red: #ff3366;
+  --purple: #532fcf;
+  --red: #532fcf;
 }
 
 body {
@@ -54,12 +54,17 @@ body {
   100% { transform: translateX(100%); }
 }
 
+@keyframes waveBar {
+  0%, 100% { transform: scaleY(0.4); }
+  50% { transform: scaleY(1); }
+}
+
 @layer utilities {
   .delay-100 { animation-delay: 100ms; }
   .delay-200 { animation-delay: 200ms; }
   .delay-300 { animation-delay: 300ms; }
   .delay-400 { animation-delay: 400ms; }
-  
+
   .font-syne { font-family: var(--font-syne), sans-serif; }
   .font-dm { font-family: var(--font-dm), sans-serif; }
 }
