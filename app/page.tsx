@@ -103,18 +103,10 @@ export default function Home() {
             </h1>
             <p
               className="font-dm"
-              style={{ fontSize: '12px', color: '#444', maxWidth: '340px', lineHeight: '1.6', marginBottom: '24px' }}
+              style={{ fontSize: '18px', color: '#666', maxWidth: '600px', lineHeight: '1.6' }}
             >
               Generate images, videos and audio with top AI models
             </p>
-            <div className="flex gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
-              <Link href="/image" className="flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-[500] text-white/80 hover:text-white border border-white/20 bg-white/10 hover:bg-white/20 transition-all duration-200" style={{ textDecoration: 'none' }}>
-                Generate Image →
-              </Link>
-              <Link href="/video" className="flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-[500] text-white/80 hover:text-white border border-white/20 bg-white/10 hover:bg-white/20 transition-all duration-200" style={{ textDecoration: 'none' }}>
-                Generate Video →
-              </Link>
-            </div>
           </section>
 
           {/* ══════════════════════════════════════
