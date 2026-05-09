@@ -1,16 +1,18 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import Navbar from '../components/Navbar';
 
-/* ─── Types ─────────────────────────────────────────── */
-interface GalleryImage {
-  id: string;
-  image_url: string;
-  prompt: string;
-  created_at: string;
-}
+/* ─── Static gallery placeholders ───────────────────── */
+const galleryImages = [
+  { id: 1, prompt: 'portrait of a young woman, natural window light, Canon 50mm', gradient: 'linear-gradient(160deg, #3a2a5a, #1a1240)' },
+  { id: 2, prompt: 'Tokyo street at night, rain, neon lights, shallow depth', gradient: 'linear-gradient(160deg, #2a3545, #0f1a2e)' },
+  { id: 3, prompt: 'studio portrait, dramatic lighting, 85mm lens', gradient: 'linear-gradient(160deg, #3a2a2a, #1a1010)' },
+  { id: 4, prompt: 'botanical garden, soft golden light, film grain', gradient: 'linear-gradient(160deg, #2a3a2a, #101a10)' },
+  { id: 5, prompt: 'candid street portrait, natural light, film look', gradient: 'linear-gradient(160deg, #3a2a3a, #1a0f20)' },
+  { id: 6, prompt: 'night city reflections, long exposure, moody', gradient: 'linear-gradient(160deg, #2a2a3a, #0f1020)' },
+];
 
 /* ─── Social icon paths ──────────────────────────────── */
 const socials = [
@@ -70,19 +72,6 @@ function AudioWave() {
 
 /* ─── Main Page ──────────────────────────────────────── */
 export default function Home() {
-  const [gallery, setGallery] = useState<GalleryImage[]>([]);
-  const [galleryLoading, setGalleryLoading] = useState(true);
-
-  /* Fetch last 6 community images from Supabase via API route */
-  useEffect(() => {
-    fetch('/api/community-gallery')
-      .then(res => res.json())
-      .then((data: GalleryImage[]) => {
-        setGallery(data || []);
-        setGalleryLoading(false);
-      })
-      .catch(() => setGalleryLoading(false));
-  }, []);
 
   return (
     <>
@@ -273,82 +262,46 @@ export default function Home() {
               </Link>
             </div>
 
-            {/* Gallery grid */}
-            {galleryLoading ? (
-              /* Skeleton */
-              <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
-                {Array.from({ length: 6 }).map((_, i) => (
+            {/* Static placeholder gallery grid */}
+            <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+              {galleryImages.map((img) => (
+                <div
+                  key={img.id}
+                  className="group relative overflow-hidden"
+                  style={{ aspectRatio: '3/4', borderRadius: '8px', cursor: 'pointer', background: img.gradient }}
+                >
+                  {/* Hover overlay */}
                   <div
-                    key={i}
+                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col justify-end"
                     style={{
-                      aspectRatio: '3/4',
+                      background: 'linear-gradient(to top, rgba(0,0,0,0.88) 0%, transparent 55%)',
                       borderRadius: '8px',
-                      background: '#1a1a1a',
-                      animation: 'shimmer 1.6s ease infinite',
+                      padding: '10px 8px 8px',
                     }}
-                  />
-                ))}
-              </div>
-            ) : gallery.length > 0 ? (
-              <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
-                {gallery.map((img) => (
-                  <div
-                    key={img.id}
-                    className="group relative overflow-hidden"
-                    style={{ aspectRatio: '3/4', borderRadius: '8px', cursor: 'pointer' }}
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={img.image_url}
-                      alt={img.prompt || 'Generated image'}
+                    <p
+                      className="font-dm text-white"
+                      style={{ fontSize: '9px', lineHeight: '1.4', opacity: 0.8, marginBottom: '6px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
+                    >
+                      {img.prompt}
+                    </p>
+                    <button
+                      className="font-dm font-[600] text-white w-full"
                       style={{
-                        width: '100%', height: '100%',
-                        objectFit: 'cover',
-                        display: 'block',
-                        borderRadius: '8px',
-                      }}
-                    />
-                    {/* Hover overlay */}
-                    <div
-                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col justify-end"
-                      style={{
-                        background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 60%)',
-                        borderRadius: '8px',
-                        padding: '10px 8px 8px',
+                        fontSize: '9px',
+                        background: '#532fcf',
+                        border: 'none',
+                        borderRadius: '4px',
+                        padding: '4px 6px',
+                        cursor: 'pointer',
                       }}
                     >
-                      <p
-                        className="font-dm text-white"
-                        style={{ fontSize: '9px', lineHeight: '1.4', opacity: 0.8, marginBottom: '6px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
-                      >
-                        {img.prompt}
-                      </p>
-                      <button
-                        className="font-dm font-[600] text-white w-full transition-opacity duration-200"
-                        style={{
-                          fontSize: '9px',
-                          background: '#532fcf',
-                          border: 'none',
-                          borderRadius: '4px',
-                          padding: '4px 6px',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        ✦ Try prompt
-                      </button>
-                    </div>
+                      ✦ Try prompt
+                    </button>
                   </div>
-                ))}
-              </div>
-            ) : (
-              /* Empty state */
-              <div className="flex flex-col items-center justify-center py-10 gap-2">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#333" strokeWidth="1.5">
-                  <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
-                </svg>
-                <p className="font-dm" style={{ fontSize: '12px', color: '#444' }}>No images yet — be the first to create!</p>
-              </div>
-            )}
+                </div>
+              ))}
+            </div>
           </section>
         </div>
 
