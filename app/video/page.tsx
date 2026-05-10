@@ -59,72 +59,97 @@ export default function VideoDashboard() {
       <div className="flex-1 flex flex-col md:flex-row w-full h-full overflow-hidden transition-all">
         
         {/* LEFT PANEL */}
-        <div
-          className="bg-[#0a0a0a] border-b md:border-b-0 md:border-r border-white/[0.06] p-4 shrink-0 flex flex-col w-full md:w-[280px] h-auto md:h-[calc(100vh-64px)]"
-        >
+        <div className="bg-[#0a0a0a] border-b md:border-b-0 md:border-r border-white/[0.06] shrink-0 flex flex-col w-full md:w-[280px] h-auto md:h-[calc(100vh-64px)] overflow-y-auto">
           {/* TABS */}
-          <div className="flex items-center gap-4 border-b border-white/[0.06] pb-3 mb-2 shrink-0">
-            <button className="text-white font-semibold text-[13px] border-b-2 border-[#ff3377] pb-3 -mb-[13px]">Create Video</button>
-            <button className="text-[#555] hover:text-[#888] text-[13px] transition-colors pb-3 -mb-[13px]">Edit</button>
-            <button className="text-[#555] hover:text-[#888] text-[13px] transition-colors pb-3 -mb-[13px]">Motion</button>
+          <div className="flex items-center border-b border-white/[0.06] px-4">
+            <button className="text-white text-[13px] border-b-2 border-[#532fcf] py-3 mr-4">Create Video</button>
+            <button className="text-[#555] hover:text-[#888] text-[13px] transition-colors py-3 mr-4">Edit</button>
+            <button className="text-[#555] hover:text-[#888] text-[13px] transition-colors py-3">Motion</button>
           </div>
 
-          {/* A) MODEL SELECTOR */}
-          <div className="w-full bg-[#111] rounded-xl border border-white/[0.04] p-4 flex flex-col gap-2 relative shrink-0">
-            <button className="absolute top-4 right-4 bg-white/[0.08] hover:bg-white/[0.15] cursor-pointer px-2 py-0.5 rounded-full text-xs text-white/70 transition-colors z-10">Change</button>
-            <div className="w-full aspect-video bg-gradient-to-br from-[#161616] to-[#0f0f0f] rounded-lg mb-1 relative overflow-hidden border border-white/[0.02]">
-              {/* Shimmer */}
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.03] to-transparent w-[200%] animate-[shimmer_3s_ease_infinite]"></div>
-            </div>
-            <div className="text-[var(--accent)] font-syne font-bold text-sm tracking-wide mt-1">GENERAL</div>
-            <div className="text-[#888] font-dm text-sm">Kling 3.0</div>
-          </div>
-
-          {/* B) FRAME INPUTS */}
-          <div className="flex gap-3 w-full shrink-0">
-            <div className="flex-1 flex flex-col gap-2">
-              <span className="text-white/80 font-dm text-[13px]">Start frame</span>
-              <div className="w-full aspect-square bg-[#111] rounded-lg border border-white/[0.06] flex items-center justify-center cursor-pointer hover:bg-[#161616] transition-colors">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+          <div className="flex flex-col gap-3 p-3 flex-1">
+            {/* MODEL CARD */}
+            <div className="w-full bg-[#111] rounded-xl border border-white/[0.04] overflow-hidden relative">
+              <div className="w-full h-[90px] bg-gradient-to-br from-[#1a1535] to-[#0f1020] relative">
+                <button className="absolute top-2 right-2 bg-white/[0.12] hover:bg-white/[0.2] px-2 py-1 rounded-md text-[10px] text-white/70 transition-colors flex items-center gap-1">
+                  ✎ Change
+                </button>
+              </div>
+              <div className="px-3 py-2">
+                <div className="text-[#532fcf] text-[10px] font-bold tracking-wide">GENERAL</div>
+                <div className="text-[#888] text-[12px]">Kling 3.0</div>
               </div>
             </div>
-            <div className="flex-1 flex flex-col gap-2">
-              <span className="text-[#555] font-dm text-[13px]">Optional</span>
-              <div className="w-full aspect-square bg-[#0a0a0a] rounded-lg border border-dashed border-white/[0.06] flex items-center justify-center">
-                <span className="text-[#333] text-xs font-dm">End frame</span>
+
+            {/* FRAME INPUTS */}
+            <div className="grid grid-cols-2 gap-2">
+              <div className="flex flex-col gap-1.5">
+                <div className="w-full aspect-square bg-[#111] rounded-lg border border-white/[0.06] flex flex-col items-center justify-center gap-1.5 cursor-pointer hover:bg-[#161616] transition-colors relative">
+                  <span className="absolute top-1.5 right-2 text-[9px] text-[#333]">Optional</span>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2a2a2a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                  <span className="text-[10px] text-[#444]">Start frame</span>
+                </div>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <div className="w-full aspect-square bg-[#111] rounded-lg border border-white/[0.06] flex flex-col items-center justify-center gap-1.5 cursor-pointer hover:bg-[#161616] transition-colors relative">
+                  <span className="absolute top-1.5 right-2 text-[9px] text-[#333]">Optional</span>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2a2a2a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                  <span className="text-[10px] text-[#444]">End frame</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* C) MULTI-SHOT TOGGLE */}
-          <div className="flex items-center justify-between w-full shrink-0">
-            <div className="flex items-center gap-1.5 text-white/80 font-dm text-[13px]">
-              Multi-shot
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+            {/* MULTI-SHOT TOGGLE */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5 text-[#888] text-[12px]">
+                Multi-shot
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#444" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+              </div>
+              <div className="w-8 h-[18px] bg-[#333] rounded-full relative cursor-pointer">
+                <div className="w-3.5 h-3.5 bg-white rounded-full absolute left-0.5 top-0.5"></div>
+              </div>
             </div>
-            <div className="w-9 h-5 bg-[var(--accent)] rounded-full relative cursor-pointer shadow-inner">
-              <div className="w-4 h-4 bg-white rounded-full absolute right-0.5 top-0.5 shadow-sm"></div>
-            </div>
-          </div>
 
-          {/* D) PROMPT TEXTAREA */}
-          <div className="w-full flex flex-col gap-2 min-h-0 shrink-0">
-            <textarea 
+            {/* PROMPT */}
+            <textarea
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              className="w-full h-[100px] bg-[#111] border border-white/[0.08] rounded-xl p-4 text-white font-dm text-[14px] placeholder:text-[#444] outline-none focus:border-[var(--accent)]/50 transition-colors resize-none"
+              className="w-full h-[90px] bg-[#111] border border-white/[0.08] rounded-xl p-3 text-white text-[13px] placeholder:text-[#333] outline-none focus:border-[#532fcf]/50 transition-colors resize-none font-dm"
               placeholder="Describe your video scene..."
-            ></textarea>
-            {error && <div className="text-red-500 text-xs font-dm px-1">{error}</div>}
+            />
+
+            {/* MODEL SELECT */}
+            <div className="w-full bg-[#111] border border-white/[0.06] rounded-lg px-3 py-2.5 flex items-center justify-between cursor-pointer hover:border-white/[0.12] transition-colors">
+              <div>
+                <div className="text-[10px] text-[#444] mb-0.5">Model</div>
+                <div className="text-[12px] text-[#888] flex items-center gap-1.5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#532fcf]"></div>
+                  Kling 3.0
+                </div>
+              </div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+
+            {error && <div className="text-red-500 text-xs px-1">{error}</div>}
           </div>
 
-          {/* Bottom Module Items */}
-          <div style={{ marginTop: 'auto' }} className="flex flex-col gap-4">
-            {/* F) GENERATE BUTTON */}
-            <button 
+          {/* PARAMS + GENERATE */}
+          <div className="border-t border-white/[0.06] p-3 flex flex-col gap-2">
+            <div className="flex gap-2">
+              <button className="flex-1 bg-[#111] border border-white/[0.06] rounded-lg py-2 text-[11px] text-[#666] flex items-center justify-center gap-1.5 hover:border-white/[0.12] hover:text-[#888] transition-colors">
+                ◷ 5s
+              </button>
+              <button className="flex-1 bg-[#111] border border-white/[0.06] rounded-lg py-2 text-[11px] text-[#666] flex items-center justify-center gap-1.5 hover:border-white/[0.12] hover:text-[#888] transition-colors">
+                ▭ 9:16
+              </button>
+              <button className="flex-1 bg-[#111] border border-white/[0.06] rounded-lg py-2 text-[11px] text-[#666] flex items-center justify-center gap-1.5 hover:border-white/[0.12] hover:text-[#888] transition-colors">
+                ◇ 720p
+              </button>
+            </div>
+            <button
               onClick={handleGenerate}
               disabled={isGenerating || !prompt.trim()}
-              className="w-full h-[52px] bg-[var(--accent)] text-black font-syne font-[700] text-[16px] rounded-lg flex items-center justify-center gap-1.5 hover:brightness-110 hover:scale-[1.01] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-[#532fcf] hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-[13px] rounded-lg py-3 flex items-center justify-center gap-2 transition-all"
             >
               {isGenerating ? status || 'Generating...' : '⚡ Generate'}
             </button>
