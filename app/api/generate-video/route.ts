@@ -27,7 +27,8 @@ export async function POST(req: NextRequest) {
   try {
     const token = await generateKlingToken();
 
-    const response = await fetch('https://api.klingai.com/v1/videos/text2video', {
+    const endpoint = startFrame || endFrame ? 'image2video' : 'text2video';
+    const response = await fetch(`https://api.klingai.com/v1/videos/${endpoint}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -41,8 +42,8 @@ export async function POST(req: NextRequest) {
         mode,
         cfg_scale: quality === '1080p' ? 0.5 : undefined,
         enable_audio: audio,
-        image_reference: startFrame ? { image: startFrame } : undefined,
-        image_tail: endFrame ? { image: endFrame } : undefined,
+        ...(startFrame && { image: startFrame }),
+        ...(endFrame && { image_tail: endFrame }),
       }),
     });
 
