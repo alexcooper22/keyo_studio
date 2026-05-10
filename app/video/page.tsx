@@ -348,22 +348,29 @@ export default function VideoDashboard() {
             <div key={v.id} style={{ width: '100%', background: '#111', border: '0.5px solid #1e1e1e', borderRadius: '14px', overflow: 'hidden', flexShrink: 0, display: 'flex' }}>
               {/* Video */}
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ position: 'relative' }} onMouseEnter={e => { const el = e.currentTarget.querySelector('.video-actions') as HTMLElement; if (el) el.style.opacity = '1'; }} onMouseLeave={e => { const el = e.currentTarget.querySelector('.video-actions') as HTMLElement; if (el && !likedVideos.has(v.id)) el.style.opacity = '0'; }}>
+                <div style={{ position: 'relative' }}
+                  onMouseEnter={e => {
+                    const el = e.currentTarget.querySelector('.video-actions') as HTMLElement;
+                    const dl = e.currentTarget.querySelector('.download-btn') as HTMLElement;
+                    if (el) el.style.opacity = '1';
+                    if (dl) dl.style.display = 'flex';
+                  }}
+                  onMouseLeave={e => {
+                    const el = e.currentTarget.querySelector('.video-actions') as HTMLElement;
+                    const dl = e.currentTarget.querySelector('.download-btn') as HTMLElement;
+                    if (el) el.style.opacity = likedVideos.has(v.id) ? '1' : '0';
+                    if (dl && likedVideos.has(v.id)) dl.style.display = 'none';
+                  }}
+                >
                   <video src={v.videoUrl} controls loop style={{ width: '100%', display: 'block', maxHeight: '80vh', objectFit: 'contain', background: '#000' }} />
                   
                   {/* Hover actions */}
                   <div className="video-actions" style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '6px', opacity: likedVideos.has(v.id) ? 1 : 0, transition: 'opacity 0.2s', zIndex: 30 }}>
-                    <button onClick={() => downloadVideo(v.videoUrl, v.id)} style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff' }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                        <polyline points="7 10 12 15 17 10"/>
-                        <line x1="12" y1="15" x2="12" y2="3"/>
-                      </svg>
+                    <button className="download-btn" onClick={() => downloadVideo(v.videoUrl, v.id)} style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff' }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                     </button>
-                    <button onClick={() => toggleLike(v.id)} style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill={likedVideos.has(v.id) ? '#532fcf' : 'none'} stroke={likedVideos.has(v.id) ? '#532fcf' : 'white'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                      </svg>
+                    <button onClick={() => toggleLike(v.id)} style={{ width: '32px', height: '32px', borderRadius: '50%', background: likedVideos.has(v.id) ? '#532fcf22' : 'rgba(255,255,255,0.1)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill={likedVideos.has(v.id) ? '#532fcf' : 'none'} stroke={likedVideos.has(v.id) ? '#532fcf' : 'white'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
                     </button>
                   </div>
                 </div>
