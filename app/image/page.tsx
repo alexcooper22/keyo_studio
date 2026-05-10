@@ -623,19 +623,12 @@ export default function ImageDashboard() {
           {/* Bottom Row: Settings */}
           <div className="px-4 md:px-5 py-2 md:py-3 flex flex-wrap items-center gap-2 md:gap-3">
             <div className="relative" ref={dropdownRef}>
-              <div 
-                onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)} 
-                style={{ background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '8px', padding: '7px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', minWidth: '140px' }}
+              <button 
+                onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
+                className={`px-3 py-1 rounded-full bg-white/[0.06] border font-dm text-[11px] md:text-xs transition-all flex items-center gap-1.5 ${isModelDropdownOpen ? 'border-[#ff3377] text-white bg-white/10' : 'border-white/10 text-[#777] hover:text-white hover:bg-white/10'}`}
               >
-                <div>
-                  <div style={{ fontSize: '9px', color: '#777' }}>Model</div>
-                  <div style={{ fontSize: '12px', color: '#777', display: 'flex', alignItems: 'center', gap: '5px', marginTop: '2px' }}>
-                    <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#532fcf' }}></div>
-                    Nano Banana 2
-                  </div>
-                </div>
-                <span style={{ color: '#777', fontSize: '14px' }}>›</span>
-              </div>
+                {modelOptions.find(m => m.id === selectedModel)?.name} ▾
+              </button>
               
               {isModelDropdownOpen && (
                 <div className="absolute bottom-full left-0 mb-2 w-[220px] bg-[#161616] border border-white/[0.08] rounded-xl overflow-hidden shadow-2xl z-[60] backdrop-blur-xl animate-in fade-in slide-in-from-bottom-2 duration-200">
