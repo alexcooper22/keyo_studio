@@ -65,7 +65,7 @@ export default function VideoDashboard() {
           {/* Body */}
           <div style={{ padding: '10px', display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, overflowY: 'auto' }}>
             {/* Model card */}
-            <div style={{ background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '10px', overflow: 'hidden', position: 'relative' }}>
+            <div style={{ background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '10px', overflow: 'hidden' }}>
               <div style={{ height: '75px', background: 'linear-gradient(135deg, #1a1535, #0f1020)', position: 'relative' }}>
                 <div style={{ position: 'absolute', top: '6px', right: '6px', background: '#ffffff10', border: '0.5px solid #ffffff15', borderRadius: '5px', padding: '2px 8px', fontSize: '10px', color: '#888', cursor: 'pointer' }}>✎ Change</div>
               </div>
@@ -79,7 +79,7 @@ export default function VideoDashboard() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
               {['Start frame', 'End frame'].map(f => (
                 <div key={f} style={{ background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '8px', aspectRatio: '1', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', cursor: 'pointer', position: 'relative' }}>
-                  <span style={{ position: 'absolute', top: '5px', right: '6px', fontSize: '8px', color: '#252525' }}>Optional</span>
+                  <span style={{ position: 'absolute', top: '5px', right: '6px', fontSize: '8px', color: '#333' }}>Optional</span>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#222" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                   <span style={{ fontSize: '9px', color: '#2d2d2d' }}>{f}</span>
                 </div>
@@ -99,35 +99,35 @@ export default function VideoDashboard() {
               value={prompt}
               onChange={e => setPrompt(e.target.value)}
               placeholder="Describe your video scene..."
-              style={{ background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '8px', padding: '8px', fontSize: '12px', color: '#888', minHeight: '80px', resize: 'none', outline: 'none', width: '100%', fontFamily: 'inherit' }}
+              style={{ background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '8px', padding: '10px', fontSize: '12px', color: '#ccc', flex: 1, minHeight: '120px', resize: 'none', outline: 'none', width: '100%', fontFamily: 'inherit', boxSizing: 'border-box' }}
             />
 
             {/* Model select */}
             <div style={{ background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '8px', padding: '7px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
               <div>
-                <div style={{ fontSize: '9px', color: '#2d2d2d' }}>Model</div>
+                <div style={{ fontSize: '9px', color: '#444' }}>Model</div>
                 <div style={{ fontSize: '12px', color: '#555', display: 'flex', alignItems: 'center', gap: '5px', marginTop: '2px' }}>
                   <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#532fcf' }}></div>
                   Kling 3.0
                 </div>
               </div>
-              <span style={{ color: '#2d2d2d', fontSize: '14px' }}>›</span>
+              <span style={{ color: '#333', fontSize: '14px' }}>›</span>
             </div>
 
             {error && <div style={{ fontSize: '11px', color: '#ef4444' }}>{error}</div>}
           </div>
 
           {/* Footer */}
-          <div style={{ borderTop: '0.5px solid #1e1e1e', padding: '8px 10px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <div style={{ borderTop: '0.5px solid #1e1e1e', padding: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <div style={{ display: 'flex', gap: '5px' }}>
               {['◷ 5s', '▭ 9:16', '◇ 720p'].map(p => (
-                <div key={p} style={{ flex: 1, background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '6px', padding: '5px 3px', textAlign: 'center', fontSize: '10px', color: '#444', cursor: 'pointer' }}>{p}</div>
+                <div key={p} style={{ flex: 1, background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '6px', padding: '7px 3px', textAlign: 'center', fontSize: '10px', color: '#555', cursor: 'pointer' }}>{p}</div>
               ))}
             </div>
             <button
               onClick={handleGenerate}
               disabled={isGenerating}
-              style={{ background: '#532fcf', border: 'none', borderRadius: '8px', padding: '10px', fontSize: '13px', fontWeight: 600, color: '#fff', cursor: isGenerating ? 'not-allowed' : 'pointer', opacity: isGenerating ? 0.7 : 1, width: '100%' }}
+              style={{ background: '#532fcf', border: 'none', borderRadius: '8px', padding: '14px', fontSize: '14px', fontWeight: 600, color: '#fff', cursor: isGenerating ? 'not-allowed' : 'pointer', opacity: isGenerating ? 0.7 : 1, width: '100%' }}
             >
               {isGenerating ? status || 'Generating...' : '⚡ Generate'}
             </button>
