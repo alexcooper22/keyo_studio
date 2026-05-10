@@ -15,6 +15,7 @@ export default function VideoDashboard() {
   const [videos, setVideos] = useState<VideoItem[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<string>('');
+  const [quality, setQuality] = useState<'720p' | '1080p'>('720p');
   const pollRef = useRef<NodeJS.Timeout | null>(null);
   const feedRef = useRef<HTMLDivElement>(null);
 
@@ -47,7 +48,7 @@ export default function VideoDashboard() {
       const res = await fetch('/api/generate-video', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, duration: 5, aspectRatio: '9:16', mode: 'std' }),
+        body: JSON.stringify({ prompt, duration: 5, aspectRatio: '9:16', mode: 'std', quality }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed');
@@ -156,9 +157,9 @@ export default function VideoDashboard() {
           {/* Footer */}
           <div style={{ borderTop: '0.5px solid #1e1e1e', padding: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <div style={{ display: 'flex', gap: '5px' }}>
-              {['◷ 5s', '▭ 9:16', '◇ 720p'].map(p => (
-                <div key={p} style={{ flex: 1, background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '6px', padding: '7px 3px', textAlign: 'center', fontSize: '10px', color: '#555', cursor: 'pointer' }}>{p}</div>
-              ))}
+              <div style={{ flex: 1, background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '6px', padding: '7px 3px', textAlign: 'center', fontSize: '10px', color: '#555' }}>◷ 5s</div>
+              <div style={{ flex: 1, background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '6px', padding: '7px 3px', textAlign: 'center', fontSize: '10px', color: '#555' }}>▭ 9:16</div>
+              <div onClick={() => setQuality(q => q === '720p' ? '1080p' : '720p')} style={{ flex: 1, background: '#0d0d0d', border: `0.5px solid ${quality === '1080p' ? '#532fcf' : '#1e1e1e'}`, borderRadius: '6px', padding: '7px 3px', textAlign: 'center', fontSize: '10px', color: quality === '1080p' ? '#532fcf' : '#555', cursor: 'pointer' }}>◇ {quality}</div>
             </div>
             <button
               onClick={handleGenerate}

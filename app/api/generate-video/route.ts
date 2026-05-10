@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { prompt, duration = 5, aspectRatio = '9:16', mode = 'std' } = await req.json();
+  const { prompt, duration = 5, aspectRatio = '9:16', mode = 'std', quality = '720p' } = await req.json();
   if (!prompt) return NextResponse.json({ error: 'Prompt required' }, { status: 400 });
 
   try {
@@ -39,6 +39,7 @@ export async function POST(req: NextRequest) {
         duration,
         aspect_ratio: aspectRatio,
         mode,
+        cfg_scale: quality === '1080p' ? 0.5 : undefined,
       }),
     });
 
