@@ -625,7 +625,7 @@ export default function ImageDashboard() {
             <div className="relative" ref={dropdownRef}>
               <button 
                 onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
-                className={`px-3 py-1 rounded-full bg-white/[0.06] border font-dm text-[11px] md:text-xs transition-all flex items-center gap-1.5 ${isModelDropdownOpen ? 'border-[#ff3377] text-white bg-white/10' : 'border-white/10 text-[#777] hover:text-white hover:bg-white/10'}`}
+                className={`px-3 py-1 rounded-full bg-white/[0.06] border font-dm text-[11px] md:text-xs transition-all flex items-center gap-1.5 ${isModelDropdownOpen ? 'border-[#532fcf] text-white bg-white/10' : 'border-white/10 text-[#777] hover:text-white hover:bg-white/10'}`}
               >
                 {modelOptions.find(m => m.id === selectedModel)?.name} ▾
               </button>
@@ -639,11 +639,11 @@ export default function ImageDashboard() {
                         setSelectedModel(model.id);
                         setIsModelDropdownOpen(false);
                       }}
-                      className={`w-full text-left px-4 py-3 hover:bg-white/[0.04] transition-colors flex flex-col gap-0.5 ${selectedModel === model.id ? 'bg-[#ff3377]/5' : ''}`}
+                      className={`w-full text-left px-4 py-3 hover:bg-white/[0.04] transition-colors flex flex-col gap-0.5 ${selectedModel === model.id ? 'bg-[#532fcf]/5' : ''}`}
                     >
                       <div className="flex items-center justify-between">
-                        <span className={`font-dm font-[600] text-sm ${selectedModel === model.id ? 'text-[#ff3377]' : 'text-white/90'}`}>{model.name}</span>
-                        {selectedModel === model.id && <div className="w-1 h-1 rounded-full bg-[#ff3377]" />}
+                        <span className={`font-dm font-[600] text-sm text-[#777]`}>{model.name}</span>
+                        {selectedModel === model.id && <div className="w-1 h-1 rounded-full bg-[#532fcf]" />}
                       </div>
                       <span className="font-dm text-[11px] text-[#777]">{model.price}</span>
                     </button>
