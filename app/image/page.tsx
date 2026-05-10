@@ -85,7 +85,7 @@ export default function ImageDashboard() {
       });
     }
     setShowRatioDropdown(false); // close ratio when opening quality
-    setShowQualityModal(true);
+    setShowQualityModal(prev => !prev);
   };
 
   const handleOpenRatio = () => {
@@ -719,7 +719,7 @@ export default function ImageDashboard() {
                 onClick={handleOpenQuality}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] text-[#888] border border-white/10 hover:text-white transition-colors"
               >
-                ♡ {quality}
+                💎 {quality}
               </button>
 
               {showQualityModal && (
