@@ -52,7 +52,7 @@ export default function VideoDashboard() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[var(--bg)] md:overflow-hidden flex flex-col relative pt-[92px] md:pt-[64px]">
+    <div className="min-h-screen w-full bg-[var(--bg)] md:overflow-hidden flex flex-col relative" style={{ paddingTop: '64px' }}>
       <Navbar />
 
       {/* Main 3-column area */}
@@ -149,7 +149,7 @@ export default function VideoDashboard() {
             <button
               onClick={handleGenerate}
               disabled={isGenerating || !prompt.trim()}
-              className="w-full bg-[#532fcf] hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-[13px] rounded-lg py-3 flex items-center justify-center gap-2 transition-all"
+              className="w-full bg-[#532fcf] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-[13px] rounded-lg py-3 flex items-center justify-center gap-2 transition-all"
             >
               {isGenerating ? status || 'Generating...' : '⚡ Generate'}
             </button>
