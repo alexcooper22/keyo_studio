@@ -19,6 +19,8 @@ export default function VideoDashboard() {
   const [showQualityMenu, setShowQualityMenu] = useState(false);
   const [aspectRatio, setAspectRatio] = useState<'9:16' | '16:9' | '1:1'>('9:16');
   const [showAspectMenu, setShowAspectMenu] = useState(false);
+  const [duration, setDuration] = useState<number>(5);
+  const [showDurationMenu, setShowDurationMenu] = useState(false);
   const pollRef = useRef<NodeJS.Timeout | null>(null);
   const feedRef = useRef<HTMLDivElement>(null);
 
@@ -28,6 +30,7 @@ export default function VideoDashboard() {
       if (!target.closest('[data-menu]')) {
         setShowQualityMenu(false);
         setShowAspectMenu(false);
+        setShowDurationMenu(false);
       }
     };
     document.addEventListener('mousedown', handleClick);
@@ -63,7 +66,7 @@ export default function VideoDashboard() {
       const res = await fetch('/api/generate-video', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, duration: 5, aspectRatio, mode: 'std', quality }),
+        body: JSON.stringify({ prompt, duration, aspectRatio, mode: 'std', quality }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed');
@@ -172,9 +175,21 @@ export default function VideoDashboard() {
           {/* Footer */}
           <div style={{ borderTop: '0.5px solid #1e1e1e', padding: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <div style={{ display: 'flex', gap: '5px' }}>
-              <div style={{ flex: 1, background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '6px', padding: '7px 3px', textAlign: 'center', fontSize: '10px', color: '#555' }}>◷ 5s</div>
               <div style={{ flex: 1, position: 'relative' }}>
-                <div data-menu="true" onClick={e => { e.stopPropagation(); setShowAspectMenu(v => !v); setShowQualityMenu(false); }} style={{ background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '6px', padding: '7px 3px', textAlign: 'center', fontSize: '10px', color: '#555', cursor: 'pointer' }}>▭ {aspectRatio}</div>
+                <div data-menu="true" onClick={e => { e.stopPropagation(); setShowDurationMenu(v => !v); setShowQualityMenu(false); setShowAspectMenu(false); }} style={{ background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '6px', padding: '7px 3px', textAlign: 'center', fontSize: '10px', color: '#555', cursor: 'pointer' }}>◷ {duration}s</div>
+                {showDurationMenu && (
+                  <div data-menu="true" style={{ position: 'absolute', bottom: '110%', left: 0, right: 0, background: '#161616', border: '0.5px solid #1e1e1e', borderRadius: '8px', overflow: 'hidden', zIndex: 100 }}>
+                    {[3, 5, 7, 10].map(d => (
+                      <div key={d} onClick={() => { setDuration(d); setShowDurationMenu(false); }} style={{ padding: '8px 12px', fontSize: '12px', color: '#555', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        {d}s
+                        {duration === d && <span style={{ color: '#532fcf' }}>✓</span>}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div style={{ flex: 1, position: 'relative' }}>
+                <div data-menu="true" onClick={e => { e.stopPropagation(); setShowAspectMenu(v => !v); setShowQualityMenu(false); setShowDurationMenu(false); }} style={{ background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '6px', padding: '7px 3px', textAlign: 'center', fontSize: '10px', color: '#555', cursor: 'pointer' }}>▭ {aspectRatio}</div>
                 {showAspectMenu && (
                   <div data-menu="true" style={{ position: 'absolute', bottom: '110%', left: 0, right: 0, background: '#161616', border: '0.5px solid #1e1e1e', borderRadius: '8px', overflow: 'hidden', zIndex: 100 }}>
                     {(['9:16', '16:9', '1:1'] as const).map(r => (
@@ -189,7 +204,7 @@ export default function VideoDashboard() {
               <div style={{ flex: 1, position: 'relative' }}>
                 <div
                   data-menu="true"
-                  onClick={e => { e.stopPropagation(); setShowQualityMenu(v => !v); setShowAspectMenu(false); }}
+                  onClick={e => { e.stopPropagation(); setShowQualityMenu(v => !v); setShowAspectMenu(false); setShowDurationMenu(false); }}
                   style={{ background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '6px', padding: '7px 3px', textAlign: 'center', fontSize: '10px', color: '#555', cursor: 'pointer' }}
                 >◇ {quality}</div>
                 {showQualityMenu && (
