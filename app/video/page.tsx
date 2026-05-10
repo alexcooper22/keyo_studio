@@ -16,6 +16,7 @@ export default function VideoDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<string>('');
   const [quality, setQuality] = useState<'720p' | '1080p'>('720p');
+  const [showQualityMenu, setShowQualityMenu] = useState(false);
   const pollRef = useRef<NodeJS.Timeout | null>(null);
   const feedRef = useRef<HTMLDivElement>(null);
 
@@ -159,7 +160,27 @@ export default function VideoDashboard() {
             <div style={{ display: 'flex', gap: '5px' }}>
               <div style={{ flex: 1, background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '6px', padding: '7px 3px', textAlign: 'center', fontSize: '10px', color: '#555' }}>◷ 5s</div>
               <div style={{ flex: 1, background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '6px', padding: '7px 3px', textAlign: 'center', fontSize: '10px', color: '#555' }}>▭ 9:16</div>
-              <div onClick={() => setQuality(q => q === '720p' ? '1080p' : '720p')} style={{ flex: 1, background: '#0d0d0d', border: `0.5px solid ${quality === '1080p' ? '#532fcf' : '#1e1e1e'}`, borderRadius: '6px', padding: '7px 3px', textAlign: 'center', fontSize: '10px', color: quality === '1080p' ? '#532fcf' : '#555', cursor: 'pointer' }}>◇ {quality}</div>
+              <div style={{ flex: 1, position: 'relative' }}>
+                <div
+                  onClick={() => setShowQualityMenu(v => !v)}
+                  style={{ background: '#0d0d0d', border: `0.5px solid ${quality !== '720p' ? '#532fcf' : '#1e1e1e'}`, borderRadius: '6px', padding: '7px 3px', textAlign: 'center', fontSize: '10px', color: quality !== '720p' ? '#532fcf' : '#555', cursor: 'pointer' }}
+                >◇ {quality}</div>
+                {showQualityMenu && (
+                  <div style={{ position: 'absolute', bottom: '110%', left: 0, right: 0, background: '#161616', border: '0.5px solid #1e1e1e', borderRadius: '8px', overflow: 'hidden', zIndex: 100 }}>
+                    <div style={{ padding: '6px 8px', fontSize: '9px', color: '#333', letterSpacing: '0.5px' }}>SELECT QUALITY</div>
+                    {(['720p', '1080p'] as const).map(q => (
+                      <div
+                        key={q}
+                        onClick={() => { setQuality(q); setShowQualityMenu(false); }}
+                        style={{ padding: '8px 12px', fontSize: '12px', color: quality === q ? '#fff' : '#555', background: quality === q ? '#1a1a1a' : 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+                      >
+                        {q}
+                        {quality === q && <span style={{ color: '#532fcf' }}>✓</span>}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
             <button
               onClick={handleGenerate}
