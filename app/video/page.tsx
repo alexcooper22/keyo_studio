@@ -18,6 +18,26 @@ export default function VideoDashboard() {
   const pollRef = useRef<NodeJS.Timeout | null>(null);
   const feedRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    const loadVideos = async () => {
+      try {
+        const res = await fetch('/api/get-videos');
+        const data = await res.json();
+        if (data.videos) {
+          setVideos(data.videos.map((v: any) => ({
+            id: v.task_id,
+            videoUrl: v.video_url,
+            prompt: v.prompt,
+            createdAt: new Date(v.created_at),
+          })));
+        }
+      } catch (err) {
+        console.error('Failed to load videos', err);
+      }
+    };
+    loadVideos();
+  }, []);
+
   const handleGenerate = async () => {
     if (!prompt.trim() || isGenerating) return;
     setIsGenerating(true);
