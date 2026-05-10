@@ -69,7 +69,7 @@ export default function VideoDashboard() {
       const res = await fetch('/api/generate-video', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, duration, aspectRatio, mode: 'std', quality }),
+        body: JSON.stringify({ prompt, duration, aspectRatio, mode: 'std', quality, audio: audioEnabled }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed');
