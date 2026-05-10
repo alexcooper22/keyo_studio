@@ -120,9 +120,9 @@ export default function ImageDashboard() {
   
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close all dropdowns on outside click
   useEffect(() => {
-    const handleClickOutside = () => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (qualityButtonRef.current && qualityButtonRef.current.contains(e.target as Node)) return;
       setShowRatioDropdown(false);
       setShowQualityModal(false);
     };
@@ -719,7 +719,7 @@ export default function ImageDashboard() {
                 onClick={handleOpenQuality}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] text-[#888] border border-white/10 hover:text-white transition-colors"
               >
-                💎 {quality}
+                ◇ {quality}
               </button>
 
               {showQualityModal && (
