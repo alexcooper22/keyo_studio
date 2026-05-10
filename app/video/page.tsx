@@ -316,9 +316,9 @@ export default function VideoDashboard() {
             <button
               onClick={handleGenerate}
               disabled={isGenerating}
-              style={{ background: '#532fcf', border: 'none', borderRadius: '8px', padding: '14px', fontSize: '14px', fontWeight: 600, color: '#fff', cursor: isGenerating ? 'not-allowed' : 'pointer', opacity: isGenerating ? 0.7 : 1, width: '100%' }}
+              style={{ background: '#532fcf', border: 'none', borderRadius: '8px', padding: '14px', fontSize: '14px', fontWeight: 600, color: '#fff', cursor: isGenerating ? 'not-allowed' : 'pointer', opacity: isGenerating ? 0.7 : 1, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
             >
-              {isGenerating ? status || 'Generating...' : '⚡ Generate'}
+              {isGenerating ? status || 'Generating...' : <><svg width="16" height="16" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg> Generate</>}
             </button>
           </div>
         </div>
