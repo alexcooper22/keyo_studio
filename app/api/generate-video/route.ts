@@ -9,6 +9,7 @@ async function generateKlingToken(): Promise<string> {
   const token = await new jose.SignJWT({})
     .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
     .setIssuedAt()
+    .setNotBefore('-5s')
     .setExpirationTime('30m')
     .setIssuer(accessKeyId)
     .sign(secret);

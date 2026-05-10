@@ -9,6 +9,7 @@ async function generateKlingToken(): Promise<string> {
   const token = await new jose.SignJWT({})
     .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
     .setIssuedAt()
+    .setNotBefore('-5s')
     .setExpirationTime('30m')
     .setIssuer(accessKeyId)
     .sign(secret);
@@ -18,7 +19,6 @@ async function generateKlingToken(): Promise<string> {
 export async function GET(req: NextRequest) {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
   const taskId = req.nextUrl.searchParams.get('taskId');
   if (!taskId) return NextResponse.json({ error: 'taskId required' }, { status: 400 });
 
