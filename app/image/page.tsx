@@ -603,30 +603,20 @@ export default function ImageDashboard() {
                 onClick={handleGenerate}
                 disabled={isLoaded && isSignedIn && (isLoading || !prompt.trim() || (creditCount !== null && creditCount <= 0))}
                 className={`px-4 md:px-7 py-3 md:py-3.5 bg-[var(--accent)] text-black font-dm font-[700] rounded-xl flex items-center justify-center gap-2 hover:bg-[var(--accent2)] hover:shadow-[0_0_20px_rgba(255,51,119,0.3)] transition-all flex-shrink-0 ${(isLoading || (isLoaded && !isSignedIn)) ? 'opacity-70 cursor-pointer' : ''}`}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: '#fff' }}
               >
                 {isLoading ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                     Generating...
                   </>
                 ) : (
                   <>
-                    ⚡ Generate · {creditCost}
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg>
+                    Generate · {creditCost}
                   </>
                 )}
               </button>
-              <div className="flex items-center gap-2">
-                {creditCount !== null && (
-                  <span className={`font-dm text-[12px] font-bold ${creditCount <= 0 ? 'text-[#ff3377]' : 'text-[#ff3377]/80'}`}>
-                    ✨ {creditCount} credits
-                  </span>
-                )}
-                {isLoaded && !isSignedIn && (
-                  <span className="font-dm text-[12px] text-[#777] text-center">
-                     — Sign in to generate
-                  </span>
-                )}
-              </div>
             </div>
           </div>
 
