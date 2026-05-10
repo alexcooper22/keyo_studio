@@ -49,9 +49,9 @@ export default function VideoDashboard() {
   };
 
   return (
-    <div style={{ paddingTop: '64px', background: '#080808', minHeight: '100vh' }}>
+    <div style={{ paddingTop: '94px', background: '#080808', height: '100vh', overflow: 'hidden' }}>
       <Navbar />
-      <div style={{ padding: '30px', paddingTop: '20px', display: 'flex', gap: '12px', height: 'calc(100vh - 84px)', alignItems: 'stretch' }}>
+      <div style={{ padding: '0 30px 30px 30px', display: 'flex', gap: '12px', height: 'calc(100vh - 94px)', alignItems: 'stretch' }}>
 
         {/* LEFT PANEL */}
         <div style={{ width: '260px', flexShrink: 0, background: '#111', border: '0.5px solid #1e1e1e', borderRadius: '14px', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
