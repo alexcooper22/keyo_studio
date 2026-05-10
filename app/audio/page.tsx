@@ -31,23 +31,27 @@ export default function AudioPage() {
         </div>
 
         {/* Prompt bar */}
-        <div style={{ margin: '0 30px 30px', background: '#111', border: '0.5px solid #1e1e1e', borderRadius: '14px', padding: '14px 16px' }}>
-          <input
-            type="text"
-            placeholder="Describe the sound you imagine..."
-            style={{ width: '100%', background: 'transparent', border: 'none', outline: 'none', fontSize: '13px', color: '#888', fontFamily: 'inherit', marginBottom: '12px' }}
-          />
-          <div className="flex items-center gap-2">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#0f0f0f', border: '0.5px solid #2a2a2a', borderRadius: '8px', padding: '5px 10px', fontSize: '11px', color: '#666' }}>
-              <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#532fcf' }} />
-              ElevenLabs v3
+        <div className="fixed bottom-0 left-0 right-0 z-50 px-8 pb-8 pointer-events-none">
+          <div className="w-full max-w-4xl mx-auto rounded-2xl border border-white/[0.08] shadow-2xl overflow-hidden pointer-events-auto" style={{ backgroundColor: 'rgba(15,15,15,0.95)', backdropFilter: 'blur(16px)' }}>
+            <div style={{ padding: '14px 16px' }}>
+              <input
+                type="text"
+                placeholder="Describe the sound you imagine..."
+                style={{ width: '100%', background: 'transparent', border: 'none', outline: 'none', fontSize: '13px', color: '#888', fontFamily: 'inherit', marginBottom: '12px' }}
+              />
+              <div className="flex items-center gap-2">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#0f0f0f', border: '0.5px solid #2a2a2a', borderRadius: '8px', padding: '5px 10px', fontSize: '11px', color: '#666' }}>
+                  <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#532fcf' }} />
+                  ElevenLabs v3
+                </div>
+                <div style={{ width: '0.5px', height: '16px', background: '#1e1e1e', margin: '0 4px' }} />
+                <div style={{ background: '#0f0f0f', border: '0.5px solid #2a2a2a', borderRadius: '8px', padding: '5px 10px', fontSize: '11px', color: '#666' }}>🎵 Music</div>
+                <div style={{ background: '#0f0f0f', border: '0.5px solid #2a2a2a', borderRadius: '8px', padding: '5px 10px', fontSize: '11px', color: '#666' }}>🎤 Voiceover</div>
+                <button style={{ marginLeft: 'auto', background: '#532fcf', border: 'none', borderRadius: '8px', padding: '8px 20px', fontSize: '12px', fontWeight: 600, color: '#fff', cursor: 'pointer' }}>
+                  ⚡ Generate
+                </button>
+              </div>
             </div>
-            <div style={{ width: '0.5px', height: '16px', background: '#1e1e1e', margin: '0 4px' }} />
-            <div style={{ background: '#0f0f0f', border: '0.5px solid #2a2a2a', borderRadius: '8px', padding: '5px 10px', fontSize: '11px', color: '#666' }}>🎵 Music</div>
-            <div style={{ background: '#0f0f0f', border: '0.5px solid #2a2a2a', borderRadius: '8px', padding: '5px 10px', fontSize: '11px', color: '#666' }}>🎤 Voiceover</div>
-            <button style={{ marginLeft: 'auto', background: '#532fcf', border: 'none', borderRadius: '8px', padding: '8px 20px', fontSize: '12px', fontWeight: 600, color: '#fff', cursor: 'pointer' }}>
-              ⚡ Generate
-            </button>
           </div>
         </div>
       </main>
