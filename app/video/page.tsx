@@ -23,6 +23,19 @@ export default function VideoDashboard() {
   const [showDurationMenu, setShowDurationMenu] = useState(false);
   const [showModelMenu, setShowModelMenu] = useState(false);
   const [audioEnabled, setAudioEnabled] = useState(false);
+  const [startFrame, setStartFrame] = useState<string | null>(null);
+  const [endFrame, setEndFrame] = useState<string | null>(null);
+  const startFrameRef = useRef<HTMLInputElement>(null);
+  const endFrameRef = useRef<HTMLInputElement>(null);
+
+  const handleFrameUpload = async (file: File, type: 'start' | 'end') => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (type === 'start') setStartFrame(e.target?.result as string);
+      else setEndFrame(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
   const pollRef = useRef<NodeJS.Timeout | null>(null);
   const feedRef = useRef<HTMLDivElement>(null);
 
@@ -69,7 +82,7 @@ export default function VideoDashboard() {
       const res = await fetch('/api/generate-video', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, duration, aspectRatio, mode: 'std', quality, audio: audioEnabled }),
+        body: JSON.stringify({ prompt, duration, aspectRatio, mode: 'std', quality, audio: audioEnabled, startFrame, endFrame }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed');
@@ -140,13 +153,29 @@ export default function VideoDashboard() {
             </div>
             {/* Frames */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
-              {['Start frame', 'End frame'].map(f => (
-                <div key={f} style={{ background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '8px', aspectRatio: '1', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', cursor: 'pointer', position: 'relative' }}>
-                  <span style={{ position: 'absolute', top: '5px', right: '6px', fontSize: '8px', color: '#333' }}>Optional</span>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#222" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                  <span style={{ fontSize: '9px', color: '#2d2d2d' }}>{f}</span>
-                </div>
-              ))}
+              {(['start', 'end'] as const).map(type => {
+                const frame = type === 'start' ? startFrame : endFrame;
+                const ref = type === 'start' ? startFrameRef : endFrameRef;
+                return (
+                  <div key={type} style={{ position: 'relative', aspectRatio: '1' }}>
+                    <input ref={ref} type="file" accept="image/*" style={{ display: 'none' }} onChange={e => e.target.files?.[0] && handleFrameUpload(e.target.files[0], type)} />
+                    <div onClick={() => ref.current?.click()} style={{ background: '#0d0d0d', border: `0.5px solid ${frame ? '#532fcf' : '#1e1e1e'}`, borderRadius: '8px', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', cursor: 'pointer', overflow: 'hidden', position: 'relative' }}>
+                      {frame ? (
+                        <img src={frame} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }} />
+                      ) : (
+                        <>
+                          <span style={{ position: 'absolute', top: '5px', right: '6px', fontSize: '8px', color: '#333' }}>Optional</span>
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#222" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                          <span style={{ fontSize: '9px', color: '#2d2d2d' }}>{type === 'start' ? 'Start frame' : 'End frame'}</span>
+                        </>
+                      )}
+                    </div>
+                    {frame && (
+                      <div onClick={() => type === 'start' ? setStartFrame(null) : setEndFrame(null)} style={{ position: 'absolute', top: '4px', right: '4px', width: '16px', height: '16px', background: '#000000aa', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '10px', color: '#fff', zIndex: 10 }}>×</div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
             {/* Audio toggle */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
