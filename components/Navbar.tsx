@@ -27,7 +27,7 @@ export default function Navbar() {
     { name: 'Explore', href: '/' },
     { name: 'Image', href: '/image' },
     { name: 'Video', href: '/video' },
-    { name: 'Text', href: '/text' },
+    { name: 'Audio', href: '/audio' },
   ];
 
   /* Derive avatar initial from email */
