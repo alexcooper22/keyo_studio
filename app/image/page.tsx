@@ -97,7 +97,7 @@ export default function ImageDashboard() {
       });
     }
     setShowQualityModal(false); // close quality when opening ratio
-    setShowRatioDropdown(true);
+    setShowRatioDropdown(prev => !prev);
   };
   
   const ratioOptions = [
@@ -123,6 +123,7 @@ export default function ImageDashboard() {
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (qualityButtonRef.current && qualityButtonRef.current.contains(e.target as Node)) return;
+      if (ratioButtonRef.current && ratioButtonRef.current.contains(e.target as Node)) return;
       setShowRatioDropdown(false);
       setShowQualityModal(false);
     };
