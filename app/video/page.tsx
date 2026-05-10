@@ -29,26 +29,23 @@ export default function VideoDashboard() {
   const endFrameRef = useRef<HTMLInputElement>(null);
 
   const handleFrameUpload = async (file: File, type: 'start' | 'end') => {
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      const base64 = e.target?.result as string;
-      if (type === 'start') setStartFrame(base64);
-      else setEndFrame(base64);
-      try {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('type', type);
-        const res = await fetch('/api/upload-frame', { method: 'POST', body: formData });
-        const data = await res.json();
-        if (data.url) {
-          if (type === 'start') setStartFrame(data.url);
-          else setEndFrame(data.url);
-        }
-      } catch (err) {
-        console.error('Upload failed', err);
+    const preview = URL.createObjectURL(file);
+    if (type === 'start') setStartFrame(preview);
+    else setEndFrame(preview);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('type', type);
+      const res = await fetch('/api/upload-frame', { method: 'POST', body: formData });
+      const data = await res.json();
+      if (data.url) {
+        if (type === 'start') setStartFrame(data.url);
+        else setEndFrame(data.url);
       }
-    };
-    reader.readAsDataURL(file);
+    } catch (err) {
+      console.error('Upload failed', err);
+    }
   };
   const pollRef = useRef<NodeJS.Timeout | null>(null);
   const feedRef = useRef<HTMLDivElement>(null);
