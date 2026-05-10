@@ -1,19 +1,26 @@
 'use client';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Navbar from '../../components/Navbar';
+
+interface VideoItem {
+  id: string;
+  videoUrl: string;
+  prompt: string;
+  createdAt: Date;
+}
 
 export default function VideoDashboard() {
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [videos, setVideos] = useState<VideoItem[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<string>('');
   const pollRef = useRef<NodeJS.Timeout | null>(null);
+  const feedRef = useRef<HTMLDivElement>(null);
 
   const handleGenerate = async () => {
     if (!prompt.trim() || isGenerating) return;
     setIsGenerating(true);
-    setVideoUrl(null);
     setError(null);
     setStatus('Submitting...');
     try {
@@ -31,9 +38,17 @@ export default function VideoDashboard() {
         const result = await check.json();
         if (result.status === 'succeed' && result.videoUrl) {
           clearInterval(pollRef.current!);
-          setVideoUrl(result.videoUrl);
+          const newVideo: VideoItem = {
+            id: taskId,
+            videoUrl: result.videoUrl,
+            prompt: prompt,
+            createdAt: new Date(),
+          };
+          setVideos(prev => [newVideo, ...prev]);
           setIsGenerating(false);
           setStatus('');
+          // Scroll to top of feed
+          if (feedRef.current) feedRef.current.scrollTo({ top: 0, behavior: 'smooth' });
         } else if (result.status === 'failed') {
           clearInterval(pollRef.current!);
           setError('Generation failed');
@@ -52,32 +67,24 @@ export default function VideoDashboard() {
     <div style={{ paddingTop: '94px', background: '#080808', height: '100vh', overflow: 'hidden' }}>
       <Navbar />
       <style>{`
-        textarea::-webkit-scrollbar {
-          width: 4px;
-        }
-        textarea::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        textarea::-webkit-scrollbar-thumb {
-          background: #2a2a2a;
-          border-radius: 4px;
-        }
-        textarea::-webkit-scrollbar-thumb:hover {
-          background: #532fcf;
-        }
+        textarea::-webkit-scrollbar { width: 4px; }
+        textarea::-webkit-scrollbar-track { background: transparent; }
+        textarea::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 4px; }
+        textarea::-webkit-scrollbar-thumb:hover { background: #532fcf; }
+        .feed::-webkit-scrollbar { width: 4px; }
+        .feed::-webkit-scrollbar-track { background: transparent; }
+        .feed::-webkit-scrollbar-thumb { background: #1e1e1e; border-radius: 4px; }
       `}</style>
+
       <div style={{ padding: '0 30px 30px 30px', display: 'flex', gap: '12px', height: 'calc(100vh - 94px)', alignItems: 'stretch' }}>
 
-        {/* LEFT PANEL */}
+        {/* LEFT PANEL — fixed */}
         <div style={{ width: '260px', flexShrink: 0, background: '#111', border: '0.5px solid #1e1e1e', borderRadius: '14px', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-          {/* Tabs */}
           <div style={{ display: 'flex', borderBottom: '0.5px solid #1e1e1e', padding: '0 12px' }}>
             {['Create Video', 'Edit', 'Motion'].map((t, i) => (
               <div key={t} style={{ fontSize: '12px', color: i === 0 ? '#fff' : '#555', padding: '10px 0', marginRight: '14px', borderBottom: i === 0 ? '2px solid #532fcf' : '2px solid transparent', cursor: 'pointer', whiteSpace: 'nowrap' }}>{t}</div>
             ))}
           </div>
-
-          {/* Body */}
           <div style={{ padding: '10px', display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, overflowY: 'auto' }}>
             {/* Model card */}
             <div style={{ background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '10px', overflow: 'hidden' }}>
@@ -89,7 +96,6 @@ export default function VideoDashboard() {
                 <div style={{ fontSize: '12px', color: '#777', marginTop: '2px' }}>Kling 3.0</div>
               </div>
             </div>
-
             {/* Frames */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
               {['Start frame', 'End frame'].map(f => (
@@ -100,7 +106,6 @@ export default function VideoDashboard() {
                 </div>
               ))}
             </div>
-
             {/* Multi-shot */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <span style={{ fontSize: '12px', color: '#555' }}>Multi-shot</span>
@@ -108,7 +113,6 @@ export default function VideoDashboard() {
                 <div style={{ width: '12px', height: '12px', background: '#444', borderRadius: '50%', position: 'absolute', left: '2px', top: '2px' }}></div>
               </div>
             </div>
-
             {/* Prompt */}
             <textarea
               value={prompt}
@@ -116,7 +120,6 @@ export default function VideoDashboard() {
               placeholder="Describe your video scene..."
               style={{ background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '8px', padding: '10px', fontSize: '12px', color: '#ccc', flex: 1, minHeight: '120px', resize: 'none', outline: 'none', width: '100%', fontFamily: 'inherit', boxSizing: 'border-box' }}
             />
-
             {/* Model select */}
             <div style={{ background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '8px', padding: '7px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
               <div>
@@ -128,10 +131,8 @@ export default function VideoDashboard() {
               </div>
               <span style={{ color: '#333', fontSize: '14px' }}>›</span>
             </div>
-
             {error && <div style={{ fontSize: '11px', color: '#ef4444' }}>{error}</div>}
           </div>
-
           {/* Footer */}
           <div style={{ borderTop: '0.5px solid #1e1e1e', padding: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <div style={{ display: 'flex', gap: '5px' }}>
@@ -149,39 +150,57 @@ export default function VideoDashboard() {
           </div>
         </div>
 
-        {/* CENTER PANEL */}
-        <div style={{ flex: 1, background: '#111', border: '0.5px solid #1e1e1e', borderRadius: '14px', overflow: 'hidden', minWidth: 0 }}>
-          {videoUrl ? (
-            <video src={videoUrl} controls autoPlay loop style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-          ) : (
-            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#111' }}>
-              <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: '#ffffff08', border: '0.5px solid #ffffff12', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div style={{ width: 0, height: 0, borderTop: '9px solid transparent', borderBottom: '9px solid transparent', borderLeft: '16px solid #ffffff20', marginLeft: '4px' }}></div>
+        {/* CENTER PANEL — scrollable feed */}
+        <div ref={feedRef} className="feed" style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px', minWidth: 0 }}>
+          {/* Generating placeholder */}
+          {isGenerating && (
+            <div style={{ width: '100%', aspectRatio: '16/9', background: '#111', border: '0.5px solid #1e1e1e', borderRadius: '14px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
+              <div style={{ width: '36px', height: '36px', border: '2px solid #532fcf', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+              <span style={{ fontSize: '12px', color: '#555' }}>{status || 'Generating...'}</span>
+            </div>
+          )}
+          {/* Video feed */}
+          {videos.length === 0 && !isGenerating && (
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100%' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+                <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: '#ffffff08', border: '0.5px solid #ffffff12', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{ width: 0, height: 0, borderTop: '9px solid transparent', borderBottom: '9px solid transparent', borderLeft: '16px solid #ffffff20', marginLeft: '4px' }}></div>
+                </div>
+                <span style={{ fontSize: '12px', color: '#333' }}>Your videos will appear here</span>
               </div>
             </div>
           )}
+          {videos.map(v => (
+            <div key={v.id} style={{ width: '100%', background: '#111', border: '0.5px solid #1e1e1e', borderRadius: '14px', overflow: 'hidden' }}>
+              <video src={v.videoUrl} controls autoPlay loop style={{ width: '100%', display: 'block', maxHeight: '70vh', objectFit: 'contain', background: '#000' }} />
+              <div style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: '11px', color: '#444', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{v.prompt}</span>
+                <span style={{ fontSize: '10px', color: '#2d2d2d', marginLeft: '10px', flexShrink: 0 }}>{v.createdAt.toLocaleTimeString()}</span>
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* RIGHT PANEL */}
         <div style={{ width: '220px', flexShrink: 0, background: '#111', border: '0.5px solid #1e1e1e', borderRadius: '14px', padding: '14px', display: 'flex', flexDirection: 'column', gap: '10px', overflowY: 'auto' }}>
-          <div style={{ fontSize: '12px', color: '#444', display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#444" strokeWidth="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-            Kling 3.0
-          </div>
-          <div style={{ fontSize: '11px', color: '#333', lineHeight: '1.6', fontStyle: 'italic' }}>
-            "Woman and man stand side by side facing the camera. Camera slowly pulls back in slow motion."
-          </div>
-          <div style={{ height: '0.5px', background: '#1a1a1a' }}></div>
-          <div style={{ width: '36px', height: '36px', background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '6px' }}></div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '11px', color: '#2d2d2d' }}>
-            <span>👁 1080p</span>
-            <span>◷ 4.0s</span>
-            <span>▭ 9:16</span>
-          </div>
-          <div style={{ marginTop: 'auto', fontSize: '11px', color: '#222' }}>April 1, 2026</div>
+          {videos.length === 0 ? (
+            <div style={{ fontSize: '11px', color: '#333', textAlign: 'center', marginTop: '20px' }}>No generations yet</div>
+          ) : videos.map(v => (
+            <div key={v.id} style={{ display: 'flex', flexDirection: 'column', gap: '6px', paddingBottom: '10px', borderBottom: '0.5px solid #1a1a1a' }}>
+              <div style={{ fontSize: '10px', color: '#444', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#532fcf' }}></div>
+                Kling 3.0
+              </div>
+              <div style={{ fontSize: '10px', color: '#333', lineHeight: '1.5', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>{v.prompt}</div>
+              <div style={{ fontSize: '10px', color: '#2d2d2d' }}>{v.createdAt.toLocaleString()}</div>
+            </div>
+          ))}
         </div>
 
       </div>
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+      `}</style>
     </div>
   );
 }
