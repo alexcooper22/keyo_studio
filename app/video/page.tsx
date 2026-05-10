@@ -91,7 +91,7 @@ export default function VideoDashboard() {
         textarea::-webkit-scrollbar-track { background: transparent; }
         textarea::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 4px; }
         textarea::-webkit-scrollbar-thumb:hover { background: #532fcf; }
-        .feed::-webkit-scrollbar { width: 4px; }
+        .feed::-webkit-scrollbar { width: 0px; }
         .feed::-webkit-scrollbar-track { background: transparent; }
         .feed::-webkit-scrollbar-thumb { background: #1e1e1e; border-radius: 4px; }
       `}</style>
