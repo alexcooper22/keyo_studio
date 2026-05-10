@@ -30,9 +30,23 @@ export default function VideoDashboard() {
 
   const handleFrameUpload = async (file: File, type: 'start' | 'end') => {
     const reader = new FileReader();
-    reader.onload = (e) => {
-      if (type === 'start') setStartFrame(e.target?.result as string);
-      else setEndFrame(e.target?.result as string);
+    reader.onload = async (e) => {
+      const base64 = e.target?.result as string;
+      if (type === 'start') setStartFrame(base64);
+      else setEndFrame(base64);
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('type', type);
+        const res = await fetch('/api/upload-frame', { method: 'POST', body: formData });
+        const data = await res.json();
+        if (data.url) {
+          if (type === 'start') setStartFrame(data.url);
+          else setEndFrame(data.url);
+        }
+      } catch (err) {
+        console.error('Upload failed', err);
+      }
     };
     reader.readAsDataURL(file);
   };
