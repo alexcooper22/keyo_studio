@@ -26,6 +26,25 @@ export default function VideoDashboard() {
   const [showDurationMenu, setShowDurationMenu] = useState(false);
   const [showModelMenu, setShowModelMenu] = useState(false);
   const [audioEnabled, setAudioEnabled] = useState(false);
+  const [likedVideos, setLikedVideos] = useState<Set<string>>(new Set());
+
+  const toggleLike = (id: string) => {
+    setLikedVideos(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const downloadVideo = async (url: string, id: string) => {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `video-${id}.mp4`;
+    a.click();
+  };
   const [startFrame, setStartFrame] = useState<string | null>(null);
   const [endFrame, setEndFrame] = useState<string | null>(null);
   const startFrameRef = useRef<HTMLInputElement>(null);
@@ -329,14 +348,14 @@ export default function VideoDashboard() {
             <div key={v.id} style={{ width: '100%', background: '#111', border: '0.5px solid #1e1e1e', borderRadius: '14px', overflow: 'hidden', flexShrink: 0, display: 'flex' }}>
               {/* Video */}
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ position: 'relative' }} onMouseEnter={e => (e.currentTarget.querySelector('.video-actions') as HTMLElement).style.opacity = '1'} onMouseLeave={e => (e.currentTarget.querySelector('.video-actions') as HTMLElement).style.opacity = '0'}>
+                <div style={{ position: 'relative' }} onMouseEnter={e => { const el = e.currentTarget.querySelector('.video-actions') as HTMLElement; if (el) el.style.opacity = '1'; }} onMouseLeave={e => { const el = e.currentTarget.querySelector('.video-actions') as HTMLElement; if (el && !likedVideos.has(v.id)) el.style.opacity = '0'; }}>
                   <video src={v.videoUrl} controls loop style={{ width: '100%', display: 'block', maxHeight: '80vh', objectFit: 'contain', background: '#000' }} />
-                  <div className="video-actions" style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '6px', opacity: 0, transition: 'opacity 0.2s' }}>
-                    <a href={v.videoUrl} download target="_blank" rel="noopener noreferrer" style={{ width: '32px', height: '32px', background: '#000000aa', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: '0.5px solid #ffffff15', textDecoration: 'none' }}>
+                  <div className="video-actions" style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '6px', opacity: likedVideos.has(v.id) ? 1 : 0, transition: 'opacity 0.2s' }}>
+                    <div onClick={() => downloadVideo(v.videoUrl, v.id)} style={{ width: '32px', height: '32px', background: '#000000aa', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: '0.5px solid #ffffff15' }}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2-2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                    </a>
-                    <div style={{ width: '32px', height: '32px', background: '#000000aa', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: '0.5px solid #ffffff15' }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    </div>
+                    <div onClick={() => toggleLike(v.id)} style={{ width: '32px', height: '32px', background: '#000000aa', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: `0.5px solid ${likedVideos.has(v.id) ? '#532fcf' : '#ffffff15'}` }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill={likedVideos.has(v.id) ? '#532fcf' : 'none'} stroke={likedVideos.has(v.id) ? '#532fcf' : '#fff'} strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
                     </div>
                   </div>
                 </div>
