@@ -7,6 +7,9 @@ interface VideoItem {
   videoUrl: string;
   prompt: string;
   createdAt: Date;
+  quality?: string;
+  duration?: number;
+  aspectRatio?: string;
 }
 
 export default function VideoDashboard() {
@@ -81,6 +84,9 @@ export default function VideoDashboard() {
             videoUrl: v.video_url,
             prompt: v.prompt,
             createdAt: new Date(v.created_at),
+            quality: v.quality,
+            duration: v.duration,
+            aspectRatio: v.aspect_ratio,
           })));
         }
       } catch (err) {
@@ -115,6 +121,9 @@ export default function VideoDashboard() {
             videoUrl: result.videoUrl,
             prompt: prompt,
             createdAt: new Date(),
+            quality,
+            duration,
+            aspectRatio,
           };
           setVideos(prev => [newVideo, ...prev]);
           setIsGenerating(false);
@@ -328,12 +337,21 @@ export default function VideoDashboard() {
                   <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#532fcf' }}></div>
                   Kling 3.0
                 </div>
-                <div style={{ fontSize: '11px', color: '#333', lineHeight: '1.6', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical' as const }}>{v.prompt}</div>
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '6px' }}>
+                  <div style={{ fontSize: '11px', color: '#333', lineHeight: '1.6', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical' as const, flex: 1 }}>{v.prompt}</div>
+                  <div
+                    onClick={() => navigator.clipboard.writeText(v.prompt)}
+                    title="Copy prompt"
+                    style={{ flexShrink: 0, cursor: 'pointer', color: '#333', padding: '2px' }}
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                  </div>
+                </div>
                 <div style={{ height: '0.5px', background: '#1a1a1a' }}></div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', fontSize: '11px', color: '#333' }}>
-                  <span>👁 720p</span>
-                  <span>◷ 5.0s</span>
-                  <span>▭ 9:16</span>
+                  <span>👁 {v.quality || '720p'}</span>
+                  <span>◷ {v.duration || 5}s</span>
+                  <span>▭ {v.aspectRatio || '9:16'}</span>
                 </div>
                 <div style={{ marginTop: 'auto', fontSize: '10px', color: '#2d2d2d' }}>
                   {v.createdAt.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
