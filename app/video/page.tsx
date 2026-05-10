@@ -196,9 +196,6 @@ export default function VideoDashboard() {
               {/* Video */}
               <div style={{ flex: 1, minWidth: 0 }}>
                 <video src={v.videoUrl} controls autoPlay loop style={{ width: '100%', display: 'block', maxHeight: '80vh', objectFit: 'contain', background: '#000' }} />
-                <div style={{ padding: '10px 14px', borderTop: '0.5px solid #1e1e1e' }}>
-                  <span style={{ fontSize: '11px', color: '#444', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>{v.prompt}</span>
-                </div>
               </div>
               {/* Info sidebar */}
               <div style={{ width: '200px', flexShrink: 0, borderLeft: '0.5px solid #1e1e1e', padding: '14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -206,7 +203,7 @@ export default function VideoDashboard() {
                   <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#532fcf' }}></div>
                   Kling 3.0
                 </div>
-                <div style={{ fontSize: '11px', color: '#333', lineHeight: '1.6' }}>{v.prompt}</div>
+                <div style={{ fontSize: '11px', color: '#333', lineHeight: '1.6', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical' as const }}>{v.prompt}</div>
                 <div style={{ height: '0.5px', background: '#1a1a1a' }}></div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', fontSize: '11px', color: '#333' }}>
                   <span>👁 720p</span>
