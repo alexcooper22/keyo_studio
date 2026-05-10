@@ -192,28 +192,31 @@ export default function VideoDashboard() {
           )}
           {/* Video list */}
           {videos.map(v => (
-            <div key={v.id} style={{ width: '100%', background: '#111', border: '0.5px solid #1e1e1e', borderRadius: '14px', overflow: 'hidden', flexShrink: 0 }}>
-              <video src={v.videoUrl} controls autoPlay loop style={{ width: '100%', display: 'block', maxHeight: '80vh', objectFit: 'contain', background: '#000' }} />
-              <div style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: '11px', color: '#444', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{v.prompt}</span>
-                <span style={{ fontSize: '10px', color: '#2d2d2d', marginLeft: '10px', flexShrink: 0 }}>{v.createdAt.toLocaleTimeString()}</span>
+            <div key={v.id} style={{ width: '100%', background: '#111', border: '0.5px solid #1e1e1e', borderRadius: '14px', overflow: 'hidden', flexShrink: 0, display: 'flex' }}>
+              {/* Video */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <video src={v.videoUrl} controls autoPlay loop style={{ width: '100%', display: 'block', maxHeight: '80vh', objectFit: 'contain', background: '#000' }} />
+                <div style={{ padding: '10px 14px', borderTop: '0.5px solid #1e1e1e' }}>
+                  <span style={{ fontSize: '11px', color: '#444', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>{v.prompt}</span>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-
-        {/* RIGHT PANEL */}
-        <div style={{ width: '220px', flexShrink: 0, background: '#111', border: '0.5px solid #1e1e1e', borderRadius: '14px', padding: '14px', display: 'flex', flexDirection: 'column', gap: '10px', overflowY: 'auto' }}>
-          {videos.length === 0 ? (
-            <div style={{ fontSize: '11px', color: '#333', textAlign: 'center', marginTop: '20px' }}>No generations yet</div>
-          ) : videos.map(v => (
-            <div key={v.id} style={{ display: 'flex', flexDirection: 'column', gap: '6px', paddingBottom: '10px', borderBottom: '0.5px solid #1a1a1a' }}>
-              <div style={{ fontSize: '10px', color: '#444', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#532fcf' }}></div>
-                Kling 3.0
+              {/* Info sidebar */}
+              <div style={{ width: '200px', flexShrink: 0, borderLeft: '0.5px solid #1e1e1e', padding: '14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ fontSize: '11px', color: '#555', display: 'flex', alignItems: 'center', gap: '5px', fontWeight: 600 }}>
+                  <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#532fcf' }}></div>
+                  Kling 3.0
+                </div>
+                <div style={{ fontSize: '11px', color: '#333', lineHeight: '1.6' }}>{v.prompt}</div>
+                <div style={{ height: '0.5px', background: '#1a1a1a' }}></div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', fontSize: '11px', color: '#333' }}>
+                  <span>👁 720p</span>
+                  <span>◷ 5.0s</span>
+                  <span>▭ 9:16</span>
+                </div>
+                <div style={{ marginTop: 'auto', fontSize: '10px', color: '#2d2d2d' }}>
+                  {v.createdAt.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                </div>
               </div>
-              <div style={{ fontSize: '10px', color: '#333', lineHeight: '1.5', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>{v.prompt}</div>
-              <div style={{ fontSize: '10px', color: '#2d2d2d' }}>{v.createdAt.toLocaleString()}</div>
             </div>
           ))}
         </div>
