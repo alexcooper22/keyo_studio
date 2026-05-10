@@ -21,6 +21,7 @@ export default function VideoDashboard() {
   const [showAspectMenu, setShowAspectMenu] = useState(false);
   const [duration, setDuration] = useState<number>(5);
   const [showDurationMenu, setShowDurationMenu] = useState(false);
+  const [showModelMenu, setShowModelMenu] = useState(false);
   const pollRef = useRef<NodeJS.Timeout | null>(null);
   const feedRef = useRef<HTMLDivElement>(null);
 
@@ -31,6 +32,7 @@ export default function VideoDashboard() {
         setShowQualityMenu(false);
         setShowAspectMenu(false);
         setShowDurationMenu(false);
+        setShowModelMenu(false);
       }
     };
     document.addEventListener('mousedown', handleClick);
@@ -160,15 +162,28 @@ export default function VideoDashboard() {
               style={{ background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '8px', padding: '10px', fontSize: '12px', color: '#ccc', flex: 1, minHeight: '120px', resize: 'none', outline: 'none', width: '100%', fontFamily: 'inherit', boxSizing: 'border-box' }}
             />
             {/* Model select */}
-            <div style={{ background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '8px', padding: '7px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
-              <div>
-                <div style={{ fontSize: '9px', color: '#444' }}>Model</div>
-                <div style={{ fontSize: '12px', color: '#555', display: 'flex', alignItems: 'center', gap: '5px', marginTop: '2px' }}>
-                  <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#532fcf' }}></div>
-                  Kling 3.0
+            <div style={{ position: 'relative' }} data-menu="true">
+              <div onClick={e => { e.stopPropagation(); setShowModelMenu(v => !v); setShowQualityMenu(false); setShowAspectMenu(false); setShowDurationMenu(false); }} style={{ background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '8px', padding: '7px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
+                <div>
+                  <div style={{ fontSize: '9px', color: '#444' }}>Model</div>
+                  <div style={{ fontSize: '12px', color: '#555', display: 'flex', alignItems: 'center', gap: '5px', marginTop: '2px' }}>
+                    <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#532fcf' }}></div>
+                    Kling 3.0
+                  </div>
                 </div>
+                <span style={{ color: '#333', fontSize: '14px' }}>›</span>
               </div>
-              <span style={{ color: '#333', fontSize: '14px' }}>›</span>
+              {showModelMenu && (
+                <div data-menu="true" style={{ position: 'absolute', bottom: '110%', left: 0, right: 0, background: '#161616', border: '0.5px solid #1e1e1e', borderRadius: '8px', overflow: 'hidden', zIndex: 100 }}>
+                  <div style={{ padding: '8px 12px', fontSize: '12px', color: '#555', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#532fcf' }}></div>
+                      Kling 3.0
+                    </div>
+                    <span style={{ color: '#532fcf' }}>✓</span>
+                  </div>
+                </div>
+              )}
             </div>
             {error && <div style={{ fontSize: '11px', color: '#ef4444' }}>{error}</div>}
           </div>
@@ -176,7 +191,7 @@ export default function VideoDashboard() {
           <div style={{ borderTop: '0.5px solid #1e1e1e', padding: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <div style={{ display: 'flex', gap: '5px' }}>
               <div style={{ flex: 1, position: 'relative' }}>
-                <div data-menu="true" onClick={e => { e.stopPropagation(); setShowDurationMenu(v => !v); setShowQualityMenu(false); setShowAspectMenu(false); }} style={{ background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '6px', padding: '7px 3px', textAlign: 'center', fontSize: '10px', color: '#555', cursor: 'pointer' }}>◷ {duration}s</div>
+                <div data-menu="true" onClick={e => { e.stopPropagation(); setShowDurationMenu(v => !v); setShowQualityMenu(false); setShowAspectMenu(false); setShowModelMenu(false); }} style={{ background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '6px', padding: '7px 3px', textAlign: 'center', fontSize: '10px', color: '#555', cursor: 'pointer' }}>◷ {duration}s</div>
                 {showDurationMenu && (
                   <div data-menu="true" style={{ position: 'absolute', bottom: '110%', left: 0, right: 0, background: '#161616', border: '0.5px solid #1e1e1e', borderRadius: '8px', overflow: 'hidden', zIndex: 100 }}>
                     {[10, 9, 8, 7, 6, 5, 4, 3].map(d => (
@@ -189,7 +204,7 @@ export default function VideoDashboard() {
                 )}
               </div>
               <div style={{ flex: 1, position: 'relative' }}>
-                <div data-menu="true" onClick={e => { e.stopPropagation(); setShowAspectMenu(v => !v); setShowQualityMenu(false); setShowDurationMenu(false); }} style={{ background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '6px', padding: '7px 3px', textAlign: 'center', fontSize: '10px', color: '#555', cursor: 'pointer' }}>▭ {aspectRatio}</div>
+                <div data-menu="true" onClick={e => { e.stopPropagation(); setShowAspectMenu(v => !v); setShowQualityMenu(false); setShowDurationMenu(false); setShowModelMenu(false); }} style={{ background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '6px', padding: '7px 3px', textAlign: 'center', fontSize: '10px', color: '#555', cursor: 'pointer' }}>▭ {aspectRatio}</div>
                 {showAspectMenu && (
                   <div data-menu="true" style={{ position: 'absolute', bottom: '110%', left: 0, right: 0, background: '#161616', border: '0.5px solid #1e1e1e', borderRadius: '8px', overflow: 'hidden', zIndex: 100 }}>
                     {(['9:16', '16:9', '1:1'] as const).map(r => (
@@ -204,7 +219,7 @@ export default function VideoDashboard() {
               <div style={{ flex: 1, position: 'relative' }}>
                 <div
                   data-menu="true"
-                  onClick={e => { e.stopPropagation(); setShowQualityMenu(v => !v); setShowAspectMenu(false); setShowDurationMenu(false); }}
+                  onClick={e => { e.stopPropagation(); setShowQualityMenu(v => !v); setShowAspectMenu(false); setShowDurationMenu(false); setShowModelMenu(false); }}
                   style={{ background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '6px', padding: '7px 3px', textAlign: 'center', fontSize: '10px', color: '#555', cursor: 'pointer' }}
                 >◇ {quality}</div>
                 {showQualityMenu && (
