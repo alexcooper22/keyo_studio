@@ -1,8 +1,11 @@
 'use client';
 
+import React, { useState, useRef } from 'react';
 import Navbar from '../../components/Navbar';
 
 export default function AudioPage() {
+  const [prompt, setPrompt] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const bars = [20,40,60,30,80,50,90,40,70,55,85,35,65,75,45,95,25,60,80,50,70,40,85,30,60,90,45,75,55,80];
 
   return (
@@ -30,28 +33,53 @@ export default function AudioPage() {
           </p>
         </div>
 
-        {/* Prompt bar */}
-        <div className="fixed bottom-0 left-0 right-0 z-50 px-8 pb-8 pointer-events-none">
-          <div className="w-full max-w-4xl mx-auto rounded-2xl border border-white/[0.08] shadow-2xl overflow-hidden pointer-events-auto" style={{ backgroundColor: 'rgba(15,15,15,0.95)', backdropFilter: 'blur(16px)' }}>
-            <div style={{ padding: '14px 16px' }}>
-              <input
-                type="text"
-                placeholder="Describe the sound you imagine..."
-                style={{ width: '100%', background: 'transparent', border: 'none', outline: 'none', fontSize: '13px', color: '#888', fontFamily: 'inherit', marginBottom: '12px' }}
+        {/* Prompt bar - Adapted from Image Page */}
+        <div className="fixed bottom-0 left-0 right-0 z-50 px-2 md:px-8 pb-3 md:pb-8 pointer-events-none">
+          <div className="w-full max-w-4xl mx-auto rounded-t-2xl rounded-b-xl border-t border-l border-r border-white/[0.08] shadow-2xl overflow-hidden pointer-events-auto" style={{ backgroundColor: 'rgba(15,15,15,0.95)', backdropFilter: 'blur(16px)' }}>
+            
+            {/* Top Row: Input */}
+            <div className="p-3 md:p-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 md:gap-4 border-b border-white/[0.06]">
+              <div className="w-10 h-10 md:w-12 md:h-12 flex-shrink-0 flex items-center justify-center rounded-xl bg-[#080808] border border-white/[0.04] text-[#888]">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </div>
+              <textarea 
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                onInput={(e) => {
+                  e.currentTarget.style.height = 'auto';
+                  e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';
+                }}
+                placeholder="Describe the sound you imagine..." 
+                rows={1}
+                style={{
+                  minHeight: '44px',
+                  maxHeight: '120px',
+                  overflowY: 'auto',
+                }}
+                className="flex-1 bg-transparent border-none outline-none text-white font-dm text-sm placeholder:text-[#555] resize-none py-2"
               />
-              <div className="flex items-center gap-2">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#0f0f0f', border: '0.5px solid #2a2a2a', borderRadius: '8px', padding: '5px 10px', fontSize: '11px', color: '#666' }}>
-                  <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#532fcf' }} />
-                  ElevenLabs v3
-                </div>
-                <div style={{ width: '0.5px', height: '16px', background: '#1e1e1e', margin: '0 4px' }} />
-                <div style={{ background: '#0f0f0f', border: '0.5px solid #2a2a2a', borderRadius: '8px', padding: '5px 10px', fontSize: '11px', color: '#666' }}>🎵 Music</div>
-                <div style={{ background: '#0f0f0f', border: '0.5px solid #2a2a2a', borderRadius: '8px', padding: '5px 10px', fontSize: '11px', color: '#666' }}>🎤 Voiceover</div>
-                <button style={{ marginLeft: 'auto', background: '#532fcf', border: 'none', borderRadius: '8px', padding: '8px 20px', fontSize: '12px', fontWeight: 600, color: '#fff', cursor: 'pointer' }}>
+              <div className="flex flex-col gap-1.5 items-center">
+                <button 
+                  className="px-4 md:px-7 py-3 md:py-3.5 bg-[#532fcf] text-white font-dm font-[700] rounded-xl flex items-center justify-center gap-2 hover:bg-[#633fdf] transition-all flex-shrink-0"
+                >
                   ⚡ Generate
                 </button>
               </div>
             </div>
+
+            {/* Bottom Row: Settings */}
+            <div className="px-4 md:px-5 py-2 md:py-3 flex flex-wrap items-center gap-2 md:gap-3">
+              <div className="px-3 py-1 rounded-full bg-white/[0.06] border border-white/10 font-dm text-[11px] md:text-xs text-[#888] flex items-center gap-1.5">
+                <span className="text-[#532fcf]">●</span> ElevenLabs v3
+              </div>
+              <div className="px-3 py-1 rounded-full bg-white/[0.06] border border-white/10 font-dm text-[11px] md:text-xs text-[#888] flex items-center gap-1.5 hover:text-white cursor-pointer transition-colors">
+                🎵 Music
+              </div>
+              <div className="px-3 py-1 rounded-full bg-white/[0.06] border border-white/10 font-dm text-[11px] md:text-xs text-[#888] flex items-center gap-1.5 hover:text-white cursor-pointer transition-colors">
+                🎤 Voiceover
+              </div>
+            </div>
+
           </div>
         </div>
       </main>
