@@ -130,29 +130,29 @@ export default function VideoDashboard() {
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
             </div>
 
-            {error && <div className="text-red-500 text-xs px-1">{error}</div>}
-          </div>
-
-          {/* PARAMS + GENERATE */}
-          <div className="border-t border-white/[0.06] p-3 flex flex-col gap-2">
-            <div className="flex gap-2">
-              <button className="flex-1 bg-[#111] border border-white/[0.06] rounded-lg py-2 text-[11px] text-[#666] flex items-center justify-center gap-1.5 hover:border-white/[0.12] hover:text-[#888] transition-colors">
-                ◷ 5s
-              </button>
-              <button className="flex-1 bg-[#111] border border-white/[0.06] rounded-lg py-2 text-[11px] text-[#666] flex items-center justify-center gap-1.5 hover:border-white/[0.12] hover:text-[#888] transition-colors">
-                ▭ 9:16
-              </button>
-              <button className="flex-1 bg-[#111] border border-white/[0.06] rounded-lg py-2 text-[11px] text-[#666] flex items-center justify-center gap-1.5 hover:border-white/[0.12] hover:text-[#888] transition-colors">
-                ◇ 720p
+            {/* PARAMS + GENERATE */}
+            <div className="flex flex-col gap-2 mt-1">
+              <div className="flex gap-2">
+                <button className="flex-1 bg-[#111] border border-white/[0.06] rounded-lg py-2 text-[11px] text-[#666] flex items-center justify-center gap-1.5 hover:border-white/[0.12] hover:text-[#888] transition-colors">
+                  ◷ 5s
+                </button>
+                <button className="flex-1 bg-[#111] border border-white/[0.06] rounded-lg py-2 text-[11px] text-[#666] flex items-center justify-center gap-1.5 hover:border-white/[0.12] hover:text-[#888] transition-colors">
+                  ▭ 9:16
+                </button>
+                <button className="flex-1 bg-[#111] border border-white/[0.06] rounded-lg py-2 text-[11px] text-[#666] flex items-center justify-center gap-1.5 hover:border-white/[0.12] hover:text-[#888] transition-colors">
+                  ◇ 720p
+                </button>
+              </div>
+              <button
+                onClick={handleGenerate}
+                disabled={isGenerating || !prompt.trim()}
+                className="w-full bg-[#532fcf] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-[13px] rounded-lg py-3 flex items-center justify-center gap-2 transition-all"
+              >
+                {isGenerating ? status || 'Generating...' : '⚡ Generate'}
               </button>
             </div>
-            <button
-              onClick={handleGenerate}
-              disabled={isGenerating || !prompt.trim()}
-              className="w-full bg-[#532fcf] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-[13px] rounded-lg py-3 flex items-center justify-center gap-2 transition-all"
-            >
-              {isGenerating ? status || 'Generating...' : '⚡ Generate'}
-            </button>
+
+            {error && <div className="text-red-500 text-xs px-1">{error}</div>}
           </div>
         </div>
 
