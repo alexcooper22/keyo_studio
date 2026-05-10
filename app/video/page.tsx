@@ -34,15 +34,21 @@ export default function VideoDashboard() {
     else setEndFrame(preview);
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('type', type);
-      const res = await fetch('/api/upload-frame', { method: 'POST', body: formData });
-      const data = await res.json();
-      if (data.url) {
-        if (type === 'start') setStartFrame(data.url);
-        else setEndFrame(data.url);
-      }
+      const res = await fetch('/api/upload-frame', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileName: file.name, fileType: file.type }),
+      });
+      const { signedUrl, publicUrl } = await res.json();
+
+      await fetch(signedUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': file.type },
+        body: file,
+      });
+
+      if (type === 'start') setStartFrame(publicUrl);
+      else setEndFrame(publicUrl);
     } catch (err) {
       console.error('Upload failed', err);
     }
