@@ -1,8 +1,56 @@
 'use client';
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import Navbar from '../../components/Navbar';
 
 export default function VideoDashboard() {
+  const [prompt, setPrompt] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [status, setStatus] = useState<string>('');
+  const pollRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleGenerate = async () => {
+    if (!prompt.trim() || isGenerating) return;
+    setIsGenerating(true);
+    setVideoUrl(null);
+    setError(null);
+    setStatus('Submitting...');
+
+    try {
+      const res = await fetch('/api/generate-video', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, duration: 5, aspectRatio: '9:16', mode: 'std' }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed');
+
+      const taskId = data.taskId;
+      setStatus('Processing...');
+
+      pollRef.current = setInterval(async () => {
+        const check = await fetch(`/api/check-video?taskId=${taskId}`);
+        const result = await check.json();
+        if (result.status === 'succeed' && result.videoUrl) {
+          clearInterval(pollRef.current!);
+          setVideoUrl(result.videoUrl);
+          setIsGenerating(false);
+          setStatus('');
+        } else if (result.status === 'failed') {
+          clearInterval(pollRef.current!);
+          setError('Generation failed');
+          setIsGenerating(false);
+          setStatus('');
+        }
+      }, 5000);
+    } catch (err: any) {
+      setError(err.message);
+      setIsGenerating(false);
+      setStatus('');
+    }
+  };
+
   return (
     <div className="min-h-screen w-full bg-[var(--bg)] md:overflow-hidden flex flex-col relative pt-[92px] md:pt-[64px]">
       <Navbar />
@@ -62,22 +110,23 @@ export default function VideoDashboard() {
           {/* D) PROMPT TEXTAREA */}
           <div className="w-full flex flex-col gap-2 min-h-0 shrink-0">
             <textarea 
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
               className="w-full h-[100px] bg-[#111] border border-white/[0.08] rounded-xl p-4 text-white font-dm text-[14px] placeholder:text-[#444] outline-none focus:border-[var(--accent)]/50 transition-colors resize-none"
               placeholder="Describe your video scene..."
             ></textarea>
+            {error && <div className="text-red-500 text-xs font-dm px-1">{error}</div>}
           </div>
 
           {/* Bottom Module Items */}
           <div style={{ marginTop: 'auto' }} className="flex flex-col gap-4">
-            {/* E) MODEL BADGE */}
-            <div className="w-full py-2.5 px-3 bg-[rgba(255,51,119,0.1)] border border-[rgba(255,51,119,0.2)] rounded-full flex items-center justify-center gap-2 cursor-pointer transition-colors hover:bg-[rgba(255,51,119,0.15)] md:flex">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-              <span className="text-[var(--accent)] font-dm text-[13px] font-[600]">New Seedance 2.0</span>
-            </div>
-
             {/* F) GENERATE BUTTON */}
-            <button className="w-full h-[52px] bg-[var(--accent)] text-black font-syne font-[700] text-[16px] rounded-lg flex items-center justify-center gap-1.5 hover:brightness-110 hover:scale-[1.01] transition-all">
-              ⚡ Generate
+            <button 
+              onClick={handleGenerate}
+              disabled={isGenerating || !prompt.trim()}
+              className="w-full h-[52px] bg-[var(--accent)] text-black font-syne font-[700] text-[16px] rounded-lg flex items-center justify-center gap-1.5 hover:brightness-110 hover:scale-[1.01] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isGenerating ? status || 'Generating...' : '⚡ Generate'}
             </button>
           </div>
         </div>
@@ -101,13 +150,19 @@ export default function VideoDashboard() {
           </div>
           <div className="w-full flex-1 flex items-center justify-center pb-8 overflow-hidden">
             <div className="h-full w-full max-h-[calc(100vh-200px)] aspect-[9/16] bg-gradient-to-br from-[#111] to-[#0a0a0a] rounded-xl border border-white/[0.06] relative group overflow-hidden shadow-2xl mx-auto flex items-center justify-center">
-              {/* Shimmer */}
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent w-[200%] animate-[shimmer_3s_ease_infinite]"></div>
-              
-              {/* Play Button */}
-              <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md group-hover:bg-[var(--accent)] transition-all cursor-pointer z-10 shadow-lg group-hover:shadow-[0_0_20px_rgba(255,51,119,0.3)] hover:scale-105">
-                <div className="w-0 h-0 border-t-[8px] border-t-transparent border-l-[14px] border-l-white group-hover:border-l-black border-b-[8px] border-b-transparent ml-1 transition-colors"></div>
-              </div>
+              {videoUrl ? (
+                <video src={videoUrl} controls autoPlay loop className="w-full h-full object-contain rounded-xl" />
+              ) : (
+                <>
+                  {/* Shimmer */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent w-[200%] animate-[shimmer_3s_ease_infinite]"></div>
+                  
+                  {/* Play Button */}
+                  <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md group-hover:bg-[var(--accent)] transition-all cursor-pointer z-10 shadow-lg group-hover:shadow-[0_0_20px_rgba(255,51,119,0.3)] hover:scale-105">
+                    <div className="w-0 h-0 border-t-[8px] border-t-transparent border-l-[14px] border-l-white group-hover:border-l-black border-b-[8px] border-b-transparent ml-1 transition-colors"></div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
