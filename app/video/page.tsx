@@ -135,24 +135,16 @@ export default function VideoDashboard() {
         </div>
 
         {/* CENTER PANEL */}
-        <div style={{ flex: 1, background: '#111', border: '0.5px solid #1e1e1e', borderRadius: '14px', display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-          <div style={{ padding: '10px 14px', borderBottom: '0.5px solid #1e1e1e', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '12px' }}>
-            {['◷ History', 'ⓘ How it works'].map(a => (
-              <span key={a} style={{ fontSize: '12px', color: '#444', cursor: 'pointer' }}>{a}</span>
-            ))}
-            <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#ffffff30' }}></div>
-          </div>
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-            {videoUrl ? (
-              <video src={videoUrl} controls autoPlay loop style={{ maxHeight: '100%', maxWidth: '100%', borderRadius: '10px' }} />
-            ) : (
-              <div style={{ width: '200px', height: '355px', background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: '#ffffff08', border: '0.5px solid #ffffff12', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <div style={{ width: 0, height: 0, borderTop: '8px solid transparent', borderBottom: '8px solid transparent', borderLeft: '14px solid #ffffff20', marginLeft: '3px' }}></div>
-                </div>
+        <div style={{ flex: 1, background: '#111', border: '0.5px solid #1e1e1e', borderRadius: '14px', overflow: 'hidden', minWidth: 0 }}>
+          {videoUrl ? (
+            <video src={videoUrl} controls autoPlay loop style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+          ) : (
+            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#111' }}>
+              <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: '#ffffff08', border: '0.5px solid #ffffff12', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: 0, height: 0, borderTop: '9px solid transparent', borderBottom: '9px solid transparent', borderLeft: '16px solid #ffffff20', marginLeft: '4px' }}></div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         {/* RIGHT PANEL */}
