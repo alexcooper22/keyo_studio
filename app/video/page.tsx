@@ -179,7 +179,7 @@ export default function VideoDashboard() {
                 <div data-menu="true" onClick={e => { e.stopPropagation(); setShowDurationMenu(v => !v); setShowQualityMenu(false); setShowAspectMenu(false); }} style={{ background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '6px', padding: '7px 3px', textAlign: 'center', fontSize: '10px', color: '#555', cursor: 'pointer' }}>◷ {duration}s</div>
                 {showDurationMenu && (
                   <div data-menu="true" style={{ position: 'absolute', bottom: '110%', left: 0, right: 0, background: '#161616', border: '0.5px solid #1e1e1e', borderRadius: '8px', overflow: 'hidden', zIndex: 100 }}>
-                    {[3, 5, 7, 10].map(d => (
+                    {[10, 9, 8, 7, 6, 5, 4, 3].map(d => (
                       <div key={d} onClick={() => { setDuration(d); setShowDurationMenu(false); }} style={{ padding: '8px 12px', fontSize: '12px', color: '#555', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         {d}s
                         {duration === d && <span style={{ color: '#532fcf' }}>✓</span>}
