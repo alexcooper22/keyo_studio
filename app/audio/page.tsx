@@ -15,8 +15,8 @@ export default function AudioPage() {
 
         {/* Hero */}
         <div className="relative flex flex-col items-center justify-center text-center" style={{ height: 'calc(100vh - 200px)', padding: '0 20px' }}>
-          {/* Wave background */}
-          <div className="absolute bottom-0 left-0 right-0 flex items-end gap-[3px] px-8" style={{ height: '120px', opacity: 0.12 }}>
+          {/* Wave background - Fixed to screen bottom */}
+          <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, height: '120px', display: 'flex', alignItems: 'flex-end', gap: '3px', padding: '0 32px', opacity: 0.12, zIndex: 10 }}>
             {bars.map((h, i) => (
               <div key={i} className="flex-1 rounded-t-sm" style={{ height: `${h}%`, background: '#532fcf' }} />
             ))}
