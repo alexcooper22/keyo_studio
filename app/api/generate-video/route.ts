@@ -3,6 +3,9 @@ import { auth } from '@clerk/nextjs/server';
 import * as jose from 'jose';
 import { supabaseAdmin } from '../../../lib/supabase';
 
+export const maxDuration = 60;
+export const dynamic = 'force-dynamic';
+
 async function generateKlingToken(): Promise<string> {
   const accessKeyId = process.env.KLING_ACCESS_KEY_ID!;
   const accessKeySecret = process.env.KLING_ACCESS_KEY_SECRET!;
