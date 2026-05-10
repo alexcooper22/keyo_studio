@@ -313,7 +313,7 @@ export default function ImageDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-[var(--bg)] pb-[130px] md:pb-[120px] relative" style={{ paddingTop: '94px' }}>
+    <div className="min-h-screen bg-[var(--bg)] pb-[130px] md:pb-[120px] relative" style={{ paddingTop: '64px' }}>
       <Navbar />
       
 
