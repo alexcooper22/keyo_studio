@@ -23,6 +23,15 @@ export default function VideoDashboard() {
   const feedRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const handleClick = () => {
+      setShowQualityMenu(false);
+      setShowAspectMenu(false);
+    };
+    document.addEventListener('click', handleClick);
+    return () => document.removeEventListener('click', handleClick);
+  }, []);
+
+  useEffect(() => {
     const loadVideos = async () => {
       try {
         const res = await fetch('/api/get-videos');
@@ -162,13 +171,13 @@ export default function VideoDashboard() {
             <div style={{ display: 'flex', gap: '5px' }}>
               <div style={{ flex: 1, background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '6px', padding: '7px 3px', textAlign: 'center', fontSize: '10px', color: '#555' }}>◷ 5s</div>
               <div style={{ flex: 1, position: 'relative' }}>
-                <div onClick={() => setShowAspectMenu(v => !v)} style={{ background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '6px', padding: '7px 3px', textAlign: 'center', fontSize: '10px', color: '#555', cursor: 'pointer' }}>▭ {aspectRatio}</div>
+                <div onClick={e => { e.stopPropagation(); setShowAspectMenu(v => !v); setShowQualityMenu(false); }} style={{ background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '6px', padding: '7px 3px', textAlign: 'center', fontSize: '10px', color: '#555', cursor: 'pointer' }}>▭ {aspectRatio}</div>
                 {showAspectMenu && (
                   <div style={{ position: 'absolute', bottom: '110%', left: 0, right: 0, background: '#161616', border: '0.5px solid #1e1e1e', borderRadius: '8px', overflow: 'hidden', zIndex: 100 }}>
                     {(['9:16', '16:9', '1:1'] as const).map(r => (
                       <div key={r} onClick={() => { setAspectRatio(r); setShowAspectMenu(false); }} style={{ padding: '8px 12px', fontSize: '12px', color: '#555', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         {r}
-                        {aspectRatio === r && <span style={{ color: '#555' }}>✓</span>}
+                        {aspectRatio === r && <span style={{ color: '#532fcf' }}>✓</span>}
                       </div>
                     ))}
                   </div>
@@ -176,12 +185,11 @@ export default function VideoDashboard() {
               </div>
               <div style={{ flex: 1, position: 'relative' }}>
                 <div
-                  onClick={() => setShowQualityMenu(v => !v)}
+                  onClick={e => { e.stopPropagation(); setShowQualityMenu(v => !v); setShowAspectMenu(false); }}
                   style={{ background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '6px', padding: '7px 3px', textAlign: 'center', fontSize: '10px', color: '#555', cursor: 'pointer' }}
                 >◇ {quality}</div>
                 {showQualityMenu && (
                   <div style={{ position: 'absolute', bottom: '110%', left: 0, right: 0, background: '#161616', border: '0.5px solid #1e1e1e', borderRadius: '8px', overflow: 'hidden', zIndex: 100 }}>
-
                     {(['720p', '1080p'] as const).map(q => (
                       <div
                         key={q}
