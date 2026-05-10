@@ -22,6 +22,7 @@ export default function VideoDashboard() {
   const [duration, setDuration] = useState<number>(5);
   const [showDurationMenu, setShowDurationMenu] = useState(false);
   const [showModelMenu, setShowModelMenu] = useState(false);
+  const [audioEnabled, setAudioEnabled] = useState(false);
   const pollRef = useRef<NodeJS.Timeout | null>(null);
   const feedRef = useRef<HTMLDivElement>(null);
 
@@ -147,11 +148,11 @@ export default function VideoDashboard() {
                 </div>
               ))}
             </div>
-            {/* Multi-shot */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: '12px', color: '#555' }}>Multi-shot</span>
-              <div style={{ width: '30px', height: '16px', background: '#1e1e1e', borderRadius: '20px', position: 'relative', cursor: 'pointer' }}>
-                <div style={{ width: '12px', height: '12px', background: '#444', borderRadius: '50%', position: 'absolute', left: '2px', top: '2px' }}></div>
+            {/* Audio toggle */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
+              <span style={{ fontSize: '12px', color: audioEnabled ? '#532fcf' : '#555', transition: 'color 0.2s', cursor: 'pointer' }} onClick={() => setAudioEnabled(v => !v)}>Audio</span>
+              <div onClick={() => setAudioEnabled(v => !v)} style={{ width: '30px', height: '16px', background: audioEnabled ? '#532fcf' : '#1e1e1e', borderRadius: '20px', position: 'relative', cursor: 'pointer', transition: 'background 0.2s' }}>
+                <div style={{ width: '12px', height: '12px', background: audioEnabled ? '#fff' : '#444', borderRadius: '50%', position: 'absolute', left: audioEnabled ? '16px' : '2px', top: '2px', transition: 'left 0.2s, background 0.2s' }}></div>
               </div>
             </div>
             {/* Prompt */}
