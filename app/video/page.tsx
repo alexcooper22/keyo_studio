@@ -217,7 +217,7 @@ export default function VideoDashboard() {
             <div key={v.id} style={{ width: '100%', background: '#111', border: '0.5px solid #1e1e1e', borderRadius: '14px', overflow: 'hidden', flexShrink: 0, display: 'flex' }}>
               {/* Video */}
               <div style={{ flex: 1, minWidth: 0 }}>
-                <video src={v.videoUrl} controls autoPlay loop style={{ width: '100%', display: 'block', maxHeight: '80vh', objectFit: 'contain', background: '#000' }} />
+                <video src={v.videoUrl} controls loop style={{ width: '100%', display: 'block', maxHeight: '80vh', objectFit: 'contain', background: '#000' }} />
               </div>
               {/* Info sidebar */}
               <div style={{ width: '200px', flexShrink: 0, borderLeft: '0.5px solid #1e1e1e', padding: '14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
