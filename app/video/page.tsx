@@ -179,9 +179,9 @@ export default function VideoDashboard() {
               <span style={{ fontSize: '12px', color: '#555' }}>{status || 'Generating...'}</span>
             </div>
           )}
-          {/* Video feed */}
+          {/* Empty state */}
           {videos.length === 0 && !isGenerating && (
-            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100%' }}>
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 'calc(100vh - 154px)' }}>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
                 <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: '#ffffff08', border: '0.5px solid #ffffff12', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <div style={{ width: 0, height: 0, borderTop: '9px solid transparent', borderBottom: '9px solid transparent', borderLeft: '16px solid #ffffff20', marginLeft: '4px' }}></div>
@@ -190,9 +190,10 @@ export default function VideoDashboard() {
               </div>
             </div>
           )}
+          {/* Video list */}
           {videos.map(v => (
-            <div key={v.id} style={{ width: '100%', background: '#111', border: '0.5px solid #1e1e1e', borderRadius: '14px', overflow: 'hidden' }}>
-              <video src={v.videoUrl} controls autoPlay loop style={{ width: '100%', display: 'block', maxHeight: '70vh', objectFit: 'contain', background: '#000' }} />
+            <div key={v.id} style={{ width: '100%', background: '#111', border: '0.5px solid #1e1e1e', borderRadius: '14px', overflow: 'hidden', flexShrink: 0 }}>
+              <video src={v.videoUrl} controls autoPlay loop style={{ width: '100%', display: 'block', maxHeight: '80vh', objectFit: 'contain', background: '#000' }} />
               <div style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span style={{ fontSize: '11px', color: '#444', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{v.prompt}</span>
                 <span style={{ fontSize: '10px', color: '#2d2d2d', marginLeft: '10px', flexShrink: 0 }}>{v.createdAt.toLocaleTimeString()}</span>
