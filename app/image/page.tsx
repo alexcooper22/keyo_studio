@@ -326,10 +326,10 @@ export default function ImageDashboard() {
           </div>
         )}
 
-        <div className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {/* Loading Skeleton */}
           {isLoading && (
-            <div className="relative rounded-xl overflow-hidden bg-gradient-to-br from-[#161616] to-[#0f0f0f] border border-[#ff3377]/20 aspect-[4/3] shadow-lg animate-pulse break-inside-avoid">
+            <div className="relative rounded-xl overflow-hidden bg-gradient-to-br from-[#161616] to-[#0f0f0f] border border-[#ff3377]/20 shadow-lg animate-pulse" style={{ height: '220px' }}>
                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.04] to-transparent w-[200%] animate-[shimmer_2.5s_ease_infinite]"></div>
                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
                   <div className="w-8 h-8 border-2 border-[#ff3377] border-t-transparent rounded-full animate-spin"></div>
@@ -344,7 +344,7 @@ export default function ImageDashboard() {
             return (
               <div 
                 key={img.url} 
-                className="relative rounded-xl overflow-hidden bg-[#161616] border border-white/[0.06] hover:border-white/10 group break-inside-avoid shadow-lg transition-colors cursor-zoom-in"
+                className="relative rounded-xl overflow-hidden bg-[#161616] border border-white/[0.06] hover:border-white/10 group shadow-lg transition-colors cursor-zoom-in"
                 onClick={() => setSelectedFullImage(img)}
               >
                 <Image 
@@ -352,7 +352,8 @@ export default function ImageDashboard() {
                   alt={`Generated ${i}`} 
                   width={800} 
                   height={600} 
-                  className="w-full h-auto object-cover"
+                  className="w-full object-cover"
+                  style={{ height: '220px' }}
                   unoptimized
                 />
                 
