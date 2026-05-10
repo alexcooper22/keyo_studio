@@ -51,6 +51,21 @@ export default function VideoDashboard() {
   return (
     <div style={{ paddingTop: '94px', background: '#080808', height: '100vh', overflow: 'hidden' }}>
       <Navbar />
+      <style>{`
+        textarea::-webkit-scrollbar {
+          width: 4px;
+        }
+        textarea::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        textarea::-webkit-scrollbar-thumb {
+          background: #2a2a2a;
+          border-radius: 4px;
+        }
+        textarea::-webkit-scrollbar-thumb:hover {
+          background: #532fcf;
+        }
+      `}</style>
       <div style={{ padding: '0 30px 30px 30px', display: 'flex', gap: '12px', height: 'calc(100vh - 94px)', alignItems: 'stretch' }}>
 
         {/* LEFT PANEL */}
