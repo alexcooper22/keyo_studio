@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import * as jose from 'jose';
+import { supabaseAdmin } from '../../../lib/supabase';
 
 async function generateKlingToken(): Promise<string> {
   const accessKeyId = process.env.KLING_ACCESS_KEY_ID!;
@@ -44,7 +45,22 @@ export async function POST(req: NextRequest) {
     const data = await response.json();
     if (!response.ok) return NextResponse.json({ error: data }, { status: response.status });
 
-    return NextResponse.json({ taskId: data.data?.task_id });
+    const taskId = data.data?.task_id;
+
+    // Save task to Supabase
+    if (taskId) {
+      await supabaseAdmin.from('generated_videos').insert({
+        clerk_id: userId,
+        prompt,
+        task_id: taskId,
+        duration,
+        aspect_ratio: aspectRatio,
+        mode,
+        status: 'processing'
+      });
+    }
+
+    return NextResponse.json({ taskId });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to generate video' }, { status: 500 });
   }

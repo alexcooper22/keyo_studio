@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import * as jose from 'jose';
+import { supabaseAdmin } from '../../../lib/supabase';
 
 async function generateKlingToken(): Promise<string> {
   const accessKeyId = process.env.KLING_ACCESS_KEY_ID!;
@@ -33,9 +34,24 @@ export async function GET(req: NextRequest) {
     if (!response.ok) return NextResponse.json({ error: data }, { status: response.status });
 
     const task = data.data;
+    const status = task?.task_status;
+    const videoUrl = task?.task_result?.videos?.[0]?.url ?? null;
+
+    if (status === 'succeed' && videoUrl) {
+      await supabaseAdmin
+        .from('generated_videos')
+        .update({ status: 'succeed', video_url: videoUrl })
+        .eq('task_id', taskId);
+    } else if (status === 'failed') {
+      await supabaseAdmin
+        .from('generated_videos')
+        .update({ status: 'failed' })
+        .eq('task_id', taskId);
+    }
+
     return NextResponse.json({
-      status: task?.task_status,
-      videoUrl: task?.task_result?.videos?.[0]?.url ?? null,
+      status,
+      videoUrl,
       duration: task?.task_result?.videos?.[0]?.duration ?? null,
     });
   } catch (error) {
