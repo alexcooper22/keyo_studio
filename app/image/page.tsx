@@ -467,12 +467,12 @@ export default function ImageDashboard() {
                   <div className="text-white text-[14px] font-dm font-bold leading-none">
                     {user?.fullName || user?.primaryEmailAddress?.emailAddress?.split('@')[0] || 'User'}
                   </div>
-                  <div className="text-[#555] text-[12px] font-dm mt-1">Author</div>
+                  <div className="text-[#777] text-[12px] font-dm mt-1">Author</div>
                 </div>
               </a>
               <button 
                 onClick={() => setSelectedFullImage(null)}
-                className="text-[#555] hover:text-white transition-colors flex items-center justify-center w-8 h-8 bg-white/[0.04] hover:bg-white/10 rounded-full"
+                className="text-[#777] hover:text-white transition-colors flex items-center justify-center w-8 h-8 bg-white/[0.04] hover:bg-white/10 rounded-full"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
               </button>
@@ -483,16 +483,16 @@ export default function ImageDashboard() {
             {/* Prompt Section */}
             <div className="mb-8">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-[11px] text-[#444] uppercase tracking-[1px] font-syne font-bold">Prompt</span>
+                <span className="text-[11px] text-[#777] uppercase tracking-[1px] font-syne font-bold">Prompt</span>
                 <button 
                   onClick={() => navigator.clipboard.writeText(selectedFullImage.prompt)}
-                  className="text-[11px] text-[#555] border border-white/[0.08] hover:border-white/20 hover:text-white transition-colors rounded-[6px] px-2 py-[3px]"
+                  className="text-[11px] text-[#777] border border-white/[0.08] hover:border-white/20 hover:text-white transition-colors rounded-[6px] px-2 py-[3px]"
                 >
                   copy
                 </button>
               </div>
               <p 
-                className="text-[14px] text-[#888] font-dm leading-relaxed"
+                className="text-[14px] text-[#777] font-dm leading-relaxed"
                 style={{ userSelect: 'text', cursor: 'text' }}
               >
                 {selectedFullImage.prompt}
@@ -503,20 +503,20 @@ export default function ImageDashboard() {
 
             {/* Information Section */}
             <div className="mb-8 flex-1">
-              <span className="text-[11px] text-[#444] uppercase tracking-[1px] font-syne font-bold block mb-4">Information</span>
+              <span className="text-[11px] text-[#777] uppercase tracking-[1px] font-syne font-bold block mb-4">Information</span>
               
               <div className="flex items-center justify-between py-2 border-b border-white/[0.04]">
-                <span className="text-[13px] text-[#555] font-dm">Model</span>
+                <span className="text-[13px] text-[#777] font-dm">Model</span>
                 <span className="text-[13px] text-white font-dm">Nano Banana 2</span>
               </div>
               
               <div className="flex items-center justify-between py-2 border-b border-white/[0.04]">
-                <span className="text-[13px] text-[#555] font-dm">Aspect ratio</span>
+                <span className="text-[13px] text-[#777] font-dm">Aspect ratio</span>
                 <span className="text-[13px] text-white font-dm">{selectedFullImage.aspectRatio}</span>
               </div>
 
               <div className="flex items-center justify-between py-2 border-b border-white/[0.04]">
-                <span className="text-[13px] text-[#555] font-dm">Quality</span>
+                <span className="text-[13px] text-[#777] font-dm">Quality</span>
                 <span className="text-[13px] text-white font-dm">{selectedFullImage.resolution || '1K'}</span>
               </div>
             </div>
@@ -525,7 +525,7 @@ export default function ImageDashboard() {
             <div>
               <button 
                 onClick={() => handleDownload(selectedFullImage.url)}
-                className="w-full text-[#888] hover:text-white border border-white/[0.1] hover:border-white/20 bg-transparent hover:bg-white/[0.02] transition-colors rounded-lg py-[10px] text-[13px] font-dm font-medium flex items-center justify-center gap-2"
+                className="w-full text-[#777] hover:text-white border border-white/[0.1] hover:border-white/20 bg-transparent hover:bg-white/[0.02] transition-colors rounded-lg py-[10px] text-[13px] font-dm font-medium flex items-center justify-center gap-2"
               >
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                 Download image
@@ -570,7 +570,7 @@ export default function ImageDashboard() {
           <div className="p-3 md:p-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 md:gap-4 border-b border-white/[0.06]">
             <button 
               onClick={() => fileInputRef.current?.click()}
-              className="w-10 h-10 md:w-12 md:h-12 flex-shrink-0 flex items-center justify-center rounded-xl bg-[#080808] border border-white/[0.04] text-[#888] hover:text-white hover:border-white/20 transition-colors"
+              className="w-10 h-10 md:w-12 md:h-12 flex-shrink-0 flex items-center justify-center rounded-xl bg-[#080808] border border-white/[0.04] text-[#777] hover:text-white hover:border-white/20 transition-colors"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             </button>
@@ -596,7 +596,7 @@ export default function ImageDashboard() {
                 scrollbarWidth: 'thin',
                 scrollbarColor: '#333 transparent'
               }}
-              className="flex-1 bg-transparent border-none outline-none text-white font-dm text-sm placeholder:text-[#555] resize-none py-2"
+              className="flex-1 bg-transparent border-none outline-none text-white font-dm text-sm placeholder:text-[#777] resize-none py-2"
             />
             <div className="flex flex-col gap-1.5 items-center">
               <button 
@@ -622,7 +622,7 @@ export default function ImageDashboard() {
                   </span>
                 )}
                 {isLoaded && !isSignedIn && (
-                  <span className="font-dm text-[12px] text-[#555] text-center">
+                  <span className="font-dm text-[12px] text-[#777] text-center">
                      — Sign in to generate
                   </span>
                 )}
@@ -635,7 +635,7 @@ export default function ImageDashboard() {
             <div className="relative" ref={dropdownRef}>
               <button 
                 onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
-                className={`px-3 py-1 rounded-full bg-white/[0.06] border font-dm text-[11px] md:text-xs transition-all flex items-center gap-1.5 ${isModelDropdownOpen ? 'border-[#ff3377] text-white bg-white/10' : 'border-white/10 text-[#888] hover:text-white hover:bg-white/10'}`}
+                className={`px-3 py-1 rounded-full bg-white/[0.06] border font-dm text-[11px] md:text-xs transition-all flex items-center gap-1.5 ${isModelDropdownOpen ? 'border-[#ff3377] text-white bg-white/10' : 'border-white/10 text-[#777] hover:text-white hover:bg-white/10'}`}
               >
                 {modelOptions.find(m => m.id === selectedModel)?.name} ▾
               </button>
@@ -655,7 +655,7 @@ export default function ImageDashboard() {
                         <span className={`font-dm font-[600] text-sm ${selectedModel === model.id ? 'text-[#ff3377]' : 'text-white/90'}`}>{model.name}</span>
                         {selectedModel === model.id && <div className="w-1 h-1 rounded-full bg-[#ff3377]" />}
                       </div>
-                      <span className="font-dm text-[11px] text-[#555]">{model.price}</span>
+                      <span className="font-dm text-[11px] text-[#777]">{model.price}</span>
                     </button>
                   ))}
                 </div>
@@ -666,7 +666,7 @@ export default function ImageDashboard() {
               <button
                 ref={ratioButtonRef}
                 onClick={(e) => { e.stopPropagation(); handleOpenRatio(); }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] text-[#888] border border-white/10 hover:text-white transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] text-[#777] border border-white/10 hover:text-white transition-colors"
               >
                 {ratioOptions.find(r => r.value === aspectRatio)?.icon} {aspectRatio}
               </button>
@@ -686,7 +686,7 @@ export default function ImageDashboard() {
                       transform: 'translateX(-50%)'
                     }}
                   >
-                    <p className="text-[11px] text-[#444] mb-3 uppercase tracking-wider">Aspect ratio</p>
+                    <p className="text-[11px] text-[#777] mb-3 uppercase tracking-wider">Aspect ratio</p>
                     <div className="flex flex-col gap-1">
                       {ratioOptions.map(ratio => (
                         <button
@@ -695,7 +695,7 @@ export default function ImageDashboard() {
                           className={`flex items-center gap-3 px-3 py-1 rounded-lg text-xs transition-colors text-left w-full ${
                             aspectRatio === ratio.value 
                               ? 'text-white bg-white/[0.08]' 
-                              : 'text-[#666] hover:text-white hover:bg-white/[0.04]'
+                              : 'text-[#777] hover:text-white hover:bg-white/[0.04]'
                           }`}
                         >
                           <div style={{
@@ -719,7 +719,7 @@ export default function ImageDashboard() {
               <button 
                 ref={qualityButtonRef}
                 onClick={handleOpenQuality}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] text-[#888] border border-white/10 hover:text-white transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] text-[#777] border border-white/10 hover:text-white transition-colors"
               >
                 ◇ {quality}
               </button>
@@ -739,7 +739,7 @@ export default function ImageDashboard() {
                       transform: 'translateX(-50%)'
                     }}
                   >
-                    <p className="text-[11px] text-[#444] mb-3 uppercase tracking-wider">Select quality</p>
+                    <p className="text-[11px] text-[#777] mb-3 uppercase tracking-wider">Select quality</p>
                     <div className="flex flex-col gap-1">
                       {qualityOptions.map(q => (
                         <button
@@ -748,7 +748,7 @@ export default function ImageDashboard() {
                           className={`flex items-center justify-between px-3 py-2 rounded-lg text-[13px] w-full text-left transition-colors ${
                             quality === q.value 
                               ? 'text-white bg-white/[0.08]' 
-                              : 'text-[#666] hover:text-white'
+                              : 'text-[#777] hover:text-white'
                           }`}
                         >
                           {q.label}
