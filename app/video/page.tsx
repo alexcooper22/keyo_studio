@@ -126,8 +126,8 @@ export default function VideoDashboard() {
             </div>
             <button
               onClick={handleGenerate}
-              disabled={isGenerating || !prompt.trim()}
-              style={{ background: '#532fcf', border: 'none', borderRadius: '8px', padding: '10px', fontSize: '13px', fontWeight: 600, color: '#fff', cursor: isGenerating || !prompt.trim() ? 'not-allowed' : 'pointer', opacity: isGenerating || !prompt.trim() ? 0.5 : 1, width: '100%' }}
+              disabled={isGenerating}
+              style={{ background: '#532fcf', border: 'none', borderRadius: '8px', padding: '10px', fontSize: '13px', fontWeight: 600, color: '#fff', cursor: isGenerating ? 'not-allowed' : 'pointer', opacity: isGenerating ? 0.7 : 1, width: '100%' }}
             >
               {isGenerating ? status || 'Generating...' : '⚡ Generate'}
             </button>
