@@ -39,6 +39,14 @@ export async function POST(req: NextRequest) {
           session.subscription as string
         );
 
+        const periodStart = (subscription.items.data[0] as any)?.current_period_start;
+        const periodEnd = (subscription.items.data[0] as any)?.current_period_end;
+
+        if (!periodStart || !periodEnd) {
+          console.error('Missing period fields in subscription', subscription.id);
+          break;
+        }
+
         await supabaseAdmin.from('user_subscriptions').upsert({
           clerk_id: clerkId,
           stripe_customer_id: session.customer as string,
@@ -47,8 +55,8 @@ export async function POST(req: NextRequest) {
           status: 'active',
           credits_remaining: planConfig.credits,
           credits_total: planConfig.credits,
-          current_period_start: new Date((subscription as any).current_period_start * 1000).toISOString(),
-          current_period_end: new Date((subscription as any).current_period_end * 1000).toISOString(),
+          current_period_start: new Date(periodStart * 1000).toISOString(),
+          current_period_end: new Date(periodEnd * 1000).toISOString(),
           updated_at: new Date().toISOString(),
         }, { onConflict: 'clerk_id' });
 
@@ -65,6 +73,14 @@ export async function POST(req: NextRequest) {
         const planConfig = plan ? STRIPE_PLANS[plan] : null;
         const isActive = subscription.status === 'active';
 
+        const periodStart = (subscription.items.data[0] as any)?.current_period_start;
+        const periodEnd = (subscription.items.data[0] as any)?.current_period_end;
+
+        if (!periodStart || !periodEnd) {
+          console.error('Missing period fields in subscription', subscription.id);
+          break;
+        }
+
         await supabaseAdmin.from('user_subscriptions').upsert({
           clerk_id: clerkId,
           stripe_subscription_id: subscription.id,
@@ -74,8 +90,8 @@ export async function POST(req: NextRequest) {
             credits_remaining: planConfig.credits,
             credits_total: planConfig.credits,
           }),
-          current_period_start: new Date((subscription as any).current_period_start * 1000).toISOString(),
-          current_period_end: new Date((subscription as any).current_period_end * 1000).toISOString(),
+          current_period_start: new Date(periodStart * 1000).toISOString(),
+          current_period_end: new Date(periodEnd * 1000).toISOString(),
           updated_at: new Date().toISOString(),
         }, { onConflict: 'clerk_id' });
 
