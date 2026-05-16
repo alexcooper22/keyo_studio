@@ -167,6 +167,53 @@ export default function ImageDashboard() {
     if (isLoaded && isSignedIn) {
       fetchCredits();
       fetchImages();
+      // Restore generation state from localStorage
+      const pendingGeneration = localStorage.getItem('image_generation_pending');
+      if (pendingGeneration) {
+        const pending = JSON.parse(pendingGeneration);
+        // Only restore if started less than 5 minutes ago
+        if (Date.now() - pending.startTime < 5 * 60 * 1000) {
+          setIsLoading(true);
+          // Start polling for new images
+          const pollInterval = setInterval(async () => {
+            try {
+              const res = await fetch('/api/user-images');
+              const data = await res.json();
+              if (data.images && data.images.length > 0) {
+                // Check if there's a newer image than when generation started
+                const newestImage = data.images[0];
+                const imageTime = new Date(newestImage.created_at).getTime();
+                if (imageTime > pending.startTime) {
+                  // Generation completed
+                  setGeneratedImages(data.images.map((img: any) => ({
+                    url: img.image_url,
+                    prompt: img.prompt || 'Generated with Keyo AI',
+                    model: 'Nano Banana 2',
+                    aspectRatio: img.aspect_ratio || '4:3',
+                    resolution: img.resolution || '1K'
+                  })));
+                  setIsLoading(false);
+                  localStorage.removeItem('image_generation_pending');
+                  fetchCredits();
+                  window.dispatchEvent(new Event('credits-updated'));
+                  clearInterval(pollInterval);
+                }
+              }
+            } catch (err) {
+              console.error('Polling error:', err);
+            }
+          }, 3000);
+          // Stop polling after 5 minutes
+          setTimeout(() => {
+            clearInterval(pollInterval);
+            setIsLoading(false);
+            localStorage.removeItem('image_generation_pending');
+          }, 5 * 60 * 1000);
+        } else {
+          // Too old, clean up
+          localStorage.removeItem('image_generation_pending');
+        }
+      }
     } else if (isLoaded && !isSignedIn) {
       setCreditCount(0);
     }
@@ -215,6 +262,13 @@ export default function ImageDashboard() {
     setError('');
     
     try {
+      // Save generation state to localStorage
+      localStorage.setItem('image_generation_pending', JSON.stringify({
+        prompt,
+        startTime: Date.now(),
+        quality,
+        aspectRatio
+      }));
       const uploadedUrls = await Promise.all(
         uploadedImages.map(async (base64) => {
           const blob = await compressImage(base64);
@@ -263,8 +317,10 @@ export default function ImageDashboard() {
       window.dispatchEvent(new Event('credits-updated'));
     } catch (err: any) {
       setError(err.message || 'Generation failed');
+      localStorage.removeItem('image_generation_pending');
     } finally {
       setIsLoading(false);
+      localStorage.removeItem('image_generation_pending');
     }
   }
 
