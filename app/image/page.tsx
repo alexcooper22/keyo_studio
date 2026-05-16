@@ -51,6 +51,17 @@ export default function ImageDashboard() {
   const { isLoaded, isSignedIn, user } = useUser();
   
   const [prompt, setPrompt] = useState('');
+
+  // Restore prompt from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('image_prompt_draft');
+    if (saved) setPrompt(saved);
+  }, []);
+
+  // Save prompt to localStorage on every change
+  useEffect(() => {
+    localStorage.setItem('image_prompt_draft', prompt);
+  }, [prompt]);
   const [isLoading, setIsLoading] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<ImageDetails[]>([]);
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
