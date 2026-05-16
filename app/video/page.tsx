@@ -27,6 +27,7 @@ export default function VideoDashboard() {
   const [showModelMenu, setShowModelMenu] = useState(false);
   const [audioEnabled, setAudioEnabled] = useState(false);
   const [likedVideos, setLikedVideos] = useState<Set<string>>(new Set());
+  const [creditCount, setCreditCount] = useState<number | null>(null);
 
   const toggleLike = (id: string) => {
     setLikedVideos(prev => {
@@ -90,6 +91,19 @@ export default function VideoDashboard() {
     };
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  useEffect(() => {
+    const fetchCredits = async () => {
+      try {
+        const res = await fetch('/api/user-credits');
+        const data = await res.json();
+        if (data.credits !== undefined) setCreditCount(data.credits);
+      } catch (err) {
+        console.error("Failed to fetch credits", err);
+      }
+    };
+    fetchCredits();
   }, []);
 
   useEffect(() => {
@@ -315,10 +329,29 @@ export default function VideoDashboard() {
             </div>
             <button
               onClick={handleGenerate}
-              disabled={isGenerating}
-              style={{ background: '#532fcf', border: 'none', borderRadius: '8px', padding: '14px', fontSize: '14px', fontWeight: 600, color: '#fff', cursor: isGenerating ? 'not-allowed' : 'pointer', opacity: isGenerating ? 0.7 : 1, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+              disabled={isGenerating || (creditCount !== null && creditCount <= 0)}
+              style={{ 
+                background: (creditCount !== null && creditCount <= 0) ? '#2a2a2a' : '#532fcf', 
+                border: 'none', 
+                borderRadius: '8px', 
+                padding: '14px', 
+                fontSize: '14px', 
+                fontWeight: 600, 
+                color: (creditCount !== null && creditCount <= 0) ? '#777' : '#fff', 
+                cursor: (isGenerating || (creditCount !== null && creditCount <= 0)) ? 'not-allowed' : 'pointer', 
+                opacity: isGenerating ? 0.7 : 1, 
+                width: '100%', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                gap: '8px' 
+              }}
             >
-              {isGenerating ? status || 'Generating...' : <><svg width="16" height="16" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg> Generate</>}
+              {isGenerating ? status || 'Generating...' : (creditCount !== null && creditCount <= 0) ? (
+                <><svg width="16" height="16" viewBox="0 0 24 24" fill="#777" xmlns="http://www.w3.org/2000/svg"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg> No credits</>
+              ) : (
+                <><svg width="16" height="16" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg> Generate</>
+              )}
             </button>
           </div>
         </div>
