@@ -110,26 +110,31 @@ export default function Home() {
             style={{ gap: '30px', marginBottom: '30px' }}
           >
             {/* Image card */}
-            <Link href="/image" className="group block" style={{ borderRadius: '12px', background: '#111', border: '0.5px solid #1e1e1e', overflow: 'hidden', textDecoration: 'none' }}>
+            <Link href="/image" className="group block" style={{ borderRadius: '12px', background: '#111', border: '0.5px solid #1e1e1e', overflow: 'hidden', textDecoration: 'none', position: 'relative' }}>
+              <video
+                src="/image-bg.mp4"
+                autoPlay
+                loop
+                muted
+                playsInline
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  zIndex: 0,
+                }}
+              />
               <div
                 style={{
                   height: '240px',
-                  background: 'linear-gradient(160deg, #2a1f4a, #1a1535)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   position: 'relative',
                 }}
               >
-                {/* Decorative shapes */}
-                <div style={{ position: 'absolute', width: 80, height: 80, borderRadius: '50%', background: 'rgba(83,47,207,0.35)', top: 20, left: 30, filter: 'blur(20px)' }} />
-                <div style={{ position: 'absolute', width: 60, height: 60, borderRadius: '50%', background: 'rgba(120,80,255,0.2)', bottom: 10, right: 24, filter: 'blur(14px)' }} />
-                {/* Image icon */}
-                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                  <circle cx="8.5" cy="8.5" r="1.5"/>
-                  <polyline points="21 15 16 10 5 21"/>
-                </svg>
                 {/* Badge */}
                 <span
                   style={{
@@ -138,14 +143,14 @@ export default function Home() {
                     fontSize: '10px', fontWeight: 600,
                     padding: '2px 8px', borderRadius: '4px',
                     fontFamily: 'inherit',
+                    zIndex: 1,
                   }}
                 >
                   Image
                 </span>
               </div>
-              <div style={{ padding: '12px 14px' }}>
+              <div style={{ padding: '12px 14px', position: 'relative', zIndex: 1 }}>
                 <p style={{ fontSize: '13px', fontWeight: 500, color: '#fff', margin: 0, fontFamily: 'var(--font-clash)' }}>Image</p>
-
               </div>
             </Link>
 
