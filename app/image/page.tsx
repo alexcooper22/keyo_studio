@@ -236,7 +236,14 @@ export default function ImageDashboard() {
         body: JSON.stringify({ prompt, model: selectedModel, imageUrls: uploadedUrls, aspectRatio, resolution: quality }),
       });
       
-      const data = await response.json();
+      let data;
+      const responseText = await response.text();
+      try {
+        data = JSON.parse(responseText);
+      } catch (e) {
+        console.error('Non-JSON response from server:', response.status, responseText);
+        throw new Error(`Server error (${response.status}): ${responseText.substring(0, 200)}`);
+      }
       
       if (data.error) {
         throw new Error(data.error);
