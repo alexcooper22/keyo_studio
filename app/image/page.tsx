@@ -53,7 +53,7 @@ export default function ImageDashboard() {
   const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<ImageDetails[]>([]);
-  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [uploadedImages, setUploadedImages] = useState<Array<{ url: string; uploading?: boolean; tempId?: string }>>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [creditCount, setCreditCount] = useState<number | null>(null);
   const [selectedModel, setSelectedModel] = useState('google/nano-banana-2/text-to-image');
@@ -78,6 +78,14 @@ export default function ImageDashboard() {
 
     const savedQuality = localStorage.getItem('image_quality_draft');
     if (savedQuality) setQuality(savedQuality);
+
+    const savedRefs = localStorage.getItem('image_uploaded_refs');
+    if (savedRefs) {
+      try {
+        const parsed = JSON.parse(savedRefs);
+        if (Array.isArray(parsed)) setUploadedImages(parsed);
+      } catch {}
+    }
   }, []);
 
   // Save to localStorage on every change
@@ -96,6 +104,15 @@ export default function ImageDashboard() {
   useEffect(() => {
     localStorage.setItem('image_quality_draft', quality);
   }, [quality]);
+
+  useEffect(() => {
+    const onlyUploaded = uploadedImages.filter(img => !img.uploading);
+    if (onlyUploaded.length > 0) {
+      localStorage.setItem('image_uploaded_refs', JSON.stringify(onlyUploaded.map(img => ({ url: img.url }))));
+    } else {
+      localStorage.removeItem('image_uploaded_refs');
+    }
+  }, [uploadedImages]);
   const creditCost = quality === '4K' ? 4 : quality === '2K' ? 3 : 2;
   const [showQualityModal, setShowQualityModal] = useState(false);
   const qualityButtonRef = useRef<HTMLButtonElement>(null);
@@ -304,20 +321,7 @@ export default function ImageDashboard() {
         quality,
         aspectRatio
       }));
-      const uploadedUrls = await Promise.all(
-        uploadedImages.map(async (base64) => {
-          const blob = await compressImage(base64);
-          const file = new File([blob], 'image.jpg', { type: 'image/jpeg' });
-          const formData = new FormData();
-          formData.append('file', file);
-          const response = await fetch('/api/upload-image', {
-            method: 'POST',
-            body: formData,
-          });
-          const data = await response.json();
-          return data.url;
-        })
-      );
+      const uploadedUrls = uploadedImages.filter(img => !img.uploading).map(img => img.url);
 
       const response = await fetch('/api/generate-image', {
         method: 'POST',
@@ -377,27 +381,35 @@ export default function ImageDashboard() {
     });
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const files = Array.from(e.target.files);
+    const arr = files.slice(0, 14 - uploadedImages.length);
     
-    const remainingSlots = 14 - uploadedImages.length;
-    const filesToProcess = files.slice(0, remainingSlots);
-
-    const promises = filesToProcess.map(file => {
-      return new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (event) => resolve(event.target?.result as string);
-        reader.onerror = (error) => reject(error);
-        reader.readAsDataURL(file);
-      });
-    });
-
-    Promise.all(promises).then(base64Images => {
-      setUploadedImages(prev => [...prev, ...base64Images].slice(0, 14));
-    }).catch(err => {
-      console.error("Failed to read files", err);
-    });
+    for (const file of arr) {
+      const tempId = Math.random().toString(36).slice(2);
+      const previewUrl = URL.createObjectURL(file);
+      
+      setUploadedImages(prev => [...prev, { url: previewUrl, uploading: true, tempId }]);
+      
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        const res = await fetch('/api/upload-image', { method: 'POST', body: formData });
+        const data = await res.json();
+        
+        if (res.ok && data.url) {
+          setUploadedImages(prev => prev.map(img => 
+            img.tempId === tempId ? { url: data.url } : img
+          ));
+          URL.revokeObjectURL(previewUrl);
+        } else {
+          setUploadedImages(prev => prev.filter(img => img.tempId !== tempId));
+        }
+      } catch {
+        setUploadedImages(prev => prev.filter(img => img.tempId !== tempId));
+      }
+    }
 
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
@@ -650,15 +662,22 @@ export default function ImageDashboard() {
           {/* Uploaded Images Preview */}
           {uploadedImages.length > 0 && (
             <div className="flex items-center gap-2 px-3 md:px-4 pt-3 overflow-x-auto">
-              {uploadedImages.map((src, idx) => (
+              {uploadedImages.map((img, idx) => (
                 <div key={idx} className="relative flex-shrink-0" style={{ width: '60px', height: '60px' }}>
-                  <img src={src} alt="Uploaded preview" className="w-full h-full object-cover" style={{ borderRadius: '8px', background: '#111', border: '1px solid rgba(255,255,255,0.1)' }} />
-                  <button 
-                    onClick={() => removeImage(idx)}
-                    className="absolute -top-2 -right-2 w-5 h-5 bg-white/20 hover:bg-white/40 rounded-full text-white flex items-center justify-center text-xs shadow-md border border-[#111]"
-                  >
-                    ×
-                  </button>
+                  <img src={img.url} alt="Uploaded preview" className={`w-full h-full object-cover ${img.uploading ? 'opacity-50' : ''}`} style={{ borderRadius: '8px', background: '#111', border: '1px solid rgba(255,255,255,0.1)' }} />
+                  {img.uploading && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                  )}
+                  {!img.uploading && (
+                    <button 
+                      onClick={() => removeImage(idx)}
+                      className="absolute -top-2 -right-2 w-5 h-5 bg-white/20 hover:bg-white/40 rounded-full text-white flex items-center justify-center text-xs shadow-md border border-[#111]"
+                    >
+                      ×
+                    </button>
+                  )}
                 </div>
               ))}
             </div>

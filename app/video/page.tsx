@@ -26,6 +26,10 @@ export default function VideoDashboard() {
   const [showDurationMenu, setShowDurationMenu] = useState(false);
   const [showModelMenu, setShowModelMenu] = useState(false);
   const [audioEnabled, setAudioEnabled] = useState(false);
+  const [startFrame, setStartFrame] = useState<string | null>(null);
+  const [endFrame, setEndFrame] = useState<string | null>(null);
+  const startFrameRef = useRef<HTMLInputElement>(null);
+  const endFrameRef = useRef<HTMLInputElement>(null);
 
   // Restore settings from localStorage on mount
   useEffect(() => {
@@ -43,6 +47,12 @@ export default function VideoDashboard() {
 
     const savedAudio = localStorage.getItem('video_audio_draft');
     if (savedAudio === 'true') setAudioEnabled(true);
+
+    const savedStart = localStorage.getItem('video_start_frame');
+    if (savedStart && !savedStart.startsWith('blob:')) setStartFrame(savedStart);
+
+    const savedEnd = localStorage.getItem('video_end_frame');
+    if (savedEnd && !savedEnd.startsWith('blob:')) setEndFrame(savedEnd);
   }, []);
 
   // Save to localStorage on every change
@@ -65,6 +75,16 @@ export default function VideoDashboard() {
   useEffect(() => {
     localStorage.setItem('video_audio_draft', String(audioEnabled));
   }, [audioEnabled]);
+
+  useEffect(() => {
+    if (startFrame && !startFrame.startsWith('blob:')) localStorage.setItem('video_start_frame', startFrame);
+    else if (!startFrame) localStorage.removeItem('video_start_frame');
+  }, [startFrame]);
+
+  useEffect(() => {
+    if (endFrame && !endFrame.startsWith('blob:')) localStorage.setItem('video_end_frame', endFrame);
+    else if (!endFrame) localStorage.removeItem('video_end_frame');
+  }, [endFrame]);
   const [likedVideos, setLikedVideos] = useState<Set<string>>(new Set());
   const [creditCount, setCreditCount] = useState<number | null>(null);
 
@@ -85,10 +105,6 @@ export default function VideoDashboard() {
     a.download = `video-${id}.mp4`;
     a.click();
   };
-  const [startFrame, setStartFrame] = useState<string | null>(null);
-  const [endFrame, setEndFrame] = useState<string | null>(null);
-  const startFrameRef = useRef<HTMLInputElement>(null);
-  const endFrameRef = useRef<HTMLInputElement>(null);
 
   const handleFrameUpload = async (file: File, type: 'start' | 'end') => {
     const preview = URL.createObjectURL(file);
@@ -196,6 +212,10 @@ export default function VideoDashboard() {
                 setIsGenerating(false);
                 setStatus('');
                 localStorage.removeItem('video_generation_pending');
+                localStorage.removeItem('video_start_frame');
+                localStorage.removeItem('video_end_frame');
+                setStartFrame(null);
+                setEndFrame(null);
                 window.dispatchEvent(new Event('credits-updated'));
               } else if (result.status === 'failed') {
                 clearInterval(pollRef.current!);
@@ -260,6 +280,10 @@ export default function VideoDashboard() {
           setIsGenerating(false);
           setStatus('');
           localStorage.removeItem('video_generation_pending');
+          localStorage.removeItem('video_start_frame');
+          localStorage.removeItem('video_end_frame');
+          setStartFrame(null);
+          setEndFrame(null);
           window.dispatchEvent(new Event('credits-updated'));
           // Scroll to top of feed
           if (feedRef.current) feedRef.current.scrollTo({ top: 0, behavior: 'smooth' });
