@@ -135,22 +135,9 @@ export default function Home() {
                   position: 'relative',
                 }}
               >
-                {/* Badge */}
-                <span
-                  style={{
-                    position: 'absolute', top: 10, left: 10,
-                    background: '#532fcf', color: '#fff',
-                    fontSize: '10px', fontWeight: 600,
-                    padding: '2px 8px', borderRadius: '4px',
-                    fontFamily: 'inherit',
-                    zIndex: 1,
-                  }}
-                >
-                  Image
-                </span>
               </div>
               <div style={{ padding: '12px 14px', position: 'relative', zIndex: 1 }}>
-                <p style={{ fontSize: '13px', fontWeight: 500, color: '#fff', margin: 0, fontFamily: 'var(--font-clash)' }}>Image</p>
+                <p style={{ fontSize: '32px', fontWeight: 600, color: '#532fcf', margin: 0, fontFamily: 'var(--font-clash)' }}>Generate image</p>
               </div>
             </Link>
 
