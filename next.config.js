@@ -13,6 +13,22 @@ const nextConfig = {
       bodySizeLimit: '20mb',
     },
   },
+  async redirects() {
+    return [];
+  },
+  async headers() {
+    return [
+      {
+        source: '/api/stripe/webhook',
+        headers: [
+          {
+            key: 'x-middleware-skip',
+            value: '1',
+          },
+        ],
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;
