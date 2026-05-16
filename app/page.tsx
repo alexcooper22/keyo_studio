@@ -142,45 +142,34 @@ export default function Home() {
             </Link>
 
             {/* Video card */}
-            <Link href="/video" className="group block" style={{ borderRadius: '12px', background: '#111', border: '0.5px solid #1e1e1e', overflow: 'hidden', textDecoration: 'none' }}>
+            <Link href="/video" className="group block" style={{ borderRadius: '12px', background: '#111', border: '0.5px solid #1e1e1e', overflow: 'hidden', textDecoration: 'none', position: 'relative' }}>
+              <video
+                src="/video-bg.mp4"
+                autoPlay
+                loop
+                muted
+                playsInline
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  zIndex: 0,
+                }}
+              />
               <div
                 style={{
                   height: '240px',
-                  background: 'linear-gradient(160deg, #1a2535, #0f1520)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   position: 'relative',
                 }}
               >
-                <div style={{ position: 'absolute', width: 90, height: 60, borderRadius: '50%', background: 'rgba(30,80,150,0.3)', top: 15, left: 20, filter: 'blur(18px)' }} />
-                {/* Play button */}
-                <div
-                  style={{
-                    width: 44, height: 44, borderRadius: '50%',
-                    background: 'rgba(255,255,255,0.08)',
-                    border: '1px solid rgba(255,255,255,0.12)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="rgba(255,255,255,0.7)" stroke="none">
-                    <polygon points="5 3 19 12 5 21 5 3"/>
-                  </svg>
-                </div>
-                <span
-                  style={{
-                    position: 'absolute', top: 10, left: 10,
-                    background: '#1a3a5c', color: '#7ab3e8',
-                    fontSize: '10px', fontWeight: 600,
-                    padding: '2px 8px', borderRadius: '4px',
-                  }}
-                >
-                  Video
-                </span>
               </div>
-              <div style={{ padding: '12px 14px' }}>
-                <p style={{ fontSize: '13px', fontWeight: 500, color: '#fff', margin: 0, fontFamily: 'var(--font-clash)' }}>Video</p>
-
+              <div style={{ padding: '12px 14px', position: 'relative', zIndex: 1 }}>
+                <p style={{ fontSize: '22px', fontWeight: 600, color: '#532fcf', margin: 0, fontFamily: 'var(--font-clash)' }}>Generate video</p>
               </div>
             </Link>
 
