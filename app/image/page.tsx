@@ -768,9 +768,10 @@ export default function ImageDashboard() {
               <button
                 ref={ratioButtonRef}
                 onClick={(e) => { e.stopPropagation(); handleOpenRatio(); }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] text-[#777] border border-white/10 hover:text-white transition-colors"
+                className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] text-[#777] border border-white/10 hover:text-white transition-colors"
+                style={{ minWidth: '60px' }}
               >
-                {ratioOptions.find(r => r.value === aspectRatio)?.icon} {aspectRatio}
+                {aspectRatio}
               </button>
               
               {showRatioDropdown && (
