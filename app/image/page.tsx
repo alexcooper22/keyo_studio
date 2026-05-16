@@ -168,7 +168,7 @@ export default function ImageDashboard() {
       fetchCredits();
       fetchImages();
     } else if (isLoaded && !isSignedIn) {
-      setCreditCount(10); // Default for guests
+      setCreditCount(0);
     }
   }, [isLoaded, isSignedIn]);
 
@@ -603,12 +603,26 @@ export default function ImageDashboard() {
                 onClick={handleGenerate}
                 disabled={isLoaded && isSignedIn && (isLoading || !prompt.trim() || (creditCount !== null && creditCount <= 0))}
                 className={`px-4 md:px-7 py-3 md:py-3.5 text-white font-dm font-[700] rounded-xl flex items-center justify-center gap-2 transition-all flex-shrink-0 ${(isLoading || (isLoaded && !isSignedIn)) ? 'opacity-70 cursor-pointer' : ''}`}
-                style={{ background: '#532fcf', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: '#fff' }}
+                style={{ 
+                  background: (isLoaded && isSignedIn && creditCount !== null && creditCount <= 0) ? '#2a2a2a' : '#532fcf',
+                  border: 'none', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  gap: '8px', 
+                  color: (isLoaded && isSignedIn && creditCount !== null && creditCount <= 0) ? '#777' : '#fff',
+                  cursor: (isLoaded && isSignedIn && creditCount !== null && creditCount <= 0) ? 'not-allowed' : 'pointer'
+                }}
               >
                 {isLoading ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                     Generating...
+                  </>
+                ) : (isLoaded && isSignedIn && creditCount !== null && creditCount <= 0) ? (
+                  <>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="#777" xmlns="http://www.w3.org/2000/svg"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg>
+                    No credits
                   </>
                 ) : (
                   <>
