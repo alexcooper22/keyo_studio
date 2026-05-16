@@ -26,6 +26,45 @@ export default function VideoDashboard() {
   const [showDurationMenu, setShowDurationMenu] = useState(false);
   const [showModelMenu, setShowModelMenu] = useState(false);
   const [audioEnabled, setAudioEnabled] = useState(false);
+
+  // Restore settings from localStorage on mount
+  useEffect(() => {
+    const savedPrompt = localStorage.getItem('video_prompt_draft');
+    if (savedPrompt) setPrompt(savedPrompt);
+
+    const savedQuality = localStorage.getItem('video_quality_draft');
+    if (savedQuality === '720p' || savedQuality === '1080p') setQuality(savedQuality);
+
+    const savedAspect = localStorage.getItem('video_aspect_draft');
+    if (savedAspect === '9:16' || savedAspect === '16:9' || savedAspect === '1:1') setAspectRatio(savedAspect);
+
+    const savedDuration = localStorage.getItem('video_duration_draft');
+    if (savedDuration) setDuration(Number(savedDuration));
+
+    const savedAudio = localStorage.getItem('video_audio_draft');
+    if (savedAudio === 'true') setAudioEnabled(true);
+  }, []);
+
+  // Save to localStorage on every change
+  useEffect(() => {
+    localStorage.setItem('video_prompt_draft', prompt);
+  }, [prompt]);
+
+  useEffect(() => {
+    localStorage.setItem('video_quality_draft', quality);
+  }, [quality]);
+
+  useEffect(() => {
+    localStorage.setItem('video_aspect_draft', aspectRatio);
+  }, [aspectRatio]);
+
+  useEffect(() => {
+    localStorage.setItem('video_duration_draft', String(duration));
+  }, [duration]);
+
+  useEffect(() => {
+    localStorage.setItem('video_audio_draft', String(audioEnabled));
+  }, [audioEnabled]);
   const [likedVideos, setLikedVideos] = useState<Set<string>>(new Set());
   const [creditCount, setCreditCount] = useState<number | null>(null);
 
