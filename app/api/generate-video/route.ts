@@ -27,6 +27,31 @@ export async function POST(req: NextRequest) {
   const { prompt, duration = 5, aspectRatio = '9:16', mode = 'std', quality = '720p', audio = false, startFrame = null, endFrame = null } = await req.json();
   if (!prompt) return NextResponse.json({ error: 'Prompt required' }, { status: 400 });
 
+  // Calculate credit cost
+  const baseCostPerSec = quality === '1080p' ? 4 : 3;
+  const audioCostPerSec = audio ? 1 : 0;
+  const creditCost = (baseCostPerSec + audioCostPerSec) * duration;
+
+  // Check subscription and credits
+  const { data: subscription, error: subError } = await supabaseAdmin
+    .from('user_subscriptions')
+    .select('credits_remaining, status')
+    .eq('clerk_id', userId)
+    .eq('status', 'active')
+    .maybeSingle();
+
+  if (subError) {
+    return NextResponse.json({ error: 'Failed to check subscription' }, { status: 500 });
+  }
+
+  if (!subscription) {
+    return NextResponse.json({ error: 'No active subscription. Please choose a plan.' }, { status: 403 });
+  }
+
+  if (subscription.credits_remaining < creditCost) {
+    return NextResponse.json({ error: `Not enough credits. This video requires ${creditCost} credits.` }, { status: 403 });
+  }
+
   try {
     const token = await generateKlingToken();
 
@@ -55,7 +80,7 @@ export async function POST(req: NextRequest) {
 
     const taskId = data.data?.task_id;
 
-    // Save task to Supabase
+    // Save task and deduct credits
     if (taskId) {
       await supabaseAdmin.from('generated_videos').insert({
         clerk_id: userId,
@@ -66,9 +91,17 @@ export async function POST(req: NextRequest) {
         mode,
         status: 'processing'
       });
+
+      await supabaseAdmin
+        .from('user_subscriptions')
+        .update({
+          credits_remaining: subscription.credits_remaining - creditCost,
+          updated_at: new Date().toISOString()
+        })
+        .eq('clerk_id', userId);
     }
 
-    return NextResponse.json({ taskId });
+    return NextResponse.json({ taskId, remainingCredits: subscription.credits_remaining - creditCost });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to generate video' }, { status: 500 });
   }
