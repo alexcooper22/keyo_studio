@@ -38,28 +38,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 1. Get or create user in Supabase and check credits
-    const { data: user, error: userError } = await supabaseAdmin
-      .from('users')
-      .select('credits')
+    // 1. Get active subscription and check credits
+    const { data: subscription, error: subError } = await supabaseAdmin
+      .from('user_subscriptions')
+      .select('credits_remaining, status')
       .eq('clerk_id', userId)
-      .single();
+      .eq('status', 'active')
+      .maybeSingle();
 
-    let currentCredits = 0;
-
-    if (userError && userError.code === 'PGRST116') {
-      // User not found — create with 10 credits
-      const { data: newUser, error: createError } = await supabaseAdmin
-        .from('users')
-        .insert({ clerk_id: userId, credits: 10 })
-        .select('credits')
-        .single();
-
-      if (createError) throw createError;
-      currentCredits = newUser.credits;
-    } else if (user) {
-      currentCredits = user.credits;
+    if (subError) {
+      console.error('Subscription fetch error:', subError);
+      return NextResponse.json(
+        { error: 'Failed to check subscription' },
+        { status: 500 }
+      );
     }
+
+    if (!subscription) {
+      return NextResponse.json(
+        { error: 'No active subscription. Please choose a plan to start generating.' },
+        { status: 403 }
+      );
+    }
+
+    const currentCredits = subscription.credits_remaining;
 
     // 2. Check credits
     if (currentCredits < creditCost) {
@@ -183,12 +185,15 @@ export async function POST(request: NextRequest) {
 
     if (saveError) throw saveError;
 
-    // 7. Deduct credits
-    const { data: updatedUser, error: updateError } = await supabaseAdmin
-      .from('users')
-      .update({ credits: currentCredits - creditCost })
+    // 7. Deduct credits from user_subscriptions
+    const { data: updatedSub, error: updateError } = await supabaseAdmin
+      .from('user_subscriptions')
+      .update({ 
+        credits_remaining: currentCredits - creditCost,
+        updated_at: new Date().toISOString()
+      })
       .eq('clerk_id', userId)
-      .select('credits')
+      .select('credits_remaining')
       .single();
 
     if (updateError) throw updateError;
@@ -196,7 +201,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       images: [{ url: publicUrl }],
       prompt,
-      remainingCredits: updatedUser.credits
+      remainingCredits: updatedSub.credits_remaining
     });
 
   } catch (error: any) {
