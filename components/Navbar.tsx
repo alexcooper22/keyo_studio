@@ -28,7 +28,6 @@ export default function Navbar() {
     { name: 'Image', href: '/image' },
     { name: 'Video', href: '/video' },
     { name: 'Audio', href: '/audio' },
-    { name: 'Pricing', href: '/pricing' },
   ];
 
   /* Derive avatar initial from email */
@@ -86,6 +85,21 @@ export default function Navbar() {
 
           {/* ── Right side controls ── */}
           <div className="flex items-center gap-2">
+            <Link
+              href="/pricing"
+              style={{
+                padding: '6px 16px',
+                color: '#fff',
+                fontSize: 13,
+                fontWeight: 500,
+                textDecoration: 'none',
+                background: 'rgba(255,255,255,0.15)',
+                border: '0.5px solid rgba(255,255,255,0.3)',
+                borderRadius: 20,
+              }}
+            >
+              Pricing
+            </Link>
 
             {isSignedIn ? (
               /* ── SIGNED IN: avatar + hover dropdown ── */
