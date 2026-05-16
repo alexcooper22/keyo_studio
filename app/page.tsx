@@ -50,25 +50,6 @@ const footerLinks = {
   Legal: ['Privacy', 'Terms', 'Cookies'],
 };
 
-/* ─── Audio wave animation bars ─────────────────────── */
-function AudioWave() {
-  const bars = [0.4, 0.75, 1, 0.6, 0.85, 0.5, 0.9, 0.65];
-  return (
-    <div className="flex items-end gap-[3px] h-[32px]">
-      {bars.map((h, i) => (
-        <div
-          key={i}
-          className="w-[3px] rounded-full"
-          style={{
-            height: `${h * 100}%`,
-            background: 'rgba(255,255,255,0.25)',
-            animation: `waveBar ${0.8 + i * 0.1}s ease-in-out ${i * 0.08}s infinite`,
-          }}
-        />
-      ))}
-    </div>
-  );
-}
 
 /* ─── Main Page ──────────────────────────────────────── */
 export default function Home() {
@@ -174,34 +155,34 @@ export default function Home() {
             </Link>
 
             {/* Audio card */}
-            <Link href="/audio" className="group block" style={{ borderRadius: '12px', background: '#111', border: '0.5px solid #1e1e1e', overflow: 'hidden', textDecoration: 'none' }}>
+            <Link href="/audio" className="group block" style={{ borderRadius: '12px', background: '#111', border: '0.5px solid #1e1e1e', overflow: 'hidden', textDecoration: 'none', position: 'relative' }}>
+              <video
+                src="/audio-bg.mp4"
+                autoPlay
+                loop
+                muted
+                playsInline
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  zIndex: 0,
+                }}
+              />
               <div
                 style={{
                   height: '240px',
-                  background: 'linear-gradient(160deg, #2a1f2a, #1f1525)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   position: 'relative',
                 }}
               >
-                <div style={{ position: 'absolute', width: 80, height: 50, borderRadius: '50%', background: 'rgba(100,40,100,0.3)', bottom: 10, right: 20, filter: 'blur(18px)' }} />
-                <AudioWave />
-                <span
-                  style={{
-                    position: 'absolute', top: 10, left: 10,
-                    background: '#2a1f2a', color: '#d060d0',
-                    fontSize: '10px', fontWeight: 600,
-                    padding: '2px 8px', borderRadius: '4px',
-                    border: '0.5px solid #4a2f4a',
-                  }}
-                >
-                  Audio
-                </span>
               </div>
-              <div style={{ padding: '12px 14px' }}>
-                <p style={{ fontSize: '13px', fontWeight: 500, color: '#fff', margin: 0, fontFamily: 'var(--font-clash)' }}>Audio</p>
-
+              <div style={{ padding: '12px 14px', position: 'relative', zIndex: 1 }}>
+                <p style={{ fontSize: '22px', fontWeight: 600, color: '#532fcf', margin: 0, fontFamily: 'var(--font-clash)' }}>Generate audio</p>
               </div>
             </Link>
           </div>
