@@ -84,7 +84,7 @@ export default function Navbar() {
           </div>
 
           {/* ── Right side controls ── */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <Link
               href="/pricing"
               style={{
@@ -107,7 +107,7 @@ export default function Navbar() {
                 {/* Purple avatar button */}
                 <button
                   className="w-[34px] h-[34px] rounded-full flex items-center justify-center overflow-hidden cursor-pointer shrink-0 transition-transform duration-200 hover:scale-105 active:scale-95"
-                  style={{ background: 'rgba(255,255,255,0.2)' }}
+                  style={{ background: 'rgba(255,255,255,0.15)', border: '0.5px solid rgba(255,255,255,0.3)' }}
                   aria-label="User menu"
                 >
                   <span className="font-syne font-[800] text-white text-[14px] leading-none">
