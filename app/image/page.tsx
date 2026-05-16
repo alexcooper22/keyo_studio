@@ -315,16 +315,15 @@ export default function ImageDashboard() {
         aspectRatio,
         resolution: quality
       }, ...prev]);
+      localStorage.removeItem('image_generation_pending');
       if (data.remainingCredits !== undefined) {
         setCreditCount(data.remainingCredits);
       }
       window.dispatchEvent(new Event('credits-updated'));
     } catch (err: any) {
       setError(err.message || 'Generation failed');
-      localStorage.removeItem('image_generation_pending');
     } finally {
       setIsLoading(false);
-      localStorage.removeItem('image_generation_pending');
     }
   }
 
