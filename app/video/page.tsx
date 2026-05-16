@@ -329,7 +329,7 @@ export default function VideoDashboard() {
             </div>
             <button
               onClick={handleGenerate}
-              disabled={isGenerating || (creditCount !== null && creditCount <= 0)}
+              disabled={isGenerating || !prompt.trim() || (creditCount !== null && creditCount < ((quality === '1080p' ? 4 : 3) + (audioEnabled ? 1 : 0)) * duration)}
               style={{ 
                 background: (creditCount !== null && creditCount <= 0) ? '#2a2a2a' : '#532fcf', 
                 border: 'none', 
@@ -350,7 +350,7 @@ export default function VideoDashboard() {
               {isGenerating ? status || 'Generating...' : (creditCount !== null && creditCount <= 0) ? (
                 <><svg width="16" height="16" viewBox="0 0 24 24" fill="#777" xmlns="http://www.w3.org/2000/svg"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg> No credits</>
               ) : (
-                <><svg width="16" height="16" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg> Generate</>
+                <><svg width="16" height="16" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg> Generate · {(quality === '1080p' ? 4 : 3) + (audioEnabled ? 1 : 0)} /s</>
               )}
             </button>
           </div>
