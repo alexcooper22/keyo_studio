@@ -137,7 +137,7 @@ export default function Home() {
               >
               </div>
               <div style={{ padding: '12px 14px', position: 'relative', zIndex: 1 }}>
-                <p style={{ fontSize: '32px', fontWeight: 600, color: '#532fcf', margin: 0, fontFamily: 'var(--font-clash)' }}>Generate image</p>
+                <p style={{ fontSize: '22px', fontWeight: 600, color: '#532fcf', margin: 0, fontFamily: 'var(--font-clash)' }}>Generate image</p>
               </div>
             </Link>
 
