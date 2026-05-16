@@ -54,7 +54,7 @@ export default function PricingPage() {
       <Navbar />
 
       {/* Hero */}
-      <div className="text-center" style={{ padding: "60px 30px 44px" }}>
+      <div className="text-center" style={{ padding: "90px 30px 44px" }}>
         <div
           style={{
             display: "inline-flex",
