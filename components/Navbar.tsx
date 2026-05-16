@@ -103,7 +103,7 @@ export default function Navbar() {
 
             {isSignedIn ? (
               /* ── SIGNED IN: avatar + hover dropdown ── */
-              <div className="relative group" style={{ paddingBottom: '8px' }}>
+              <div className="relative group" style={{ paddingBottom: '8px', display: 'flex', alignItems: 'center' }}>
                 {/* Purple avatar button */}
                 <button
                   className="w-[34px] h-[34px] rounded-full flex items-center justify-center overflow-hidden cursor-pointer shrink-0 transition-transform duration-200 hover:scale-105 active:scale-95"
