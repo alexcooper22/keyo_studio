@@ -51,17 +51,6 @@ export default function ImageDashboard() {
   const { isLoaded, isSignedIn, user } = useUser();
   
   const [prompt, setPrompt] = useState('');
-
-  // Restore prompt from localStorage on mount
-  useEffect(() => {
-    const saved = localStorage.getItem('image_prompt_draft');
-    if (saved) setPrompt(saved);
-  }, []);
-
-  // Save prompt to localStorage on every change
-  useEffect(() => {
-    localStorage.setItem('image_prompt_draft', prompt);
-  }, [prompt]);
   const [isLoading, setIsLoading] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<ImageDetails[]>([]);
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
@@ -74,8 +63,39 @@ export default function ImageDashboard() {
   const [showRatioDropdown, setShowRatioDropdown] = useState(false);
   const ratioButtonRef = useRef<HTMLButtonElement>(null);
   const [popupPosition, setPopupPosition] = useState({ bottom: 0, left: 0 });
-
   const [quality, setQuality] = useState('1K');
+
+  // Restore settings from localStorage on mount
+  useEffect(() => {
+    const savedPrompt = localStorage.getItem('image_prompt_draft');
+    if (savedPrompt) setPrompt(savedPrompt);
+
+    const savedModel = localStorage.getItem('image_model_draft');
+    if (savedModel) setSelectedModel(savedModel);
+
+    const savedAspect = localStorage.getItem('image_aspect_draft');
+    if (savedAspect) setAspectRatio(savedAspect);
+
+    const savedQuality = localStorage.getItem('image_quality_draft');
+    if (savedQuality) setQuality(savedQuality);
+  }, []);
+
+  // Save to localStorage on every change
+  useEffect(() => {
+    localStorage.setItem('image_prompt_draft', prompt);
+  }, [prompt]);
+
+  useEffect(() => {
+    localStorage.setItem('image_model_draft', selectedModel);
+  }, [selectedModel]);
+
+  useEffect(() => {
+    localStorage.setItem('image_aspect_draft', aspectRatio);
+  }, [aspectRatio]);
+
+  useEffect(() => {
+    localStorage.setItem('image_quality_draft', quality);
+  }, [quality]);
   const creditCost = quality === '4K' ? 4 : quality === '2K' ? 3 : 2;
   const [showQualityModal, setShowQualityModal] = useState(false);
   const qualityButtonRef = useRef<HTMLButtonElement>(null);
