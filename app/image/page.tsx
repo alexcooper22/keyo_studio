@@ -174,6 +174,10 @@ export default function ImageDashboard() {
         // Only restore if started less than 5 minutes ago
         if (Date.now() - pending.startTime < 5 * 60 * 1000) {
           setIsLoading(true);
+          // Restore prompt and settings
+          if (pending.prompt) setPrompt(pending.prompt);
+          if (pending.quality) setQuality(pending.quality);
+          if (pending.aspectRatio) setAspectRatio(pending.aspectRatio);
           // Start polling for new images
           const pollInterval = setInterval(async () => {
             try {
