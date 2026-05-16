@@ -260,6 +260,7 @@ export default function ImageDashboard() {
       if (data.remainingCredits !== undefined) {
         setCreditCount(data.remainingCredits);
       }
+      window.dispatchEvent(new Event('credits-updated'));
     } catch (err: any) {
       setError(err.message || 'Generation failed');
     } finally {

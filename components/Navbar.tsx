@@ -12,15 +12,25 @@ export default function Navbar() {
 
   const [credits, setCredits] = useState<number | null>(null);
 
-  useEffect(() => {
-    if (isSignedIn) {
-      fetch('/api/user-credits')
-        .then(res => res.json())
-        .then(data => {
-          if (data.credits !== undefined) setCredits(data.credits);
-        })
-        .catch(() => setCredits(null));
+  const fetchCredits = async () => {
+    if (!isSignedIn) return;
+    try {
+      const res = await fetch('/api/user-credits');
+      const data = await res.json();
+      if (data.credits !== undefined) setCredits(data.credits);
+    } catch {
+      setCredits(null);
     }
+  };
+
+  useEffect(() => {
+    if (isSignedIn) fetchCredits();
+  }, [isSignedIn]);
+
+  useEffect(() => {
+    const handler = () => fetchCredits();
+    window.addEventListener('credits-updated', handler);
+    return () => window.removeEventListener('credits-updated', handler);
   }, [isSignedIn]);
 
   const navLinks = [

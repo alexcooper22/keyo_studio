@@ -161,6 +161,7 @@ export default function VideoDashboard() {
           setVideos(prev => [newVideo, ...prev]);
           setIsGenerating(false);
           setStatus('');
+          window.dispatchEvent(new Event('credits-updated'));
           // Scroll to top of feed
           if (feedRef.current) feedRef.current.scrollTo({ top: 0, behavior: 'smooth' });
         } else if (result.status === 'failed') {
