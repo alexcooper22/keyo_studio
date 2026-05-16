@@ -1,153 +1,247 @@
-'use client';
-import React, { useState } from 'react';
-import Navbar from '../../components/Navbar';
+import React from "react";
+import Navbar from "@/components/Navbar";
+
+const plans = [
+  {
+    id: "starter",
+    name: "Starter",
+    desc: "For first-time AI content creators",
+    price: 19,
+    credits: 200,
+    featured: false,
+    breakdown: [
+      {
+        icon: "image",
+        main: "100 image generations",
+        sub: "Nano Banana Pro · 2 credits each",
+      },
+      {
+        icon: "video",
+        main: "~23 video clips",
+        sub: "Kling 3.0 · ~8.7 credits each",
+      },
+    ],
+    cta: "Get started",
+    ctaStyle: "outline",
+  },
+  {
+    id: "plus",
+    name: "Plus",
+    desc: "For consistent and easy AI content creation",
+    price: 49,
+    credits: 1000,
+    featured: true,
+    breakdown: [
+      {
+        icon: "image",
+        main: "500 image generations",
+        sub: "Nano Banana Pro · 2 credits each",
+      },
+      {
+        icon: "video",
+        main: "~114 video clips",
+        sub: "Kling 3.0 · ~8.7 credits each",
+      },
+    ],
+    cta: "Get Plus",
+    ctaStyle: "primary",
+  },
+];
 
 export default function PricingPage() {
-  const [isAnnual, setIsAnnual] = useState(true);
-
-  const plans = [
-    {
-      name: 'Starter',
-      description: 'For first-time AI content creators',
-      monthlyPrice: 15,
-      annualPrice: 10.5,
-      credits: '200 credits/mo',
-      buttonText: 'Get Plan',
-      buttonBg: 'bg-white',
-      buttonTextCol: 'text-black',
-      accent: 'border-white/[0.08]'
-    },
-    {
-      name: 'Plus',
-      description: 'Scale your content production',
-      monthlyPrice: 49,
-      annualPrice: 34,
-      credits: '1000 credits/mo',
-      buttonText: 'Get Plus',
-      buttonBg: 'bg-[#c8ff00]',
-      buttonTextCol: 'text-black',
-      accent: 'border-white/[0.08]'
-    },
-    {
-      name: 'Ultra',
-      highlight: 'MOST POPULAR',
-      highlightBg: 'bg-[#ff3377]',
-      description: 'Professional grade tools',
-      monthlyPrice: 129,
-      annualPrice: 90,
-      credits: 'Unlimited credits*',
-      buttonText: 'Get Ultra',
-      buttonBg: 'bg-[#ff3377]',
-      buttonTextCol: 'text-black',
-      accent: 'border-[#ff3377]'
-    },
-    {
-      name: 'Business',
-      highlight: 'BEST VALUE',
-      highlightBg: 'bg-[#378ADD]',
-      description: 'For large creative teams',
-      monthlyPrice: 89,
-      annualPrice: 71,
-      oldPrice: 89,
-      credits: 'Custom credit limits',
-      buttonText: 'Contact Sales',
-      buttonBg: 'bg-[#378ADD]',
-      buttonTextCol: 'text-black',
-      accent: 'border-[#378ADD]'
-    }
-  ];
-
-  const features = [
-    'Access to all models',
-    'Parallel generations',
-    'Access to all features',
-    'Early access to new AI features'
-  ];
-
   return (
-    <div className="min-h-screen bg-[#080808] text-white flex flex-col relative overflow-x-hidden">
+    <div className="min-h-screen" style={{ background: "#080808" }}>
       <Navbar />
-      
-      <main className="flex-1 pt-[120px] md:pt-[100px] pb-20 px-6 max-w-7xl mx-auto w-full">
-        <div className="text-center flex flex-col items-center">
-          <h1 className="font-syne font-[800] text-[36px] md:text-[48px] tracking-tight text-white leading-tight">
-            Pick your plan
-          </h1>
-          <p className="font-dm text-[14px] text-[#555] mt-2 max-w-[400px]">
-            Scale creativity with higher limits and priority access
-          </p>
 
-          {/* MONTHLY/ANNUAL TOGGLE */}
-          <div className="mt-10 flex items-center gap-3 md:gap-4">
-            <span className={`font-dm text-[13px] md:text-sm transition-colors ${!isAnnual ? 'text-white' : 'text-[#555]'}`}>Monthly</span>
-            <button 
-              onClick={() => setIsAnnual(!isAnnual)}
-              className="w-[48px] h-[26px] md:w-[52px] md:h-[28px] bg-[#1a1a1a] border border-white/10 rounded-full relative transition-colors p-1"
-            >
-              <div className={`w-4 h-4 md:w-5 md:h-5 rounded-full transition-all duration-300 ${isAnnual ? 'translate-x-[22px] md:translate-x-[24px] bg-[#ff3377]' : 'translate-x-0 bg-[#555]'}`}></div>
-            </button>
-            <div className="flex items-center gap-2">
-              <span className={`font-dm text-[13px] md:text-sm transition-colors ${isAnnual ? 'text-white' : 'text-[#555]'}`}>Annual</span>
-              <div className="bg-[#ff3377] text-black font-dm font-bold text-[9px] md:text-[10px] px-2 md:px-2.5 py-1 rounded-full uppercase tracking-wider">
-                30% OFF
-              </div>
-            </div>
-          </div>
+      {/* Hero */}
+      <div className="text-center" style={{ padding: "60px 30px 44px" }}>
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6,
+            background: "rgba(83,47,207,0.15)",
+            border: "0.5px solid rgba(83,47,207,0.4)",
+            borderRadius: 20,
+            padding: "5px 14px",
+            marginBottom: 22,
+          }}
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8b6ef5" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z" />
+          </svg>
+          <span style={{ color: "#8b6ef5", fontSize: 11, fontWeight: 500, letterSpacing: "0.6px", textTransform: "uppercase" }}>
+            Simple pricing
+          </span>
         </div>
 
-        {/* PRICING CARDS */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-16">
-          {plans.map((plan, idx) => (
-            <div 
-              key={idx} 
-              className={`flex flex-col bg-[#0f0f0f] border ${plan.accent} rounded-2xl relative transition-transform hover:scale-[1.02] duration-300 shadow-2xl`}
+        <h1
+          style={{
+            fontSize: 40,
+            fontWeight: 700,
+            color: "#fff",
+            letterSpacing: "-1.5px",
+            lineHeight: 1.1,
+            marginBottom: 12,
+          }}
+        >
+          Create more,{" "}
+          <span style={{ color: "#7c5cf0" }}>think less</span>
+        </h1>
+
+        <p style={{ color: "#777", fontSize: 14, lineHeight: 1.6, maxWidth: 380, margin: "0 auto" }}>
+          One credit system across images, video, and audio. Upgrade or cancel anytime.
+        </p>
+      </div>
+
+      {/* Cards */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: 12,
+          maxWidth: 720,
+          margin: "0 auto",
+          padding: "0 30px 60px",
+        }}
+      >
+        {plans.map((plan) => (
+          <div
+            key={plan.id}
+            style={{
+              background: "#111",
+              border: plan.featured ? "1px solid #532fcf" : "0.5px solid #1e1e1e",
+              borderRadius: 14,
+              padding: 28,
+              position: "relative",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            {plan.featured && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: -11,
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  background: "#532fcf",
+                  color: "#fff",
+                  fontSize: 11,
+                  fontWeight: 600,
+                  padding: "4px 16px",
+                  borderRadius: 20,
+                  whiteSpace: "nowrap",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 5,
+                }}
+              >
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="white">
+                  <path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z" />
+                </svg>
+                Most popular
+              </div>
+            )}
+
+            {/* Plan name */}
+            <div style={{ marginBottom: 22 }}>
+              <div style={{ color: "#fff", fontSize: 16, fontWeight: 600, marginBottom: 6 }}>{plan.name}</div>
+              <div style={{ color: "#777", fontSize: 12, lineHeight: 1.5 }}>{plan.desc}</div>
+            </div>
+
+            {/* Price */}
+            <div style={{ display: "flex", alignItems: "baseline", gap: 3, marginBottom: 22 }}>
+              <span style={{ color: "#777", fontSize: 16, fontWeight: 500 }}>$</span>
+              <span style={{ color: "#fff", fontSize: 42, fontWeight: 700, letterSpacing: -2 }}>{plan.price}</span>
+              <span style={{ color: "#777", fontSize: 13, marginLeft: 2 }}>/mo</span>
+            </div>
+
+            {/* Credits pill */}
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                background: "rgba(83,47,207,0.12)",
+                border: "0.5px solid rgba(83,47,207,0.25)",
+                borderRadius: 8,
+                padding: "6px 12px",
+                marginBottom: 22,
+              }}
             >
-              {plan.highlight && (
-                <div className={`${plan.highlightBg} text-white font-dm font-bold text-[11px] text-center py-2 absolute -top-[1px] left-[-1px] right-[-1px] rounded-t-2xl uppercase tracking-widest`}>
-                  {plan.highlight}
-                </div>
-              )}
-              
-              <div className={`p-5 md:p-7 flex flex-col h-full ${plan.highlight ? 'pt-12' : ''}`}>
-                <h3 className="font-syne font-[700] text-2xl text-white">{plan.name}</h3>
-                <p className="font-dm text-[13px] text-[#555] mt-1 line-clamp-1">{plan.description}</p>
-                
-                <div className="mt-6 flex flex-col">
-                  <span className="font-dm text-[13px] text-[#888]">{plan.credits}</span>
-                  <div className="flex items-baseline gap-2 mt-1">
-                    <span className="font-syne font-[800] text-[40px] text-white">
-                      ${isAnnual ? plan.annualPrice : plan.monthlyPrice}
-                    </span>
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      {plan.oldPrice && isAnnual && (
-                        <span className="font-dm text-sm text-[#555] line-through">${plan.oldPrice}</span>
-                      )}
-                      <span className="font-dm text-[14px] text-[#555]">/mo</span>
-                    </div>
+              <span style={{ color: "#8b6ef5", fontSize: 15, fontWeight: 700 }}>
+                {plan.credits.toLocaleString()}
+              </span>
+              <span style={{ color: "#777", fontSize: 12 }}>credits / month</span>
+            </div>
+
+            <hr style={{ border: "none", borderTop: "0.5px solid #1e1e1e", marginBottom: 18 }} />
+
+            {/* Breakdown */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 24 }}>
+              {plan.breakdown.map((item, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+                  <div
+                    style={{
+                      width: 28,
+                      height: 28,
+                      borderRadius: 8,
+                      background: "#161616",
+                      border: "0.5px solid #1e1e1e",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                    }}
+                  >
+                    {item.icon === "image" ? (
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7c5cf0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" />
+                        <path d="M3 9h18M9 21V9" />
+                      </svg>
+                    ) : (
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7c5cf0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polygon points="5,3 19,12 5,21" />
+                      </svg>
+                    )}
+                  </div>
+                  <div>
+                    <div style={{ color: "#ccc", fontSize: 13, fontWeight: 500, lineHeight: 1.3 }}>{item.main}</div>
+                    <div style={{ color: "#777", fontSize: 11, marginTop: 2 }}>{item.sub}</div>
                   </div>
                 </div>
-
-                <button className={`w-full h-12 ${plan.buttonBg} ${plan.buttonTextCol} font-dm font-[700] text-[15px] rounded-lg mt-8 hover:brightness-110 active:scale-95 transition-all`}>
-                  {plan.buttonText}
-                </button>
-
-                <div className="mt-10 flex flex-col gap-4">
-                  {features.map((feature, fIdx) => (
-                    <div key={fIdx} className="flex items-center gap-3">
-                      <div className="w-4 h-4 rounded-full bg-[#1D9E75]/10 flex items-center justify-center shrink-0">
-                        <svg width="10" height="8" viewBox="0 0 12 9" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M1 4.5L4.5 8L11 1.5" stroke="#1D9E75" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                      </div>
-                      <span className="font-dm text-[13px] text-[#cccccc]">{feature}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </main>
+
+            {/* CTA */}
+            <button
+              style={{
+                width: "100%",
+                borderRadius: 10,
+                padding: "12px",
+                fontSize: 14,
+                fontWeight: 500,
+                cursor: "pointer",
+                marginTop: "auto",
+                border: plan.ctaStyle === "primary" ? "none" : "0.5px solid #2a2a2a",
+                background: plan.ctaStyle === "primary" ? "#532fcf" : "transparent",
+                color: plan.ctaStyle === "primary" ? "#fff" : "#aaa",
+              }}
+            >
+              {plan.cta}
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {/* Footer note */}
+      <div style={{ textAlign: "center", color: "#777", fontSize: 12, paddingBottom: 40 }}>
+        No contracts · Cancel anytime ·{" "}
+        <a href="mailto:hello@keyo.studio" style={{ color: "#8b6ef5", textDecoration: "none" }}>
+          Enterprise plan →
+        </a>
+      </div>
     </div>
   );
 }

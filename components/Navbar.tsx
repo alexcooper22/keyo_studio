@@ -28,6 +28,7 @@ export default function Navbar() {
     { name: 'Image', href: '/image' },
     { name: 'Video', href: '/video' },
     { name: 'Audio', href: '/audio' },
+    { name: 'Pricing', href: '/pricing' },
   ];
 
   /* Derive avatar initial from email */
@@ -85,31 +86,6 @@ export default function Navbar() {
 
           {/* ── Right side controls ── */}
           <div className="flex items-center gap-2">
-
-            {/* Pricing button with badge */}
-            <Link
-              href="/pricing"
-              className="hidden md:flex items-center gap-2 font-dm font-[500] text-[13px] text-white/80 hover:text-white transition-colors duration-200"
-              style={{
-                background: 'rgba(255,255,255,0.15)',
-                border: '0.5px solid rgba(255,255,255,0.25)',
-                borderRadius: '8px',
-                padding: '5px 12px',
-              }}
-            >
-              Pricing
-              <span
-                className="font-dm font-[700] text-[10px] leading-none text-white"
-              >
-                30% OFF
-              </span>
-            </Link>
-
-            {/* Vertical divider */}
-            <div
-              className="hidden md:block h-[20px] mx-1 shrink-0"
-              style={{ width: '0.5px', background: 'rgba(255,255,255,0.2)' }}
-            />
 
             {isSignedIn ? (
               /* ── SIGNED IN: avatar + hover dropdown ── */
