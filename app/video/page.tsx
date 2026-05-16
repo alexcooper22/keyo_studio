@@ -166,6 +166,54 @@ export default function VideoDashboard() {
       }
     };
     loadVideos();
+
+    // Restore pending video generation from localStorage
+    const pendingVideo = localStorage.getItem('video_generation_pending');
+    if (pendingVideo) {
+      try {
+        const pending = JSON.parse(pendingVideo);
+        // Only restore if started less than 10 minutes ago
+        if (Date.now() - pending.startTime < 10 * 60 * 1000) {
+          setIsGenerating(true);
+          setStatus('Processing...');
+          // Resume polling
+          pollRef.current = setInterval(async () => {
+            try {
+              const check = await fetch(`/api/check-video?taskId=${pending.taskId}`);
+              const result = await check.json();
+              if (result.status === 'succeed' && result.videoUrl) {
+                clearInterval(pollRef.current!);
+                const newVideo: VideoItem = {
+                  id: pending.taskId,
+                  videoUrl: result.videoUrl,
+                  prompt: pending.prompt,
+                  createdAt: new Date(),
+                  quality: pending.quality,
+                  duration: pending.duration,
+                  aspectRatio: pending.aspectRatio,
+                };
+                setVideos(prev => [newVideo, ...prev]);
+                setIsGenerating(false);
+                setStatus('');
+                localStorage.removeItem('video_generation_pending');
+                window.dispatchEvent(new Event('credits-updated'));
+              } else if (result.status === 'failed') {
+                clearInterval(pollRef.current!);
+                setIsGenerating(false);
+                setStatus('');
+                localStorage.removeItem('video_generation_pending');
+              }
+            } catch (err) {
+              console.error('Polling error:', err);
+            }
+          }, 5000);
+        } else {
+          localStorage.removeItem('video_generation_pending');
+        }
+      } catch (err) {
+        localStorage.removeItem('video_generation_pending');
+      }
+    }
   }, []);
 
   const handleGenerate = async () => {
@@ -183,6 +231,17 @@ export default function VideoDashboard() {
       if (!res.ok) throw new Error(data.error || 'Failed');
       const taskId = data.taskId;
       setStatus('Processing...');
+      
+      // Save to localStorage for cross-page persistence
+      localStorage.setItem('video_generation_pending', JSON.stringify({
+        taskId,
+        prompt,
+        startTime: Date.now(),
+        quality,
+        duration,
+        aspectRatio
+      }));
+
       pollRef.current = setInterval(async () => {
         const check = await fetch(`/api/check-video?taskId=${taskId}`);
         const result = await check.json();
@@ -200,6 +259,7 @@ export default function VideoDashboard() {
           setVideos(prev => [newVideo, ...prev]);
           setIsGenerating(false);
           setStatus('');
+          localStorage.removeItem('video_generation_pending');
           window.dispatchEvent(new Event('credits-updated'));
           // Scroll to top of feed
           if (feedRef.current) feedRef.current.scrollTo({ top: 0, behavior: 'smooth' });
@@ -208,6 +268,7 @@ export default function VideoDashboard() {
           setError('Generation failed');
           setIsGenerating(false);
           setStatus('');
+          localStorage.removeItem('video_generation_pending');
         }
       }, 5000);
     } catch (err: any) {
