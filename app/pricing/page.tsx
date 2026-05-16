@@ -1,5 +1,8 @@
-import React from "react";
+'use client';
+import React, { useState } from "react";
 import Navbar from "@/components/Navbar";
+import { useAuth } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation';
 
 const plans = [
   {
@@ -49,6 +52,39 @@ const plans = [
 ];
 
 export default function PricingPage() {
+  const { isSignedIn } = useAuth();
+  const router = useRouter();
+  const [loadingPlan, setLoadingPlan] = useState<'starter' | 'plus' | null>(null);
+
+  const handleCheckout = async (plan: 'starter' | 'plus') => {
+    if (!isSignedIn) {
+      router.push('/sign-in');
+      return;
+    }
+
+    setLoadingPlan(plan);
+    try {
+      const res = await fetch('/api/stripe/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan }),
+      });
+
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        console.error('Checkout error:', data.error);
+        alert('Something went wrong. Please try again.');
+        setLoadingPlan(null);
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Something went wrong. Please try again.');
+      setLoadingPlan(null);
+    }
+  };
+
   return (
     <div className="min-h-screen" style={{ background: "#080808" }}>
       <Navbar />
@@ -216,20 +252,23 @@ export default function PricingPage() {
 
             {/* CTA */}
             <button
+              onClick={() => handleCheckout(plan.id as 'starter' | 'plus')}
+              disabled={loadingPlan !== null}
               style={{
                 width: "100%",
                 borderRadius: 10,
                 padding: "12px",
                 fontSize: 14,
                 fontWeight: 500,
-                cursor: "pointer",
+                cursor: loadingPlan !== null ? "not-allowed" : "pointer",
                 marginTop: "auto",
                 border: plan.ctaStyle === "primary" ? "none" : "0.5px solid #2a2a2a",
                 background: plan.ctaStyle === "primary" ? "#532fcf" : "transparent",
                 color: plan.ctaStyle === "primary" ? "#fff" : "#aaa",
+                opacity: loadingPlan !== null ? 0.7 : 1,
               }}
             >
-              {plan.cta}
+              {loadingPlan === plan.id ? 'Loading...' : plan.cta}
             </button>
           </div>
         ))}
