@@ -117,9 +117,6 @@ export default function Home() {
                 }}
               >
               </div>
-              <div style={{ padding: '12px 14px', position: 'relative', zIndex: 1 }}>
-                <p style={{ fontSize: '22px', fontWeight: 600, color: '#532fcf', margin: 0, fontFamily: 'var(--font-clash)' }}>Generate image</p>
-              </div>
             </Link>
 
             {/* Video card */}
@@ -149,9 +146,6 @@ export default function Home() {
                 }}
               >
               </div>
-              <div style={{ padding: '12px 14px', position: 'relative', zIndex: 1 }}>
-                <p style={{ fontSize: '22px', fontWeight: 600, color: '#532fcf', margin: 0, fontFamily: 'var(--font-clash)' }}>Generate video</p>
-              </div>
             </Link>
 
             {/* Audio card */}
@@ -180,9 +174,6 @@ export default function Home() {
                   position: 'relative',
                 }}
               >
-              </div>
-              <div style={{ padding: '12px 14px', position: 'relative', zIndex: 1 }}>
-                <p style={{ fontSize: '22px', fontWeight: 600, color: '#532fcf', margin: 0, fontFamily: 'var(--font-clash)' }}>Generate audio</p>
               </div>
             </Link>
           </div>
