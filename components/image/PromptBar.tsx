@@ -114,10 +114,10 @@ export default function PromptBar({
   const noCredits = isLoaded && isSignedIn && creditCount !== null && creditCount <= 0;
 
   return (
-    <div className="fixed bottom-0 left-0 md:left-[48px] right-0 z-50 px-2 md:px-8 pb-3 md:pb-8 pointer-events-none">
+    <div className="fixed bottom-[65px] md:bottom-0 left-0 md:left-[48px] right-0 z-50 px-2 md:px-8 pb-2 md:pb-8 pointer-events-none">
       <div
         className="w-full max-w-4xl mx-auto rounded-t-2xl rounded-b-xl border-t border-l border-r border-white/[0.08] shadow-2xl overflow-hidden pointer-events-auto"
-        style={{ backgroundColor: 'rgba(15,15,15,0.95)', backdropFilter: 'blur(16px)' }}
+        style={{ backgroundColor: 'rgba(15,15,15,0.95)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}
       >
         <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={onImageUpload} />
 
@@ -149,46 +149,49 @@ export default function PromptBar({
           </div>
         )}
 
-        <div className="p-3 md:p-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 md:gap-4 border-b border-white/[0.06]">
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="w-10 h-10 md:w-12 md:h-12 flex-shrink-0 flex items-center justify-center rounded-xl bg-bg border border-white/[0.04] text-text-secondary hover:text-white hover:border-white/20 transition-colors"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-          </button>
-          <textarea
-            value={prompt}
-            onChange={(e) => onPromptChange(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); onGenerate(); } }}
-            onInput={(e) => {
-              e.currentTarget.style.height = 'auto';
-              e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';
-            }}
-            placeholder="Describe the image you imagine..."
-            rows={1}
-            style={{ minHeight: '44px', maxHeight: '120px', overflowY: 'auto', scrollbarWidth: 'thin', scrollbarColor: '#333 transparent' }}
-            className="flex-1 bg-transparent border-none outline-none text-white font-dm text-sm placeholder:text-text-secondary resize-none py-2"
-          />
-          <div className="flex flex-col gap-1.5 items-center">
+        <div className="p-3 md:p-4 border-b border-white/[0.06]">
+          {/* Upload + textarea — always on the same row */}
+          <div className="flex items-start gap-3">
             <button
-              onClick={onGenerate}
-              disabled={isLoaded && !!isSignedIn && (isLoading || !prompt.trim() || noCredits)}
-              className={`px-4 md:px-7 py-3 md:py-3.5 text-white font-dm font-[700] rounded-xl flex items-center justify-center gap-2 transition-all flex-shrink-0 ${(isLoading || (isLoaded && !isSignedIn)) ? 'opacity-70 cursor-pointer' : ''}`}
-              style={{
-                background: noCredits ? '#2a2a2a' : 'var(--accent)',
-                border: 'none',
-                color: noCredits ? 'var(--text-secondary)' : '#fff',
-                cursor: noCredits ? 'not-allowed' : 'pointer',
-              }}
+              onClick={() => fileInputRef.current?.click()}
+              className="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-xl bg-bg border border-white/[0.04] text-text-secondary hover:text-white hover:border-white/20 transition-colors mt-0.5"
             >
-              {isLoading ? (
-                <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Generating...</>
-              ) : noCredits ? (
-                <><svg width="16" height="16" viewBox="0 0 24 24" fill="var(--text-secondary)" xmlns="http://www.w3.org/2000/svg"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg>No credits</>
-              ) : (
-                <><svg width="16" height="16" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg>Generate · {creditCost}</>
-              )}
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             </button>
+            <div className="flex flex-col sm:flex-row flex-1 min-w-0 gap-2 sm:gap-3 sm:items-center">
+              <textarea
+                value={prompt}
+                onChange={(e) => onPromptChange(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); onGenerate(); } }}
+                onInput={(e) => {
+                  e.currentTarget.style.height = 'auto';
+                  e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';
+                }}
+                placeholder="Describe the image you imagine..."
+                rows={1}
+                style={{ minHeight: '44px', maxHeight: '120px', overflowY: 'auto', scrollbarWidth: 'thin', scrollbarColor: '#333 transparent' }}
+                className="flex-1 min-w-0 bg-transparent border-none outline-none text-white font-dm text-sm placeholder:text-text-secondary resize-none py-2"
+              />
+              <button
+                onClick={onGenerate}
+                disabled={isLoaded && !!isSignedIn && (isLoading || !prompt.trim() || noCredits)}
+                className={`w-full sm:w-auto flex-shrink-0 px-5 py-3 text-white font-dm font-[700] rounded-xl flex items-center justify-center gap-2 transition-all ${(isLoading || (isLoaded && !isSignedIn)) ? 'opacity-70' : ''}`}
+                style={{
+                  background: noCredits ? '#2a2a2a' : 'linear-gradient(135deg, #c4b0ff 0%, #9b7eff 40%, #6b4ef5 100%)',
+                  border: 'none',
+                  color: noCredits ? 'var(--text-secondary)' : '#fff',
+                  cursor: noCredits ? 'not-allowed' : 'pointer',
+                }}
+              >
+                {isLoading ? (
+                  <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Generating...</>
+                ) : noCredits ? (
+                  <><svg width="15" height="15" viewBox="0 0 24 24" fill="var(--text-secondary)"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg>No credits</>
+                ) : (
+                  <><svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg>Generate · {creditCost}</>
+                )}
+              </button>
+            </div>
           </div>
         </div>
 

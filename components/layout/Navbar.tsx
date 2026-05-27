@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useUser, useClerk, SignIn, SignUp } from '@clerk/nextjs';
 import Portal from '../ui/Portal';
+import Logo from '../ui/Logo';
 
 const clerkAppearance = {
   variables: {
@@ -28,7 +29,7 @@ const clerkAppearance = {
     formButtonPrimary: '!bg-[#532fcf] hover:!brightness-110',
     dividerLine: '!bg-[rgba(255,255,255,0.06)]',
     dividerText: '!text-[rgba(255,255,255,0.25)]',
-    formFieldInput: '!bg-[#1a1a1a] !border-[rgba(255,255,255,0.08)]',
+    formFieldInput: '!bg-[#1e1e1e] !border-[rgba(255,255,255,0.18)] focus:!border-[rgba(120,80,255,0.5)]',
     formFieldLabel: '!text-[rgba(255,255,255,0.45)] !text-[12px]',
   },
 };
@@ -103,6 +104,8 @@ export default function Navbar() {
         .keyo-auth-modal [class*="cl-footer"] { background: #111111 !important; }
         .keyo-auth-modal [class*="cl-internal"] { background: #111111 !important; }
         .keyo-auth-modal .cl-rootBox { width: 100% !important; }
+        .keyo-auth-modal [class*="formButtonPrimary"] { background: linear-gradient(135deg, #c4b0ff 0%, #9b7eff 40%, #6b4ef5 100%) !important; background-color: transparent !important; }
+        .keyo-auth-modal [class*="formButtonPrimary"] * { background: transparent !important; background-color: transparent !important; }
       `}</style>
 
       {/* ── Main navbar ── */}
@@ -126,11 +129,7 @@ export default function Navbar() {
         <div className="h-full px-4 flex items-center justify-between">
 
           {/* ── Logo ── */}
-          <Link href="/" className="flex items-baseline gap-0 cursor-pointer shrink-0">
-            <span style={{ fontFamily: 'var(--font-clash)', fontWeight: 700, color: '#fff', fontSize: '17px', letterSpacing: '-0.01em' }}>keyo</span>
-            <span style={{ fontFamily: 'var(--font-clash)', fontWeight: 700, color: 'rgba(120,80,255,0.85)', fontSize: '17px' }}>.</span>
-            <span style={{ fontFamily: 'var(--font-clash)', fontWeight: 600, color: 'rgba(255,255,255,0.2)', fontSize: '17px' }}>studio</span>
-          </Link>
+          <Logo size={19} />
 
           {/* ── Center nav links ── */}
           <div className="hidden md:flex items-center gap-0.5">
@@ -167,7 +166,7 @@ export default function Navbar() {
                 <div className="nav-drop absolute top-full right-0 pt-3 z-[200]">
                   <div
                     className="rounded-2xl p-2 min-w-[210px] shadow-2xl"
-                    style={{ background: 'rgba(10,10,10,0.96)', backdropFilter: 'blur(24px)', border: '1px solid rgba(255,255,255,0.07)' }}
+                    style={{ background: 'rgba(10,10,10,0.96)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', border: '1px solid rgba(255,255,255,0.07)' }}
                   >
                     <div className="px-3 py-2.5 flex items-center gap-2.5">
                       <div
@@ -230,7 +229,7 @@ export default function Navbar() {
                     {/* Backdrop */}
                     <div
                       className="fixed inset-0 z-[500]"
-                      style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(10px)' }}
+                      style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}
                       onClick={() => setShowAuthModal(false)}
                     />
 
@@ -243,18 +242,66 @@ export default function Navbar() {
                       <div
                         style={{
                           background: '#111111',
-                          border: '0.5px solid #1e1e1e',
+                          border: '0.5px solid rgba(83,47,207,0.35)',
                           borderRadius: '14px',
                           overflow: 'hidden',
-                          boxShadow: '0 20px 60px rgba(0,0,0,0.6)',
+                          boxShadow: '0 0 0 1px rgba(83,47,207,0.08), 0 0 60px rgba(83,47,207,0.22), 0 20px 60px rgba(0,0,0,0.7)',
+                          position: 'relative',
                         }}
                       >
+                        {/* Top shimmer */}
+                        <div style={{
+                          position: 'absolute', top: 0, left: 0, right: 0, height: '1px',
+                          background: 'linear-gradient(90deg, transparent 0%, rgba(120,80,255,0.4) 30%, rgba(83,47,207,0.8) 50%, rgba(120,80,255,0.4) 70%, transparent 100%)',
+                          pointerEvents: 'none', zIndex: 2,
+                        }} />
+
+                        {/* Glow orb */}
+                        <div style={{
+                          position: 'absolute', top: '-80px', left: '50%', transform: 'translateX(-50%)',
+                          width: '340px', height: '220px',
+                          background: 'radial-gradient(ellipse at center, rgba(83,47,207,0.22) 0%, transparent 68%)',
+                          pointerEvents: 'none',
+                        }} />
+
+                        {/* Dot grid */}
+                        <div aria-hidden="true" style={{
+                          position: 'absolute', inset: 0,
+                          backgroundImage: 'radial-gradient(rgba(120,80,255,0.07) 1px, transparent 1px)',
+                          backgroundSize: '24px 24px',
+                          maskImage: 'radial-gradient(ellipse 90% 55% at 50% 0%, black 0%, transparent 80%)',
+                          WebkitMaskImage: 'radial-gradient(ellipse 90% 55% at 50% 0%, black 0%, transparent 80%)',
+                          pointerEvents: 'none',
+                        }} />
+
                         {/* ── Header ── */}
-                        <div
-                          className="flex items-center justify-between px-5 py-3"
-                          style={{ borderBottom: '0.5px solid #1e1e1e' }}
-                        >
-                          {/* Tab switcher — same style as navbar active links */}
+                        <div className="relative flex flex-col items-center px-5 pt-5 pb-4" style={{ borderBottom: '0.5px solid rgba(83,47,207,0.15)' }}>
+
+                          {/* Close button */}
+                          <button
+                            onClick={() => setShowAuthModal(false)}
+                            className="absolute top-4 right-4 text-white/20 hover:text-white/50 transition-colors"
+                            aria-label="Close"
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                            </svg>
+                          </button>
+
+                          {/* Logo */}
+                          <Logo size={18} />
+
+                          {/* Badge */}
+                          <div className="inline-flex items-center gap-1.5 mt-3 mb-4" style={{
+                            background: 'rgba(83,47,207,0.08)',
+                            border: '0.5px solid rgba(83,47,207,0.22)',
+                            borderRadius: '20px', padding: '3px 10px',
+                          }}>
+                            <span style={{ color: 'rgba(120,80,255,0.8)', fontSize: '8px' }}>✦</span>
+                            <span style={{ color: 'rgba(120,80,255,0.6)', fontSize: '10px', fontWeight: 500, letterSpacing: '0.8px', textTransform: 'uppercase' }}>AI Creative Studio</span>
+                          </div>
+
+                          {/* Tab switcher */}
                           <div className="flex items-center gap-1">
                             {(['login', 'signup'] as const).map((mode) => (
                               <button
@@ -262,30 +309,20 @@ export default function Navbar() {
                                 onClick={() => setAuthMode(mode)}
                                 className="font-dm font-[500] text-[13px] transition-all duration-150 px-3 py-1"
                                 style={{
-                                  background: authMode === mode ? 'rgba(255,255,255,0.08)' : 'transparent',
-                                  border: authMode === mode ? '0.5px solid rgba(255,255,255,0.12)' : '0.5px solid transparent',
+                                  background: authMode === mode ? 'rgba(83,47,207,0.12)' : 'transparent',
+                                  border: authMode === mode ? '0.5px solid rgba(83,47,207,0.35)' : '0.5px solid transparent',
                                   borderRadius: '20px',
-                                  color: authMode === mode ? '#fff' : 'rgba(255,255,255,0.32)',
+                                  color: authMode === mode ? 'rgba(170,140,255,0.95)' : 'rgba(255,255,255,0.32)',
                                 }}
                               >
                                 {mode === 'login' ? 'Login' : 'Sign up'}
                               </button>
                             ))}
                           </div>
-
-                          <button
-                            onClick={() => setShowAuthModal(false)}
-                            className="text-white/20 hover:text-white/50 transition-colors"
-                            aria-label="Close"
-                          >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-                            </svg>
-                          </button>
                         </div>
 
                         {/* ── Clerk form ── */}
-                        <div className="keyo-auth-modal" style={{ padding: '0 8px 4px' }}>
+                        <div className="keyo-auth-modal relative" style={{ padding: '0 8px 4px' }}>
                           {authMode === 'login' ? (
                             <SignIn
                               routing="virtual"
@@ -312,36 +349,79 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* ── Mobile sub-nav ── */}
-      <div
-        className="flex md:hidden fixed z-[99] overflow-hidden"
+      {/* ── Mobile bottom nav ── */}
+      <nav
+        className="md:hidden fixed bottom-0 left-0 right-0 z-[100] flex"
+        aria-label="Mobile navigation"
         style={{
-          top: '60px', left: '16px', right: '16px', height: '40px',
-          background: 'rgba(6,6,6,0.88)',
-          backdropFilter: 'blur(24px)',
-          WebkitBackdropFilter: 'blur(24px)',
-          borderRadius: '0 0 12px 12px',
-          borderBottom: '0.5px solid rgba(120,80,255,0.18)',
-          borderLeft: '0.5px solid rgba(255,255,255,0.05)',
-          borderRight: '0.5px solid rgba(255,255,255,0.05)',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
+          height: '65px',
+          background: 'rgba(6,6,6,0.96)',
+          backdropFilter: 'blur(28px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(28px) saturate(180%)',
+          borderTop: '0.5px solid rgba(255,255,255,0.07)',
+          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+          boxShadow: '0 -8px 40px rgba(0,0,0,0.6)',
         }}
       >
-        <div className="no-scrollbar h-full flex items-center justify-center overflow-x-auto gap-1 px-3 whitespace-nowrap w-full">
-          {navLinks.map((link) => {
-            const isActive = pathname === link.href;
-            return (
-              <Link
-                key={link.name}
-                href={link.href}
-                className={`px-3 py-1 font-dm font-[500] text-[12px] transition-all duration-200 ${isActive ? 'nav-active text-white' : 'text-white/35 hover:text-white'}`}
-              >
-                {link.name}
-              </Link>
-            );
-          })}
+        <div className="flex items-center justify-around w-full h-full px-2" style={{ overflow: 'visible' }}>
+
+          {/* Home */}
+          <Link href="/" className="flex flex-col items-center gap-[3px] flex-1 py-2 transition-colors duration-150"
+            style={{ color: pathname === '/' ? 'rgba(170,140,255,0.95)' : 'rgba(255,255,255,0.3)' }}>
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+            <span className="font-dm text-[10px] font-[500]">Home</span>
+          </Link>
+
+          {/* Image */}
+          <Link href="/image" className="flex flex-col items-center gap-[3px] flex-1 py-2 transition-colors duration-150"
+            style={{ color: pathname === '/image' ? 'rgba(170,140,255,0.95)' : 'rgba(255,255,255,0.3)' }}>
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2"/>
+              <circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21 15 16 10 5 21"/>
+            </svg>
+            <span className="font-dm text-[10px] font-[500]">Image</span>
+          </Link>
+
+          {/* Generate — center elevated */}
+          <div className="flex flex-col items-center flex-1 relative" style={{ top: '-14px' }}>
+            <Link href="/image" aria-label="Generate"
+              className="w-[52px] h-[52px] flex items-center justify-center rounded-2xl mb-1"
+              style={{ background: 'linear-gradient(135deg, #532fcf 0%, #7c5cf0 100%)', boxShadow: '0 4px 24px rgba(83,47,207,0.55), 0 0 0 1px rgba(120,80,255,0.3)' }}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(220,200,255,1)" strokeWidth="1.5" strokeLinecap="round">
+                <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M19.07 4.93l-2.12 2.12M7.05 16.95l-2.12 2.12"/>
+                <circle cx="12" cy="12" r="2.5"/>
+              </svg>
+            </Link>
+            <span className="font-dm text-[10px] font-[500]" style={{ color: 'rgba(255,255,255,0.3)' }}>Generate</span>
+          </div>
+
+          {/* Video */}
+          <Link href="/video" className="flex flex-col items-center gap-[3px] flex-1 py-2 transition-colors duration-150"
+            style={{ color: pathname === '/video' ? 'rgba(170,140,255,0.95)' : 'rgba(255,255,255,0.3)' }}>
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="23 7 16 12 23 17 23 7"/>
+              <rect x="1" y="5" width="15" height="14" rx="2"/>
+            </svg>
+            <span className="font-dm text-[10px] font-[500]">Video</span>
+          </Link>
+
+          {/* Audio */}
+          <Link href="/audio" className="flex flex-col items-center gap-[3px] flex-1 py-2 transition-colors duration-150"
+            style={{ color: pathname === '/audio' ? 'rgba(170,140,255,0.95)' : 'rgba(255,255,255,0.3)' }}>
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 18V5l12-2v13"/>
+              <circle cx="6" cy="18" r="3"/>
+              <circle cx="18" cy="16" r="3"/>
+            </svg>
+            <span className="font-dm text-[10px] font-[500]">Audio</span>
+          </Link>
+
         </div>
-      </div>
+      </nav>
     </>
   );
 }

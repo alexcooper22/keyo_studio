@@ -255,10 +255,10 @@ export default function ImageDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg)] pb-[130px] md:pb-[120px] relative" style={{ paddingTop: '64px' }}>
+    <div className="min-h-screen bg-[var(--bg)] pb-[200px] md:pb-[120px] relative" style={{ paddingTop: '64px' }}>
       <Navbar />
 
-      <main className="w-full pt-4 md:pt-6 relative z-10" style={{ paddingLeft: '30px', paddingRight: '30px' }}>
+      <main className="w-full pt-4 md:pt-6 px-4 md:px-8 relative z-10">
         {error && (
           <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 font-dm text-sm">
             {error}
@@ -267,11 +267,11 @@ export default function ImageDashboard() {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {isLoading && (
-            <div className="relative rounded-xl overflow-hidden bg-gradient-to-br from-bg-navbar to-bg-card border border-accent/20 shadow-lg animate-pulse" style={{ height: '220px' }}>
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.04] to-transparent w-[200%] animate-[shimmer_2.5s_ease_infinite]" />
+            <div className="relative rounded-xl overflow-hidden" style={{ height: '220px', background: 'linear-gradient(135deg, rgba(83,47,207,0.12) 0%, #111111 100%)', border: '0.5px solid rgba(83,47,207,0.25)' }}>
+              <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 30%, rgba(83,47,207,0.15) 0%, transparent 65%)' }} />
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-                <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
-                <span className="font-syne font-bold text-accent text-xs uppercase tracking-widest">Generating...</span>
+                <div className="w-8 h-8 rounded-full border-t-transparent animate-spin" style={{ border: '2px solid rgba(120,80,255,0.8)', borderTopColor: 'transparent' }} />
+                <span className="font-clash text-xs uppercase tracking-widest" style={{ color: 'rgba(120,80,255,0.7)', letterSpacing: '1px' }}>Generating...</span>
               </div>
             </div>
           )}
@@ -322,7 +322,9 @@ export default function ImageDashboard() {
 
           {generatedImages.length === 0 && !isLoading && (
             [1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="relative rounded-xl overflow-hidden bg-gradient-to-br from-bg-navbar to-bg-card border border-white/[0.06] aspect-square break-inside-avoid shadow-lg opacity-20" />
+              <div key={i} className="relative rounded-xl overflow-hidden aspect-square" style={{ background: 'var(--bg-card)', border: '0.5px solid rgba(83,47,207,0.08)', opacity: 0.4 }}>
+                <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 50%, rgba(83,47,207,0.06) 0%, transparent 70%)' }} />
+              </div>
             ))
           )}
         </div>

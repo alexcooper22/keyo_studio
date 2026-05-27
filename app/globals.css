@@ -32,10 +32,17 @@
   --purple: #532fcf;
 }
 
+html {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
 body {
   background-color: var(--bg);
   color: var(--text);
   overflow-x: hidden;
+  overscroll-behavior: none;
+  -webkit-text-size-adjust: 100%;
 }
 
 @keyframes fadeUp {

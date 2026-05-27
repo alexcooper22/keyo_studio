@@ -303,7 +303,7 @@ export default function VideoDashboard() {
   };
 
   return (
-    <div style={{ paddingTop: '94px', background: 'var(--bg)', height: '100vh', overflow: 'hidden' }}>
+    <div className="video-root" style={{ paddingTop: '94px', background: 'var(--bg)', minHeight: '100vh' }}>
       <Navbar />
       <style>{`
         textarea::-webkit-scrollbar { width: 4px; }
@@ -313,12 +313,21 @@ export default function VideoDashboard() {
         .feed::-webkit-scrollbar { width: 0px; }
         .feed::-webkit-scrollbar-track { background: transparent; }
         .feed::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+        @media (min-width: 768px) {
+          .video-root { height: 100vh; overflow: hidden; }
+          .video-layout { height: calc(100vh - 94px); padding-bottom: 24px; }
+          .video-panel { width: 260px; flex-shrink: 0; }
+        }
+        .video-sidebar { display: none; }
+        @media (min-width: 768px) {
+          .video-sidebar { display: flex; width: 200px; flex-shrink: 0; border-left: var(--border); flex-direction: column; }
+        }
       `}</style>
 
-      <div style={{ padding: '0 30px 30px 30px', display: 'flex', gap: '12px', height: 'calc(100vh - 94px)', alignItems: 'stretch' }}>
+      <div className="video-layout flex flex-col md:flex-row" style={{ padding: '0 16px 80px', gap: '12px', alignItems: 'stretch' }}>
 
-        {/* LEFT PANEL — fixed */}
-        <div style={{ width: '260px', flexShrink: 0, background: 'var(--bg-card)', border: 'var(--border)', borderRadius: 'var(--radius-card)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+        {/* LEFT PANEL */}
+        <div className="video-panel" style={{ background: 'var(--bg-card)', border: 'var(--border)', borderRadius: 'var(--radius-card)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', borderBottom: 'var(--border)', padding: '0 12px' }}>
             {['Create Video', 'Edit', 'Motion'].map((t, i) => (
               <div key={t} style={{ fontSize: '12px', color: i === 0 ? 'var(--text)' : '#555', padding: '10px 0', marginRight: '14px', borderBottom: i === 0 ? '2px solid var(--accent)' : '2px solid transparent', cursor: 'pointer', whiteSpace: 'nowrap' }}>{t}</div>
@@ -326,13 +335,13 @@ export default function VideoDashboard() {
           </div>
           <div style={{ padding: '10px', display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, overflowY: 'auto' }}>
             {/* Model card */}
-            <div style={{ background: '#0d0d0d', border: 'var(--border)', borderRadius: '10px', overflow: 'hidden' }}>
-              <div style={{ height: '75px', background: 'linear-gradient(135deg, #1a1535, #0f1020)', position: 'relative' }}>
+            <div style={{ background: '#0d0d0d', border: '0.5px solid rgba(83,47,207,0.2)', borderRadius: '10px', overflow: 'hidden' }}>
+              <div style={{ height: '75px', background: 'linear-gradient(135deg, rgba(83,47,207,0.25) 0%, rgba(30,15,60,0.8) 100%)', position: 'relative' }}>
                 <div style={{ position: 'absolute', top: '6px', right: '6px', background: '#ffffff10', border: '0.5px solid #ffffff15', borderRadius: '5px', padding: '2px 8px', fontSize: '10px', color: 'var(--text-secondary)', cursor: 'pointer' }}>✎ Change</div>
               </div>
               <div style={{ padding: '6px 10px' }}>
-                <div style={{ fontSize: '9px', fontWeight: 700, color: 'var(--accent)', letterSpacing: '0.5px' }}>GENERAL</div>
-                <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px' }}>Kling 3.0</div>
+                <div style={{ fontSize: '9px', fontWeight: 600, color: 'rgba(120,80,255,0.7)', letterSpacing: '0.8px', textTransform: 'uppercase' }}>✦ General</div>
+                <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.6)', marginTop: '2px' }}>Kling 3.0</div>
               </div>
             </div>
             {/* Frames */}
@@ -456,33 +465,57 @@ export default function VideoDashboard() {
               onClick={handleGenerate}
               disabled={isGenerating || !prompt.trim() || (creditCount !== null && creditCount < ((quality === '1080p' ? 4 : 3) + (audioEnabled ? 1 : 0)) * duration)}
               style={{
-                background: (creditCount !== null && creditCount <= 0) ? '#2a2a2a' : 'var(--accent)',
-                border: 'none',
-                borderRadius: 'var(--radius-btn)',
-                padding: '14px',
-                fontSize: '14px',
-                fontWeight: 600,
-                color: (creditCount !== null && creditCount <= 0) ? 'var(--text-secondary)' : 'var(--text)',
+                background: (creditCount !== null && creditCount <= 0)
+                  ? 'rgba(255,255,255,0.04)'
+                  : isGenerating
+                  ? 'linear-gradient(135deg, #3d2299 0%, #5a3dcf 100%)'
+                  : 'linear-gradient(135deg, #532fcf 0%, #7c5cf0 100%)',
+                border: (creditCount !== null && creditCount <= 0)
+                  ? '0.5px solid rgba(255,255,255,0.07)'
+                  : '0.5px solid rgba(255,255,255,0.12)',
+                borderRadius: '10px',
+                padding: '13px',
+                fontSize: '13px',
+                fontWeight: 700,
+                letterSpacing: '0.02em',
+                fontFamily: 'var(--font-clash)',
+                color: (creditCount !== null && creditCount <= 0) ? 'rgba(255,255,255,0.25)' : '#fff',
                 cursor: (isGenerating || (creditCount !== null && creditCount <= 0)) ? 'not-allowed' : 'pointer',
-                opacity: isGenerating ? 0.7 : 1,
-                width: '100%', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
-                gap: '8px' 
+                opacity: isGenerating ? 0.85 : 1,
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '7px',
+                boxShadow: (creditCount !== null && creditCount <= 0) || isGenerating
+                  ? 'none'
+                  : '0 0 20px rgba(83,47,207,0.45), 0 2px 8px rgba(0,0,0,0.4)',
+                transition: 'opacity 0.2s, box-shadow 0.2s',
               }}
             >
-              {isGenerating ? status || 'Generating...' : (creditCount !== null && creditCount <= 0) ? (
-                <><svg width="16" height="16" viewBox="0 0 24 24" fill="#777" xmlns="http://www.w3.org/2000/svg"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg> No credits</>
+              {isGenerating ? (
+                <>
+                  <div style={{ width: '12px', height: '12px', border: '1.5px solid rgba(255,255,255,0.4)', borderTop: '1.5px solid #fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />
+                  {status || 'Generating...'}
+                </>
+              ) : (creditCount !== null && creditCount <= 0) ? (
+                <>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  No credits
+                </>
               ) : (
-                <><svg width="16" height="16" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg> Generate · {((quality === '1080p' ? 4 : 3) + (audioEnabled ? 1 : 0)) * duration}</>
+                <>
+                  <span style={{ fontSize: '10px', color: 'rgba(200,170,255,0.9)' }}>✦</span>
+                  Generate
+                  <span style={{ color: 'rgba(200,170,255,0.7)', fontSize: '11px', fontWeight: 500 }}>· {((quality === '1080p' ? 4 : 3) + (audioEnabled ? 1 : 0)) * duration}</span>
+                </>
               )}
             </button>
           </div>
         </div>
 
         {/* CENTER PANEL — scrollable feed */}
-        <div ref={feedRef} className="feed" style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px', minWidth: 0 }}>
+        <div ref={feedRef} className="feed" style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px', minWidth: 0, minHeight: 0 }}>
           {/* Generating placeholder */}
           {isGenerating && (
             <div style={{ width: '100%', aspectRatio: '16/9', background: 'var(--bg-card)', border: 'var(--border)', borderRadius: 'var(--radius-card)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
@@ -494,10 +527,10 @@ export default function VideoDashboard() {
           {videos.length === 0 && !isGenerating && (
             <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 'calc(100vh - 154px)' }}>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-                <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: '#ffffff08', border: '0.5px solid #ffffff12', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <div style={{ width: 0, height: 0, borderTop: '9px solid transparent', borderBottom: '9px solid transparent', borderLeft: '16px solid #ffffff20', marginLeft: '4px' }}></div>
+                <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: 'rgba(83,47,207,0.08)', border: '0.5px solid rgba(83,47,207,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{ width: 0, height: 0, borderTop: '9px solid transparent', borderBottom: '9px solid transparent', borderLeft: '16px solid rgba(120,80,255,0.3)', marginLeft: '4px' }}></div>
                 </div>
-                <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Your videos will appear here</span>
+                <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.25)' }}>Your videos will appear here</span>
               </div>
             </div>
           )}
@@ -533,8 +566,8 @@ export default function VideoDashboard() {
                   </div>
                 </div>
               </div>
-              {/* Info sidebar */}
-              <div style={{ width: '200px', flexShrink: 0, borderLeft: 'var(--border)', padding: '14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {/* Info sidebar — hidden on mobile */}
+              <div className="video-sidebar" style={{ padding: '14px', gap: '10px' }}>
                 <div style={{ fontSize: '11px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '5px', fontWeight: 600 }}>
                   <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: 'var(--accent)' }}></div>
                   Kling 3.0

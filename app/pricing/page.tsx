@@ -1,6 +1,7 @@
 'use client';
 import React, { useState } from "react";
 import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
 import { useAuth } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 
@@ -13,16 +14,8 @@ const plans = [
     credits: 200,
     featured: false,
     breakdown: [
-      {
-        icon: "image",
-        main: "100 image generations",
-        sub: "Nano Banana Pro · 2 credits each",
-      },
-      {
-        icon: "video",
-        main: "~23 video clips",
-        sub: "Kling 3.0 · ~8.7 credits each",
-      },
+      { icon: "image", main: "100 image generations", sub: "Nano Banana Pro · 2 credits each" },
+      { icon: "video", main: "~23 video clips", sub: "Kling 3.0 · ~8.7 credits each" },
     ],
     cta: "Get started",
     ctaStyle: "outline",
@@ -35,16 +28,8 @@ const plans = [
     credits: 1000,
     featured: true,
     breakdown: [
-      {
-        icon: "image",
-        main: "500 image generations",
-        sub: "Nano Banana Pro · 2 credits each",
-      },
-      {
-        icon: "video",
-        main: "~114 video clips",
-        sub: "Kling 3.0 · ~8.7 credits each",
-      },
+      { icon: "image", main: "500 image generations", sub: "Nano Banana Pro · 2 credits each" },
+      { icon: "video", main: "~114 video clips", sub: "Kling 3.0 · ~8.7 credits each" },
     ],
     cta: "Get Plus",
     ctaStyle: "primary",
@@ -57,11 +42,7 @@ export default function PricingPage() {
   const [loadingPlan, setLoadingPlan] = useState<'starter' | 'plus' | null>(null);
 
   const handleCheckout = async (plan: 'starter' | 'plus') => {
-    if (!isSignedIn) {
-      router.push('/sign-in');
-      return;
-    }
-
+    if (!isSignedIn) { router.push('/sign-in'); return; }
     setLoadingPlan(plan);
     try {
       const res = await fetch('/api/stripe/create-checkout', {
@@ -69,218 +50,217 @@ export default function PricingPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ plan }),
       });
-
       const data = await res.json();
       if (data.url) {
         window.location.href = data.url;
       } else {
-        console.error('Checkout error:', data.error);
         alert('Something went wrong. Please try again.');
         setLoadingPlan(null);
       }
-    } catch (error) {
-      console.error(error);
+    } catch {
       alert('Something went wrong. Please try again.');
       setLoadingPlan(null);
     }
   };
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--bg)" }}>
+    <div className="font-dm" style={{ minHeight: '100vh', background: 'var(--bg)' }}>
       <Navbar />
 
-      {/* Hero */}
-      <div className="text-center" style={{ padding: "90px 30px 44px" }}>
-        <div
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 6,
-            background: "rgba(83,47,207,0.15)",
-            border: "0.5px solid rgba(83,47,207,0.4)",
-            borderRadius: 20,
-            padding: "5px 14px",
-            marginBottom: 22,
-          }}
-        >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8b6ef5" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z" />
-          </svg>
-          <span style={{ color: "#8b6ef5", fontSize: 11, fontWeight: 500, letterSpacing: "0.6px", textTransform: "uppercase" }}>
-            Simple pricing
-          </span>
+      <main style={{ paddingTop: '60px' }}>
+
+        {/* ── Hero ── */}
+        <div className="relative" style={{ padding: '60px 32px 52px', overflow: 'hidden', textAlign: 'center' }}>
+
+          {/* Dot grid */}
+          <div aria-hidden="true" style={{
+            position: 'absolute', inset: 0,
+            backgroundImage: 'radial-gradient(rgba(120,80,255,0.13) 1px, transparent 1px)',
+            backgroundSize: '36px 36px',
+            maskImage: 'radial-gradient(ellipse 80% 70% at 50% 0%, black 30%, transparent 100%)',
+            WebkitMaskImage: 'radial-gradient(ellipse 80% 70% at 50% 0%, black 30%, transparent 100%)',
+            pointerEvents: 'none', zIndex: 0,
+          }} />
+
+          {/* Glow orb */}
+          <div aria-hidden="true" style={{
+            position: 'absolute', top: '-80px', left: '50%',
+            width: '800px', height: '600px',
+            background: 'radial-gradient(ellipse at center, rgba(83,47,207,0.2) 0%, rgba(60,30,180,0.08) 40%, transparent 68%)',
+            transform: 'translateX(-50%)',
+            borderRadius: '50%', pointerEvents: 'none', zIndex: 0,
+          }} />
+
+          {/* Top shimmer */}
+          <div aria-hidden="true" style={{
+            position: 'absolute', top: 0, left: '10%', right: '10%', height: '1px',
+            background: 'linear-gradient(90deg, transparent, rgba(120,80,255,0.45), transparent)',
+            pointerEvents: 'none', zIndex: 0,
+          }} />
+
+          <div className="relative" style={{ zIndex: 1 }}>
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2" style={{
+              background: 'rgba(83,47,207,0.1)',
+              border: '0.5px solid rgba(83,47,207,0.3)',
+              borderRadius: '20px',
+              padding: '4px 12px',
+              marginBottom: '20px',
+            }}>
+              <span style={{ color: 'rgba(120,80,255,0.8)', fontSize: '9px' }}>✦</span>
+              <span className="font-dm" style={{ color: 'rgba(120,80,255,0.7)', fontSize: '11px', fontWeight: 500, letterSpacing: '0.8px', textTransform: 'uppercase' }}>
+                Simple pricing
+              </span>
+            </div>
+
+            <h1 className="font-clash" style={{
+              fontSize: 'clamp(32px, 5vw, 54px)',
+              fontWeight: 700,
+              letterSpacing: '-0.03em',
+              lineHeight: 1.1,
+              marginBottom: '14px',
+              color: '#fff',
+            }}>
+              Create more,{' '}
+              <span style={{
+                background: 'linear-gradient(135deg, #c4b0ff 0%, #9b7eff 40%, #6b4ef5 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}>
+                think less
+              </span>
+            </h1>
+
+            <p className="font-dm" style={{ color: 'rgba(255,255,255,0.32)', fontSize: '14px', lineHeight: 1.7, maxWidth: '360px', margin: '0 auto' }}>
+              One credit system across images, video, and audio. Upgrade or cancel anytime.
+            </p>
+          </div>
         </div>
 
-        <h1
-          style={{
-            fontSize: 40,
-            fontWeight: 700,
-            color: "#fff",
-            letterSpacing: "-1.5px",
-            lineHeight: 1.1,
-            marginBottom: 12,
-          }}
-        >
-          Create more,{" "}
-          <span style={{ color: "#7c5cf0" }}>think less</span>
-        </h1>
+        {/* ── Cards ── */}
+        <div style={{ maxWidth: '740px', margin: '0 auto', padding: '0 32px 60px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          {plans.map((plan) => (
+            <div
+              key={plan.id}
+              className="relative flex flex-col"
+              style={{
+                background: plan.featured
+                  ? 'linear-gradient(160deg, rgba(83,47,207,0.12) 0%, var(--bg-card) 60%)'
+                  : 'var(--bg-card)',
+                border: plan.featured ? '0.5px solid rgba(83,47,207,0.45)' : '0.5px solid #1e1e1e',
+                borderRadius: 'var(--radius-card)',
+                padding: '28px',
+                boxShadow: plan.featured ? '0 0 40px rgba(83,47,207,0.12)' : 'none',
+              }}
+            >
+              {plan.featured && (
+                <div style={{
+                  position: 'absolute', top: -11, left: '50%', transform: 'translateX(-50%)',
+                  background: 'linear-gradient(90deg, #532fcf, #7c5cf0)',
+                  color: '#fff', fontSize: '11px', fontWeight: 600,
+                  padding: '4px 16px', borderRadius: '20px',
+                  whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '5px',
+                }}>
+                  <span style={{ fontSize: '9px' }}>✦</span>
+                  Most popular
+                </div>
+              )}
 
-        <p style={{ color: "var(--text-secondary)", fontSize: 14, lineHeight: 1.6, maxWidth: 380, margin: "0 auto" }}>
-          One credit system across images, video, and audio. Upgrade or cancel anytime.
-        </p>
-      </div>
+              {/* Plan name */}
+              <div style={{ marginBottom: '20px' }}>
+                <div className="font-clash" style={{ color: '#fff', fontSize: '17px', fontWeight: 600, marginBottom: '5px' }}>{plan.name}</div>
+                <div style={{ color: 'rgba(255,255,255,0.32)', fontSize: '12px', lineHeight: 1.5 }}>{plan.desc}</div>
+              </div>
 
-      {/* Cards */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: 12,
-          maxWidth: 720,
-          margin: "0 auto",
-          padding: "0 30px 60px",
-        }}
-      >
-        {plans.map((plan) => (
-          <div
-            key={plan.id}
-            style={{
-              background: "var(--bg-card)",
-              border: plan.featured ? "1px solid var(--accent)" : "var(--border)",
-              borderRadius: "var(--radius-card)",
-              padding: 28,
-              position: "relative",
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            {plan.featured && (
-              <div
+              {/* Price */}
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '3px', marginBottom: '18px' }}>
+                <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: '16px', fontWeight: 500 }}>$</span>
+                <span className="font-clash" style={{ color: '#fff', fontSize: '44px', fontWeight: 700, letterSpacing: '-2px' }}>{plan.price}</span>
+                <span style={{ color: 'rgba(255,255,255,0.32)', fontSize: '13px', marginLeft: '2px' }}>/mo</span>
+              </div>
+
+              {/* Credits pill */}
+              <div style={{
+                display: 'inline-flex', alignItems: 'center', gap: '6px',
+                background: 'rgba(83,47,207,0.12)',
+                border: '0.5px solid rgba(83,47,207,0.25)',
+                borderRadius: '8px', padding: '6px 12px', marginBottom: '20px',
+              }}>
+                <span style={{ color: 'rgba(120,80,255,0.8)', fontSize: '8px' }}>✦</span>
+                <span style={{ color: '#9b7eff', fontSize: '14px', fontWeight: 700 }}>{plan.credits.toLocaleString()}</span>
+                <span style={{ color: 'rgba(255,255,255,0.32)', fontSize: '12px' }}>credits / month</span>
+              </div>
+
+              {/* Divider */}
+              <div style={{ height: '0.5px', background: 'rgba(255,255,255,0.06)', marginBottom: '18px' }} />
+
+              {/* Breakdown */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '24px' }}>
+                {plan.breakdown.map((item, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                    <div style={{
+                      width: '28px', height: '28px', borderRadius: '8px',
+                      background: 'rgba(83,47,207,0.1)',
+                      border: '0.5px solid rgba(83,47,207,0.2)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                    }}>
+                      {item.icon === 'image' ? (
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9b7eff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18M9 21V9" />
+                        </svg>
+                      ) : (
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9b7eff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polygon points="5,3 19,12 5,21" />
+                        </svg>
+                      )}
+                    </div>
+                    <div>
+                      <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '13px', fontWeight: 500, lineHeight: 1.3 }}>{item.main}</div>
+                      <div style={{ color: 'rgba(255,255,255,0.28)', fontSize: '11px', marginTop: '2px' }}>{item.sub}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* CTA */}
+              <button
+                onClick={() => handleCheckout(plan.id as 'starter' | 'plus')}
+                disabled={loadingPlan !== null}
+                className="font-dm"
                 style={{
-                  position: "absolute",
-                  top: -11,
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  background: "var(--accent)",
-                  color: "#fff",
-                  fontSize: 11,
+                  width: '100%',
+                  borderRadius: '10px',
+                  padding: '12px',
+                  fontSize: '14px',
                   fontWeight: 600,
-                  padding: "4px 16px",
-                  borderRadius: 20,
-                  whiteSpace: "nowrap",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 5,
+                  cursor: loadingPlan !== null ? 'not-allowed' : 'pointer',
+                  marginTop: 'auto',
+                  transition: 'opacity 0.2s, filter 0.2s',
+                  opacity: loadingPlan !== null ? 0.6 : 1,
+                  border: plan.ctaStyle === 'primary' ? 'none' : '0.5px solid rgba(255,255,255,0.1)',
+                  background: plan.ctaStyle === 'primary'
+                    ? 'linear-gradient(135deg, #532fcf, #7c5cf0)'
+                    : 'rgba(255,255,255,0.04)',
+                  color: plan.ctaStyle === 'primary' ? '#fff' : 'rgba(255,255,255,0.5)',
                 }}
               >
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="white">
-                  <path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z" />
-                </svg>
-                Most popular
-              </div>
-            )}
-
-            {/* Plan name */}
-            <div style={{ marginBottom: 22 }}>
-              <div style={{ color: "var(--text)", fontSize: 16, fontWeight: 600, marginBottom: 6 }}>{plan.name}</div>
-              <div style={{ color: "var(--text-secondary)", fontSize: 12, lineHeight: 1.5 }}>{plan.desc}</div>
+                {loadingPlan === plan.id ? 'Loading...' : plan.cta}
+              </button>
             </div>
+          ))}
+        </div>
 
-            {/* Price */}
-            <div style={{ display: "flex", alignItems: "baseline", gap: 3, marginBottom: 22 }}>
-              <span style={{ color: "var(--text-secondary)", fontSize: 16, fontWeight: 500 }}>$</span>
-              <span style={{ color: "var(--text)", fontSize: 42, fontWeight: 700, letterSpacing: -2 }}>{plan.price}</span>
-              <span style={{ color: "var(--text-secondary)", fontSize: 13, marginLeft: 2 }}>/mo</span>
-            </div>
+        {/* Footer note */}
+        <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.2)', fontSize: '12px', paddingBottom: '48px' }}>
+          No contracts · Cancel anytime ·{' '}
+          <a href="mailto:hello@keyo.studio" style={{ color: 'rgba(120,80,255,0.7)', textDecoration: 'none' }}>
+            Enterprise plan →
+          </a>
+        </div>
 
-            {/* Credits pill */}
-            <div
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-                background: "rgba(83,47,207,0.12)",
-                border: "0.5px solid rgba(83,47,207,0.25)",
-                borderRadius: 8,
-                padding: "6px 12px",
-                marginBottom: 22,
-              }}
-            >
-              <span style={{ color: "#8b6ef5", fontSize: 15, fontWeight: 700 }}>
-                {plan.credits.toLocaleString()}
-              </span>
-              <span style={{ color: "var(--text-secondary)", fontSize: 12 }}>credits / month</span>
-            </div>
-
-            <hr style={{ border: "none", borderTop: "var(--border)", marginBottom: 18 }} />
-
-            {/* Breakdown */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 24 }}>
-              {plan.breakdown.map((item, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-                  <div
-                    style={{
-                      width: 28,
-                      height: 28,
-                      borderRadius: 8,
-                      background: "var(--bg-navbar)",
-                      border: "var(--border)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      flexShrink: 0,
-                    }}
-                  >
-                    {item.icon === "image" ? (
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7c5cf0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="3" y="3" width="18" height="18" rx="2" />
-                        <path d="M3 9h18M9 21V9" />
-                      </svg>
-                    ) : (
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7c5cf0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                        <polygon points="5,3 19,12 5,21" />
-                      </svg>
-                    )}
-                  </div>
-                  <div>
-                    <div style={{ color: "#ccc", fontSize: 13, fontWeight: 500, lineHeight: 1.3 }}>{item.main}</div>
-                    <div style={{ color: "var(--text-secondary)", fontSize: 11, marginTop: 2 }}>{item.sub}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* CTA */}
-            <button
-              onClick={() => handleCheckout(plan.id as 'starter' | 'plus')}
-              disabled={loadingPlan !== null}
-              style={{
-                width: "100%",
-                borderRadius: 10,
-                padding: "12px",
-                fontSize: 14,
-                fontWeight: 500,
-                cursor: loadingPlan !== null ? "not-allowed" : "pointer",
-                marginTop: "auto",
-                border: plan.ctaStyle === "primary" ? "none" : "0.5px solid #2a2a2a",
-                background: plan.ctaStyle === "primary" ? "var(--accent)" : "transparent",
-                color: plan.ctaStyle === "primary" ? "#fff" : "#aaa",
-                opacity: loadingPlan !== null ? 0.7 : 1,
-              }}
-            >
-              {loadingPlan === plan.id ? 'Loading...' : plan.cta}
-            </button>
-          </div>
-        ))}
-      </div>
-
-      {/* Footer note */}
-      <div style={{ textAlign: "center", color: "var(--text-secondary)", fontSize: 12, paddingBottom: 40 }}>
-        No contracts · Cancel anytime ·{" "}
-        <a href="mailto:hello@keyo.studio" style={{ color: "#8b6ef5", textDecoration: "none" }}>
-          Enterprise plan →
-        </a>
-      </div>
+        <Footer />
+      </main>
     </div>
   );
 }

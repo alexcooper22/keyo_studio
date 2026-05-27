@@ -121,10 +121,10 @@ export default function Home() {
     <>
       <Navbar />
 
-      <main className="font-dm" style={{ paddingTop: '60px', background: 'var(--bg)', minHeight: '100vh' }}>
+      <main className="font-dm pb-20 md:pb-0" style={{ paddingTop: '60px', background: 'var(--bg)', minHeight: '100vh' }}>
 
         {/* ── Hero + Tool cards — shared ambient glow ── */}
-        <div className="relative" style={{ padding: '30px 32px 0', overflow: 'clip' }}>
+        <div className="relative" style={{ padding: 'clamp(20px,4vw,30px) clamp(16px,4vw,32px) 0', overflow: 'hidden' }}>
 
           {/* Dot grid */}
           <div aria-hidden="true" style={{
@@ -168,8 +168,8 @@ export default function Home() {
             className="relative w-full flex flex-col items-center justify-center text-center"
             style={{ height: 'calc(44vh - 60px)', marginBottom: '20px', willChange: 'transform, opacity', zIndex: 1 }}
           >
-            {/* Far depth layer — slowest, AI-themed */}
-            <div ref={iconsFar} aria-hidden="true" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', willChange: 'transform' }}>
+            {/* Far depth layer — slowest, AI-themed (desktop only) */}
+            <div ref={iconsFar} aria-hidden="true" className="hidden md:block" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', willChange: 'transform' }}>
               {/* Waveform / audio */}
               <svg style={{ position: 'absolute', left: '6%', top: '10%', opacity: 0.22, transform: 'rotate(10deg)' }} width="76" height="76" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
@@ -206,8 +206,8 @@ export default function Home() {
               </svg>
             </div>
 
-            {/* Mid depth layer — AI network, film, play */}
-            <div ref={iconsMid} aria-hidden="true" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', willChange: 'transform' }}>
+            {/* Mid depth layer — AI network, film, play (desktop only) */}
+            <div ref={iconsMid} aria-hidden="true" className="hidden md:block" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', willChange: 'transform' }}>
               {/* 4-point sparkle / AI magic */}
               <svg style={{ position: 'absolute', left: '9%', top: '42%', opacity: 0.32 }} width="58" height="58" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round">
                 <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M19.07 4.93l-2.12 2.12M7.05 16.95l-2.12 2.12"/>
@@ -250,8 +250,8 @@ export default function Home() {
               </svg>
             </div>
 
-            {/* Near depth layer — fastest, largest */}
-            <div ref={iconsNear} aria-hidden="true" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', willChange: 'transform' }}>
+            {/* Near depth layer — fastest, largest (desktop only) */}
+            <div ref={iconsNear} aria-hidden="true" className="hidden md:block" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', willChange: 'transform' }}>
               {/* Magic wand / AI generation */}
               <svg style={{ position: 'absolute', left: '3%', top: '36%', opacity: 0.42, transform: 'rotate(15deg)' }} width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="0.85" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M15 4l5 5L7 22H2v-5L15 4z"/>
@@ -281,6 +281,72 @@ export default function Home() {
               </svg>
             </div>
 
+            {/* Mobile icons — varied sizes, scattered close to text */}
+            <div aria-hidden="true" className="md:hidden" style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+              {/* Magic wand — large, left side near middle */}
+              <svg style={{ position: 'absolute', left: '2%', top: '34%', opacity: 0.38, transform: 'rotate(14deg)' }} width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="0.9" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M15 4l5 5L7 22H2v-5L15 4z"/>
+                <path d="M3 6l1-1M5 3l-1 1M20 2l1 1M4 12l1 1"/>
+              </svg>
+              {/* Waveform — large, right side */}
+              <svg style={{ position: 'absolute', right: '1%', top: '26%', opacity: 0.4, transform: 'rotate(-12deg)' }} width="58" height="58" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="0.9" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              </svg>
+              {/* Sparkle — medium, top-left, close to badge */}
+              <svg style={{ position: 'absolute', left: '12%', top: '8%', opacity: 0.3 }} width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1.1" strokeLinecap="round">
+                <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M19.07 4.93l-2.12 2.12M7.05 16.95l-2.12 2.12"/>
+              </svg>
+              {/* Image frame — medium, top-right */}
+              <svg style={{ position: 'absolute', right: '10%', top: '6%', opacity: 0.24, transform: 'rotate(-8deg)' }} width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <polyline points="21 15 16 10 5 21"/>
+              </svg>
+              {/* CPU — small, left near "Turn ideas into" */}
+              <svg style={{ position: 'absolute', left: '14%', top: '21%', opacity: 0.2 }} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="8" y="8" width="8" height="8"/>
+                <rect x="5" y="5" width="14" height="14" rx="1.5"/>
+                <path d="M9 5V3M12 5V3M15 5V3M9 21v-2M12 21v-2M15 21v-2M3 9h2M3 12h2M3 15h2M19 9h2M19 12h2M19 15h2"/>
+              </svg>
+              {/* Lightning — small, right near "Turn ideas into" */}
+              <svg style={{ position: 'absolute', right: '12%', top: '19%', opacity: 0.2, transform: 'rotate(5deg)' }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+              </svg>
+              {/* Eye — medium, right side flanking cycling word */}
+              <svg style={{ position: 'absolute', right: '8%', top: '50%', opacity: 0.22 }} width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+              {/* Infinity — small, left flanking cycling word */}
+              <svg style={{ position: 'absolute', left: '10%', top: '52%', opacity: 0.22 }} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1.3" strokeLinecap="round">
+                <path d="M12 12c-2-2.5-4-4-6-4a4 4 0 0 0 0 8c2 0 4-1.5 6-4zm0 0c2 2.5 4 4 6 4a4 4 0 0 0 0-8c-2 0-4 1.5-6 4z"/>
+              </svg>
+              {/* Film — medium, left near "using keyo.studio" */}
+              <svg style={{ position: 'absolute', left: '8%', top: '72%', opacity: 0.2, transform: 'rotate(6deg)' }} width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="7" width="20" height="15" rx="1.5"/>
+                <polyline points="17 2 22 7 2 7 7 2 17 2"/>
+                <line x1="7" y1="2" x2="7" y2="7"/>
+                <line x1="12" y1="2" x2="12" y2="7"/>
+                <line x1="17" y1="2" x2="17" y2="7"/>
+              </svg>
+              {/* Microphone — small, right near subtitle */}
+              <svg style={{ position: 'absolute', right: '11%', top: '74%', opacity: 0.2, transform: 'rotate(-4deg)' }} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                <line x1="12" y1="19" x2="12" y2="23"/>
+                <line x1="8" y1="23" x2="16" y2="23"/>
+              </svg>
+              {/* Play circle — medium, bottom-left */}
+              <svg style={{ position: 'absolute', left: '15%', bottom: '5%', opacity: 0.22 }} width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <polygon points="10 8 16 12 10 16 10 8"/>
+              </svg>
+              {/* Neural sparkle — small, bottom-right */}
+              <svg style={{ position: 'absolute', right: '14%', bottom: '4%', opacity: 0.2 }} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1.4" strokeLinecap="round">
+                <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M19.07 4.93l-2.12 2.12M7.05 16.95l-2.12 2.12"/>
+              </svg>
+            </div>
+
             <div className="inline-flex items-center gap-2 mb-4" style={{ background: 'rgba(83,47,207,0.1)', border: '0.5px solid rgba(83,47,207,0.3)', borderRadius: '20px', padding: '4px 12px' }}>
               <span style={{ color: 'rgba(120,80,255,0.8)', fontSize: '9px' }}>✦</span>
               <span className="font-dm" style={{ color: 'rgba(120,80,255,0.7)', fontSize: '11px', fontWeight: 500, letterSpacing: '0.8px', textTransform: 'uppercase' }}>AI Creative Studio</span>
@@ -296,14 +362,36 @@ export default function Home() {
                 0%   { opacity: 1; transform: translateY(0)     scale(1)    skewY(0deg);  filter: blur(0px); }
                 100% { opacity: 0; transform: translateY(-24px) scale(0.92) skewY(-3deg); filter: blur(10px); }
               }
+              .tool-cards-container {
+                display: flex;
+                overflow-x: auto;
+                scroll-snap-type: x mandatory;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+              }
+              .tool-cards-container::-webkit-scrollbar { display: none; }
+              .tool-card-item {
+                flex-shrink: 0;
+                width: 82%;
+                scroll-snap-align: start;
+              }
+              @media (min-width: 768px) {
+                .tool-cards-container {
+                  display: grid;
+                  grid-template-columns: repeat(3, 1fr);
+                  overflow-x: visible;
+                }
+                .tool-card-item { width: auto; }
+              }
             `}</style>
 
             <h1 style={{ fontWeight: 700, lineHeight: 1.1, marginBottom: '12px', color: '#fff' }}>
-              <span className="font-clash" style={{ display: 'block', fontSize: 'clamp(18px, 2.8vw, 34px)', color: 'rgba(255,255,255,0.35)', letterSpacing: '-0.01em' }}>
+              <span className="font-clash" style={{ display: 'block', fontSize: 'clamp(22px, 3.2vw, 38px)', letterSpacing: '-0.01em', background: 'linear-gradient(135deg, #e8e0ff 0%, #c4b0ff 50%, #a080ff 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
                 Turn ideas into
               </span>
               {/* Animated cycling word — Syne 800, inline-grid for zero layout shift */}
-              <span className="font-clash" style={{ display: 'inline-grid', fontSize: 'clamp(46px, 8vw, 92px)', fontWeight: 700, letterSpacing: '-0.04em', padding: '6px 20px', overflow: 'visible' }}>
+              <span className="font-clash" style={{ display: 'inline-grid', fontSize: 'clamp(54px, 9vw, 100px)', fontWeight: 700, letterSpacing: '-0.04em', padding: '6px 20px', overflow: 'visible' }}>
                 {cycleWords.map((word, i) => (
                   <span
                     key={word}
@@ -323,7 +411,7 @@ export default function Home() {
                   </span>
                 ))}
               </span>
-              <span className="font-clash" style={{ display: 'block', fontSize: 'clamp(18px, 2.8vw, 34px)', color: 'rgba(255,255,255,0.35)', letterSpacing: '-0.01em' }}>
+              <span className="font-clash" style={{ display: 'block', fontSize: 'clamp(22px, 3.2vw, 38px)', letterSpacing: '-0.01em', background: 'linear-gradient(135deg, #e8e0ff 0%, #c4b0ff 50%, #a080ff 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
                 using{' '}
                 <span style={{ background: 'linear-gradient(135deg, #c4b0ff 0%, #9b7eff 40%, #6b4ef5 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
                   keyo.studio
@@ -332,15 +420,15 @@ export default function Home() {
             </h1>
 
             <p className="font-dm" style={{ fontSize: '14px', color: 'rgba(255,255,255,0.32)', maxWidth: '400px', lineHeight: '1.7' }}>
-              The world&apos;s best AI models in one place.
+              Infrastructure for AI Video &amp; Image Gen
             </p>
           </section>
 
           {/* Tool cards */}
-          <div className="relative grid grid-cols-1 md:grid-cols-3" style={{ gap: '12px', paddingBottom: '32px', zIndex: 1 }}>
-            <ToolCard href="/image" videoSrc="/image-bg.mp4" />
-            <ToolCard href="/video" videoSrc="/video-bg.mp4" />
-            <ToolCard href="/audio" videoSrc="/audio-bg.mp4" />
+          <div className="tool-cards-container relative" style={{ gap: '12px', paddingBottom: '32px', zIndex: 1 }}>
+            <div className="tool-card-item"><ToolCard href="/image" videoSrc="/image-bg.mp4" /></div>
+            <div className="tool-card-item"><ToolCard href="/video" videoSrc="/video-bg.mp4" /></div>
+            <div className="tool-card-item"><ToolCard href="/audio" videoSrc="/audio-bg.mp4" /></div>
           </div>
 
           {/* Bottom fade */}
@@ -352,7 +440,7 @@ export default function Home() {
         </div>
 
         {/* ── Image generation section ── */}
-        <div style={{ padding: '8px 32px 32px' }}>
+        <div style={{ padding: 'clamp(8px,2vw,8px) clamp(16px,4vw,32px) clamp(20px,4vw,32px)' }}>
           <SectionHeader badge="Image" title="Generate images" href="/image" linkLabel="Try Image" />
 
           <div className="grid grid-cols-3 md:grid-cols-6" style={{ gap: '8px' }}>
@@ -385,7 +473,7 @@ export default function Home() {
         </div>
 
         {/* ── Video generation section ── */}
-        <div style={{ padding: '0 32px 32px' }}>
+        <div style={{ padding: '0 clamp(16px,4vw,32px) clamp(20px,4vw,32px)' }}>
           <SectionHeader badge="Video" title="Generate videos" href="/video" linkLabel="Try Video" />
 
           <div className="grid grid-cols-2 md:grid-cols-4" style={{ gap: '8px' }}>
@@ -417,7 +505,7 @@ export default function Home() {
         </div>
 
         {/* ── Community Gallery ── */}
-        <div style={{ padding: '0 32px 32px' }}>
+        <div style={{ padding: '0 clamp(16px,4vw,32px) clamp(20px,4vw,32px)' }}>
           <CommunityGallery />
         </div>
 
