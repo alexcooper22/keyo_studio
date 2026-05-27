@@ -86,7 +86,7 @@ export default function PricingPage() {
   };
 
   return (
-    <div className="min-h-screen" style={{ background: "#080808" }}>
+    <div className="min-h-screen" style={{ background: "var(--bg)" }}>
       <Navbar />
 
       {/* Hero */}
@@ -125,7 +125,7 @@ export default function PricingPage() {
           <span style={{ color: "#7c5cf0" }}>think less</span>
         </h1>
 
-        <p style={{ color: "#777", fontSize: 14, lineHeight: 1.6, maxWidth: 380, margin: "0 auto" }}>
+        <p style={{ color: "var(--text-secondary)", fontSize: 14, lineHeight: 1.6, maxWidth: 380, margin: "0 auto" }}>
           One credit system across images, video, and audio. Upgrade or cancel anytime.
         </p>
       </div>
@@ -145,9 +145,9 @@ export default function PricingPage() {
           <div
             key={plan.id}
             style={{
-              background: "#111",
-              border: plan.featured ? "1px solid #532fcf" : "0.5px solid #1e1e1e",
-              borderRadius: 14,
+              background: "var(--bg-card)",
+              border: plan.featured ? "1px solid var(--accent)" : "var(--border)",
+              borderRadius: "var(--radius-card)",
               padding: 28,
               position: "relative",
               display: "flex",
@@ -161,7 +161,7 @@ export default function PricingPage() {
                   top: -11,
                   left: "50%",
                   transform: "translateX(-50%)",
-                  background: "#532fcf",
+                  background: "var(--accent)",
                   color: "#fff",
                   fontSize: 11,
                   fontWeight: 600,
@@ -182,15 +182,15 @@ export default function PricingPage() {
 
             {/* Plan name */}
             <div style={{ marginBottom: 22 }}>
-              <div style={{ color: "#fff", fontSize: 16, fontWeight: 600, marginBottom: 6 }}>{plan.name}</div>
-              <div style={{ color: "#777", fontSize: 12, lineHeight: 1.5 }}>{plan.desc}</div>
+              <div style={{ color: "var(--text)", fontSize: 16, fontWeight: 600, marginBottom: 6 }}>{plan.name}</div>
+              <div style={{ color: "var(--text-secondary)", fontSize: 12, lineHeight: 1.5 }}>{plan.desc}</div>
             </div>
 
             {/* Price */}
             <div style={{ display: "flex", alignItems: "baseline", gap: 3, marginBottom: 22 }}>
-              <span style={{ color: "#777", fontSize: 16, fontWeight: 500 }}>$</span>
-              <span style={{ color: "#fff", fontSize: 42, fontWeight: 700, letterSpacing: -2 }}>{plan.price}</span>
-              <span style={{ color: "#777", fontSize: 13, marginLeft: 2 }}>/mo</span>
+              <span style={{ color: "var(--text-secondary)", fontSize: 16, fontWeight: 500 }}>$</span>
+              <span style={{ color: "var(--text)", fontSize: 42, fontWeight: 700, letterSpacing: -2 }}>{plan.price}</span>
+              <span style={{ color: "var(--text-secondary)", fontSize: 13, marginLeft: 2 }}>/mo</span>
             </div>
 
             {/* Credits pill */}
@@ -209,10 +209,10 @@ export default function PricingPage() {
               <span style={{ color: "#8b6ef5", fontSize: 15, fontWeight: 700 }}>
                 {plan.credits.toLocaleString()}
               </span>
-              <span style={{ color: "#777", fontSize: 12 }}>credits / month</span>
+              <span style={{ color: "var(--text-secondary)", fontSize: 12 }}>credits / month</span>
             </div>
 
-            <hr style={{ border: "none", borderTop: "0.5px solid #1e1e1e", marginBottom: 18 }} />
+            <hr style={{ border: "none", borderTop: "var(--border)", marginBottom: 18 }} />
 
             {/* Breakdown */}
             <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 24 }}>
@@ -223,8 +223,8 @@ export default function PricingPage() {
                       width: 28,
                       height: 28,
                       borderRadius: 8,
-                      background: "#161616",
-                      border: "0.5px solid #1e1e1e",
+                      background: "var(--bg-navbar)",
+                      border: "var(--border)",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
@@ -244,7 +244,7 @@ export default function PricingPage() {
                   </div>
                   <div>
                     <div style={{ color: "#ccc", fontSize: 13, fontWeight: 500, lineHeight: 1.3 }}>{item.main}</div>
-                    <div style={{ color: "#777", fontSize: 11, marginTop: 2 }}>{item.sub}</div>
+                    <div style={{ color: "var(--text-secondary)", fontSize: 11, marginTop: 2 }}>{item.sub}</div>
                   </div>
                 </div>
               ))}
@@ -263,7 +263,7 @@ export default function PricingPage() {
                 cursor: loadingPlan !== null ? "not-allowed" : "pointer",
                 marginTop: "auto",
                 border: plan.ctaStyle === "primary" ? "none" : "0.5px solid #2a2a2a",
-                background: plan.ctaStyle === "primary" ? "#532fcf" : "transparent",
+                background: plan.ctaStyle === "primary" ? "var(--accent)" : "transparent",
                 color: plan.ctaStyle === "primary" ? "#fff" : "#aaa",
                 opacity: loadingPlan !== null ? 0.7 : 1,
               }}
@@ -275,7 +275,7 @@ export default function PricingPage() {
       </div>
 
       {/* Footer note */}
-      <div style={{ textAlign: "center", color: "#777", fontSize: 12, paddingBottom: 40 }}>
+      <div style={{ textAlign: "center", color: "var(--text-secondary)", fontSize: 12, paddingBottom: 40 }}>
         No contracts · Cancel anytime ·{" "}
         <a href="mailto:hello@keyo.studio" style={{ color: "#8b6ef5", textDecoration: "none" }}>
           Enterprise plan →

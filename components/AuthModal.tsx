@@ -31,7 +31,7 @@ export default function AuthModal({ onClose }: AuthModalProps) {
             afterSignInUrl="/"
             appearance={{
               variables: {
-                colorPrimary: '#ff3377',
+                colorPrimary: '#532fcf',
                 colorBackground: '#0f0f0f',
                 colorText: '#f0f0f0',
                 colorInputBackground: '#111111',
@@ -41,8 +41,8 @@ export default function AuthModal({ onClose }: AuthModalProps) {
               elements: {
                 rootBox: 'shadow-2xl',
                 card: 'bg-[#0f0f0f] border border-white/[0.08] shadow-2xl',
-                formButtonPrimary: 'bg-[#ff3377] hover:brightness-110 font-dm font-semibold',
-                footerActionLink: 'text-[#ff3377]',
+                formButtonPrimary: 'bg-accent hover:brightness-110 font-dm font-semibold',
+                footerActionLink: 'text-accent',
               },
             }}
           />
@@ -52,7 +52,7 @@ export default function AuthModal({ onClose }: AuthModalProps) {
             afterSignUpUrl="/"
             appearance={{
               variables: {
-                colorPrimary: '#ff3377',
+                colorPrimary: '#532fcf',
                 colorBackground: '#0f0f0f',
                 colorText: '#f0f0f0',
                 colorInputBackground: '#111111',
@@ -62,8 +62,8 @@ export default function AuthModal({ onClose }: AuthModalProps) {
               elements: {
                 rootBox: 'shadow-2xl',
                 card: 'bg-[#0f0f0f] border border-white/[0.08] shadow-2xl',
-                formButtonPrimary: 'bg-[#ff3377] hover:brightness-110 font-dm font-semibold',
-                footerActionLink: 'text-[#ff3377]',
+                formButtonPrimary: 'bg-accent hover:brightness-110 font-dm font-semibold',
+                footerActionLink: 'text-accent',
               },
             }}
           />
@@ -72,13 +72,13 @@ export default function AuthModal({ onClose }: AuthModalProps) {
         <div className="mt-3 flex gap-2">
           <button
             onClick={() => setMode('signin')}
-            className={`px-4 py-1.5 rounded-lg text-sm font-dm transition-all ${mode === 'signin' ? 'bg-[#ff3377] text-black font-semibold' : 'text-[#666] hover:text-white'}`}
+            className={`px-4 py-1.5 rounded-lg text-sm font-dm transition-all ${mode === 'signin' ? 'bg-accent text-black font-semibold' : 'text-[#666] hover:text-white'}`}
           >
             Sign In
           </button>
           <button
             onClick={() => setMode('signup')}
-            className={`px-4 py-1.5 rounded-lg text-sm font-dm transition-all ${mode === 'signup' ? 'bg-[#ff3377] text-black font-semibold' : 'text-[#666] hover:text-white'}`}
+            className={`px-4 py-1.5 rounded-lg text-sm font-dm transition-all ${mode === 'signup' ? 'bg-accent text-black font-semibold' : 'text-[#666] hover:text-white'}`}
           >
             Sign Up
           </button>

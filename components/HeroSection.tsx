@@ -10,7 +10,7 @@ export default function HeroSection() {
       {/* Eyebrow Pill */}
       <div className="animate-fadeUp flex items-center gap-2 border border-[var(--accent)]/30 rounded-full px-3 py-1.5 mb-6 bg-[var(--bg)]/50 backdrop-blur-sm">
         <div className="w-2 h-2 rounded-full bg-[var(--accent)]" style={{ animation: 'pulse-dot 2s ease infinite' }} />
-        <span className="font-dm text-sm text-[#f0f0f0]">AI Creative Platform</span>
+        <span className="font-dm text-sm text-text">AI Creative Platform</span>
       </div>
 
       {/* H1 Headline */}

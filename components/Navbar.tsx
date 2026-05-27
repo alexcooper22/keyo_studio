@@ -55,7 +55,7 @@ export default function Navbar() {
       {/* Main navbar — fixed card style with offsets */}
       <nav
         className="fixed top-0 h-[64px] z-[100] transition-all"
-        style={{ left: '30px', right: '30px', backgroundColor: '#532fcf', borderRadius: '0 0 14px 14px' }}
+        style={{ left: '30px', right: '30px', background: 'var(--accent)', borderRadius: '0 0 14px 14px' }}
       >
         <div className="h-full max-w-7xl mx-auto px-4 md:px-6 flex items-center justify-between">
 
@@ -129,7 +129,7 @@ export default function Navbar() {
                 <div
                   className="absolute top-full right-0 pt-2 opacity-0 invisible pointer-events-none group-hover:opacity-100 group-hover:visible group-hover:pointer-events-auto transition-all duration-150 z-[200]"
                 >
-                  <div className="bg-[#0f0f0f] border border-white/[0.08] rounded-xl p-2 min-w-[200px] shadow-2xl">
+                  <div className="bg-bg-card border border-white/[0.08] rounded-xl p-2 min-w-[200px] shadow-2xl">
 
                     {/* User info */}
                     <div className="px-2.5 py-2">
@@ -148,7 +148,7 @@ export default function Navbar() {
 
                     <Link
                       href="/dashboard"
-                      className="flex items-center gap-2 w-full px-2.5 py-2 rounded-lg text-[13px] text-[#888] hover:text-white hover:bg-white/[0.04] transition-all duration-150 font-dm"
+                      className="flex items-center gap-2 w-full px-2.5 py-2 rounded-lg text-[13px] text-text-secondary hover:text-white hover:bg-white/[0.04] transition-all duration-150 font-dm"
                     >
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
@@ -157,7 +157,7 @@ export default function Navbar() {
                     </Link>
                     <Link
                       href="/settings"
-                      className="flex items-center gap-2 w-full px-2.5 py-2 rounded-lg text-[13px] text-[#888] hover:text-white hover:bg-white/[0.04] transition-all duration-150 font-dm"
+                      className="flex items-center gap-2 w-full px-2.5 py-2 rounded-lg text-[13px] text-text-secondary hover:text-white hover:bg-white/[0.04] transition-all duration-150 font-dm"
                     >
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
@@ -169,7 +169,7 @@ export default function Navbar() {
 
                     <button
                       onClick={() => signOut({ redirectUrl: '/' })}
-                      className="flex items-center gap-2 w-full px-2.5 py-2 rounded-lg text-[13px] text-[#888] hover:text-white hover:bg-white/[0.04] transition-all duration-150 font-dm"
+                      className="flex items-center gap-2 w-full px-2.5 py-2 rounded-lg text-[13px] text-text-secondary hover:text-white hover:bg-white/[0.04] transition-all duration-150 font-dm"
                     >
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" />
@@ -196,7 +196,7 @@ export default function Navbar() {
                 </button>
                 <button
                   onClick={() => router.push('/sign-up')}
-                  className="font-dm font-[600] text-[13px] text-[#532fcf] hover:opacity-90 transition-opacity duration-200"
+                  className="font-dm font-[600] text-[13px] text-accent hover:opacity-90 transition-opacity duration-200"
                   style={{
                     background: '#fff',
                     borderRadius: '8px',
@@ -214,7 +214,7 @@ export default function Navbar() {
       {/* ── Mobile subordinate nav bar ── */}
       <div
         className="flex md:hidden fixed h-[44px] z-[99] overflow-hidden"
-        style={{ top: '64px', left: '30px', right: '30px', background: '#532fcf', borderRadius: '0 0 14px 14px' }}
+        style={{ top: '64px', left: '30px', right: '30px', background: 'var(--accent)', borderRadius: '0 0 14px 14px' }}
       >
         <style jsx>{`
           .no-scrollbar::-webkit-scrollbar { display: none; }

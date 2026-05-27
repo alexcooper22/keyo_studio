@@ -31,9 +31,9 @@ export default function SettingsPage() {
         key={name}
         onClick={() => setActiveSection(name)}
         className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-all duration-200 group ${
-          isActive 
-            ? 'bg-[#ff3377]/10 text-[#ff3377]' 
-            : 'text-[#666] hover:bg-white/[0.04] hover:text-white'
+          isActive
+            ? 'bg-accent/10 text-accent'
+            : 'text-text-secondary hover:bg-white/[0.04] hover:text-white'
         }`}
       >
         <div className="flex items-center gap-2.5">
@@ -41,7 +41,7 @@ export default function SettingsPage() {
           <span className="font-dm text-[13px] font-[500]">{name}</span>
         </div>
         {badge && (
-          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-sm bg-[#ff3377]/10 text-[#ff3377] uppercase">
+          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-sm bg-accent/10 text-accent uppercase">
             {badge}
           </span>
         )}
@@ -50,7 +50,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#080808] text-white selection:bg-[#ff3377] selection:text-white flex flex-col">
+    <div className="min-h-screen bg-bg text-white selection:bg-accent selection:text-white flex flex-col">
       <Navbar />
 
       <main className="flex-1 pt-[54px] w-full max-w-[1200px] mx-auto flex flex-col md:flex-row">
@@ -73,7 +73,7 @@ export default function SettingsPage() {
 
           {/* Account Settings Group */}
           <div className="mt-6 flex flex-col gap-1">
-            <h3 className="px-3 text-[11px] font-bold text-[#444] uppercase tracking-[0.5px] mb-2">Account settings</h3>
+            <h3 className="px-3 text-[11px] font-bold text-text-secondary uppercase tracking-[0.5px] mb-2">Account settings</h3>
             {navItem('Personal Profile', '👤')}
             {navItem('Gifts', '🎁')}
             {navItem('Referrals', '👥', 'NEW')}
@@ -81,7 +81,7 @@ export default function SettingsPage() {
 
           {/* Workspace Group */}
           <div className="mt-8 flex flex-col gap-1">
-            <h3 className="px-3 text-[11px] font-bold text-[#444] uppercase tracking-[0.5px] mb-2">Workspace</h3>
+            <h3 className="px-3 text-[11px] font-bold text-text-secondary uppercase tracking-[0.5px] mb-2">Workspace</h3>
             {navItem('Subscription', '💳')}
             {navItem('Credits Usage', '⚡')}
             {navItem('Promo Code', '🎟️')}
@@ -89,7 +89,7 @@ export default function SettingsPage() {
 
           {/* Discord Card */}
           <div className="mt-auto pt-10">
-            <div className="bg-[#0f0f0f] border border-white/[0.06] rounded-[10px] p-[14px] flex flex-col gap-3">
+            <div className="bg-bg-card border border-white/[0.06] rounded-[10px] p-[14px] flex flex-col gap-3">
               <div className="flex items-center gap-2">
                 <div className="w-6 h-6 rounded-md bg-[#5865F2] flex items-center justify-center">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="white">
@@ -98,10 +98,10 @@ export default function SettingsPage() {
                 </div>
                 <span className="font-dm text-[13px] font-[500] text-white">Join our Discord</span>
               </div>
-              <p className="text-[11px] text-[#444] leading-normal">
+              <p className="text-[11px] text-text-secondary leading-normal">
                 Get help and connect with community
               </p>
-              <button className="w-full py-1.5 border border-white/10 rounded-md text-[11px] text-[#666] hover:text-white hover:bg-white/[0.04] transition-all">
+              <button className="w-full py-1.5 border border-white/10 rounded-md text-[11px] text-text-secondary hover:text-white hover:bg-white/[0.04] transition-all">
                 Join now
               </button>
             </div>
@@ -115,7 +115,7 @@ export default function SettingsPage() {
           {activeSection === 'Personal Profile' && (
             <div className="flex flex-col gap-4 animate-fade-up">
               {/* Profile Card */}
-              <div className="bg-[#0f0f0f] border border-white/[0.06] rounded-xl p-6">
+              <div className="bg-bg-card border border-white/[0.06] rounded-xl p-6">
                 <div className="flex items-center justify-between mb-8">
                   <div className="flex items-center gap-4">
                     <div 
@@ -126,10 +126,10 @@ export default function SettingsPage() {
                     </div>
                     <div>
                       <h2 className="font-syne font-[700] text-[18px] text-white">{displayName}</h2>
-                      <p className="font-dm text-[13px] text-[#444]">Personal account</p>
+                      <p className="font-dm text-[13px] text-text-secondary">Personal account</p>
                     </div>
                   </div>
-                  <button className="px-3.5 py-1.5 rounded-lg border border-white/10 bg-white/[0.02] text-[12px] text-[#666] font-[500] hover:text-white transition-colors">
+                  <button className="px-3.5 py-1.5 rounded-lg border border-white/10 bg-white/[0.02] text-[12px] text-text-secondary font-[500] hover:text-white transition-colors">
                     Edit profile
                   </button>
                 </div>
@@ -140,21 +140,21 @@ export default function SettingsPage() {
                     { label: 'Email', value: email }
                   ].map((field, idx) => (
                     <div key={idx} className="py-3 border-b border-white/[0.04] last:border-0">
-                      <p className="text-[11px] font-bold text-[#444] uppercase tracking-[0.5px] mb-1">{field.label}</p>
-                      <p className="font-dm text-[14px] text-[#f0f0f0]">{field.value}</p>
+                      <p className="text-[11px] font-bold text-text-secondary uppercase tracking-[0.5px] mb-1">{field.label}</p>
+                      <p className="font-dm text-[14px] text-text">{field.value}</p>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Credits Card */}
-              <div className="bg-[#0f0f0f] border border-white/[0.06] rounded-xl p-6">
+              <div className="bg-bg-card border border-white/[0.06] rounded-xl p-6">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-bold text-[#444] uppercase tracking-[0.5px]">Credits</span>
+                    <span className="text-[11px] font-bold text-text-secondary uppercase tracking-[0.5px]">Credits</span>
                     <div className="w-3 h-3 rounded-full border border-[var(--accent)]/30 border-t-[var(--accent)] animate-spin"></div>
                   </div>
-                  <button className="px-3.5 py-1.5 rounded-md border border-white/10 bg-white/[0.02] text-[11px] text-[#666] font-[500] hover:text-white transition-colors">
+                  <button className="px-3.5 py-1.5 rounded-md border border-white/10 bg-white/[0.02] text-[11px] text-text-secondary font-[500] hover:text-white transition-colors">
                     Top-up
                   </button>
                 </div>
@@ -162,18 +162,18 @@ export default function SettingsPage() {
                 <div className="flex flex-col gap-2">
                   <div className="flex items-baseline gap-2">
                     <span className="font-syne font-[800] text-[28px] text-white">100%</span>
-                    <span className="font-dm text-[14px] text-[#666]">20 left</span>
+                    <span className="font-dm text-[14px] text-text-secondary">20 left</span>
                   </div>
                   <div className="w-full h-[6px] bg-white/[0.04] rounded-full overflow-hidden">
-                    <div className="h-full bg-[#ff3377] w-[100%] rounded-full shadow-[0_0_10px_rgba(255,51,119,0.3)]"></div>
+                    <div className="h-full bg-accent w-[100%] rounded-full shadow-[0_0_10px_rgba(255,51,119,0.3)]"></div>
                   </div>
                 </div>
 
                 {/* Usage History Mini Chart Placeholder */}
                 <div className="mt-10">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="font-dm text-[13px] text-[#f0f0f0]">Usage history</span>
-                    <button className="font-dm text-[13px] text-[#ff3377] hover:brightness-125 transition-all outline-none">See all</button>
+                    <span className="font-dm text-[13px] text-text">Usage history</span>
+                    <button className="font-dm text-[13px] text-accent hover:brightness-125 transition-all outline-none">See all</button>
                   </div>
                   <div className="w-full h-px border-b border-dashed border-white/10 mt-3" />
                 </div>
@@ -184,16 +184,16 @@ export default function SettingsPage() {
           {/* SUBSCRIPTION SECTION */}
           {activeSection === 'Subscription' && (
             <div className="animate-fade-up">
-              <div className="bg-[#0f0f0f] border border-white/[0.06] rounded-xl p-6">
-                <h2 className="text-[11px] font-bold text-[#444] uppercase tracking-[0.5px] mb-4">Current Plan</h2>
+              <div className="bg-bg-card border border-white/[0.06] rounded-xl p-6">
+                <h2 className="text-[11px] font-bold text-text-secondary uppercase tracking-[0.5px] mb-4">Current Plan</h2>
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-syne font-[700] text-[24px] text-white">Free Plan</p>
-                    <p className="font-dm text-[13px] text-[#555] mt-1">Limited features for exploring AI creativity</p>
+                    <p className="font-dm text-[13px] text-text-secondary mt-1">Limited features for exploring AI creativity</p>
                   </div>
-                  <Link 
+                  <Link
                     href="/pricing"
-                    className="px-6 py-2.5 rounded-lg bg-[#ff3377] text-black font-syne font-[700] text-[14px] hover:scale-105 transition-all shadow-lg shadow-[#ff3377]/10"
+                    className="px-6 py-2.5 rounded-lg bg-accent text-black font-syne font-[700] text-[14px] hover:scale-105 transition-all shadow-lg shadow-accent/10"
                   >
                     Upgrade
                   </Link>
@@ -205,15 +205,15 @@ export default function SettingsPage() {
           {/* PROMO CODE SECTION */}
           {activeSection === 'Promo Code' && (
             <div className="animate-fade-up">
-              <div className="bg-[#0f0f0f] border border-white/[0.06] rounded-xl p-6">
-                <h2 className="text-[11px] font-bold text-[#444] uppercase tracking-[0.5px] mb-4">Redeem Code</h2>
+              <div className="bg-bg-card border border-white/[0.06] rounded-xl p-6">
+                <h2 className="text-[11px] font-bold text-text-secondary uppercase tracking-[0.5px] mb-4">Redeem Code</h2>
                 <div className="flex gap-2">
-                  <input 
-                    type="text" 
-                    placeholder="Enter promo code..." 
-                    className="flex-1 bg-[#111] border border-white/[0.08] rounded-lg px-4 py-2.5 text-[14px] text-white placeholder:text-[#333] outline-none focus:border-[#ff3377]/30 transition-all font-dm"
+                  <input
+                    type="text"
+                    placeholder="Enter promo code..."
+                    className="flex-1 bg-bg-card border border-white/[0.08] rounded-lg px-4 py-2.5 text-[14px] text-white placeholder:text-text-secondary outline-none focus:border-accent/30 transition-all font-dm"
                   />
-                  <button className="px-6 py-2.5 rounded-lg bg-[#ff3377] text-black font-syne font-[700] text-[14px] hover:brightness-110 active:scale-95 transition-all shadow-lg">
+                  <button className="px-6 py-2.5 rounded-lg bg-accent text-black font-syne font-[700] text-[14px] hover:brightness-110 active:scale-95 transition-all shadow-lg">
                     Apply
                   </button>
                 </div>
@@ -224,10 +224,10 @@ export default function SettingsPage() {
           {/* COMING SOON PLACEHOLDERS */}
           {['Gifts', 'Referrals', 'Credits Usage'].includes(activeSection) && (
             <div className="animate-fade-up">
-              <div className="bg-[#0f0f0f] border border-white/[0.06] rounded-xl p-12 flex flex-col items-center text-center">
+              <div className="bg-bg-card border border-white/[0.06] rounded-xl p-12 flex flex-col items-center text-center">
                 <div className="text-[32px] mb-4 opacity-40">✨</div>
                 <h2 className="font-syne font-[700] text-[22px] text-white mb-2">{activeSection}</h2>
-                <p className="font-dm text-[14px] text-[#555] max-w-[280px]">We're currently scaling this feature. Stay tuned for updates!</p>
+                <p className="font-dm text-[14px] text-text-secondary max-w-[280px]">We're currently scaling this feature. Stay tuned for updates!</p>
               </div>
             </div>
           )}

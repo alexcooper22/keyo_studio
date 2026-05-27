@@ -16,7 +16,7 @@ export default function FeatureCards() {
               <span className="text-[10px] font-dm font-[500] text-[var(--accent2)] border border-[rgba(128,255,229,0.3)] bg-[rgba(128,255,229,0.08)] px-2 py-1 rounded">SCRIPT</span>
             </div>
           </div>
-          <div className="bg-[#080808] rounded-xl p-4 mt-6 border border-white/[0.04]">
+          <div className="bg-bg rounded-xl p-4 mt-6 border border-white/[0.04]">
             <div className="w-[90%] h-2 bg-white/20 rounded mb-3"></div>
             <div className="w-[70%] h-2 bg-white/10 rounded mb-3"></div>
             <div className="w-[85%] h-2 bg-white/10 rounded mb-3"></div>
@@ -36,7 +36,7 @@ export default function FeatureCards() {
           <div className="absolute top-0 left-0 w-[80px] h-[80px] bg-[var(--accent)]/15 rounded-full blur-xl"></div>
           <div className="absolute bottom-4 right-4 w-16 h-16 bg-[var(--teal)]/10 rounded-full blur-xl"></div>
           
-          <div className="bg-[#080808]/80 backdrop-blur-md rounded-xl p-3 mt-6 border border-white/[0.04] flex flex-col gap-2 relative z-10">
+          <div className="bg-bg/80 backdrop-blur-md rounded-xl p-3 mt-6 border border-white/[0.04] flex flex-col gap-2 relative z-10">
             <div className="w-full h-20 bg-gradient-to-br from-[var(--purple)]/40 to-[var(--teal)]/40 rounded-lg mb-1"></div>
             <div className="w-3/4 h-1.5 bg-white/20 rounded"></div>
             <div className="w-1/2 h-1.5 bg-white/10 rounded"></div>
@@ -49,7 +49,7 @@ export default function FeatureCards() {
             <h3 className="font-syne font-[800] text-xl text-white">Video</h3>
             <span className="text-[10px] font-dm font-[500] bg-white/10 text-white px-2 py-1 rounded">4K</span>
           </div>
-          <div className="bg-[#080808] rounded-xl flex items-center justify-center h-32 mt-6 border border-white/[0.04] relative group cursor-pointer overflow-hidden">
+          <div className="bg-bg rounded-xl flex items-center justify-center h-32 mt-6 border border-white/[0.04] relative group cursor-pointer overflow-hidden">
             <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm group-hover:bg-[var(--accent)] transition-colors relative z-10">
               <div className="w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-l-white group-hover:border-l-black border-b-[6px] border-b-transparent ml-1 transition-colors"></div>
             </div>
@@ -96,7 +96,7 @@ export default function FeatureCards() {
             <h3 className="font-syne font-[800] text-xl text-[var(--teal)] mb-2">Edit</h3>
             <p className="font-dm text-sm text-[var(--muted2)]">Enhance, upsize, and modify anything.</p>
           </div>
-          <div className="w-full md:w-1/2 h-24 bg-[#080808] rounded-xl border border-white/[0.04] relative overflow-hidden flex items-center justify-center">
+          <div className="w-full md:w-1/2 h-24 bg-bg rounded-xl border border-white/[0.04] relative overflow-hidden flex items-center justify-center">
             {/* Shimmer effect */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[var(--teal)]/20 to-transparent w-[200%] animate-[shimmer_2.2s_ease_infinite]"></div>
             <div className="text-[var(--teal)] font-syne font-[800] tracking-widest text-lg relative z-10 opacity-80">MAGIC</div>

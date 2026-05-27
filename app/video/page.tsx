@@ -303,36 +303,36 @@ export default function VideoDashboard() {
   };
 
   return (
-    <div style={{ paddingTop: '94px', background: '#080808', height: '100vh', overflow: 'hidden' }}>
+    <div style={{ paddingTop: '94px', background: 'var(--bg)', height: '100vh', overflow: 'hidden' }}>
       <Navbar />
       <style>{`
         textarea::-webkit-scrollbar { width: 4px; }
         textarea::-webkit-scrollbar-track { background: transparent; }
         textarea::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 4px; }
-        textarea::-webkit-scrollbar-thumb:hover { background: #532fcf; }
+        textarea::-webkit-scrollbar-thumb:hover { background: var(--accent); }
         .feed::-webkit-scrollbar { width: 0px; }
         .feed::-webkit-scrollbar-track { background: transparent; }
-        .feed::-webkit-scrollbar-thumb { background: #1e1e1e; border-radius: 4px; }
+        .feed::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
       `}</style>
 
       <div style={{ padding: '0 30px 30px 30px', display: 'flex', gap: '12px', height: 'calc(100vh - 94px)', alignItems: 'stretch' }}>
 
         {/* LEFT PANEL — fixed */}
-        <div style={{ width: '260px', flexShrink: 0, background: '#111', border: '0.5px solid #1e1e1e', borderRadius: '14px', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ display: 'flex', borderBottom: '0.5px solid #1e1e1e', padding: '0 12px' }}>
+        <div style={{ width: '260px', flexShrink: 0, background: 'var(--bg-card)', border: 'var(--border)', borderRadius: 'var(--radius-card)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', borderBottom: 'var(--border)', padding: '0 12px' }}>
             {['Create Video', 'Edit', 'Motion'].map((t, i) => (
-              <div key={t} style={{ fontSize: '12px', color: i === 0 ? '#fff' : '#555', padding: '10px 0', marginRight: '14px', borderBottom: i === 0 ? '2px solid #532fcf' : '2px solid transparent', cursor: 'pointer', whiteSpace: 'nowrap' }}>{t}</div>
+              <div key={t} style={{ fontSize: '12px', color: i === 0 ? 'var(--text)' : '#555', padding: '10px 0', marginRight: '14px', borderBottom: i === 0 ? '2px solid var(--accent)' : '2px solid transparent', cursor: 'pointer', whiteSpace: 'nowrap' }}>{t}</div>
             ))}
           </div>
           <div style={{ padding: '10px', display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, overflowY: 'auto' }}>
             {/* Model card */}
-            <div style={{ background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '10px', overflow: 'hidden' }}>
+            <div style={{ background: '#0d0d0d', border: 'var(--border)', borderRadius: '10px', overflow: 'hidden' }}>
               <div style={{ height: '75px', background: 'linear-gradient(135deg, #1a1535, #0f1020)', position: 'relative' }}>
-                <div style={{ position: 'absolute', top: '6px', right: '6px', background: '#ffffff10', border: '0.5px solid #ffffff15', borderRadius: '5px', padding: '2px 8px', fontSize: '10px', color: '#777', cursor: 'pointer' }}>✎ Change</div>
+                <div style={{ position: 'absolute', top: '6px', right: '6px', background: '#ffffff10', border: '0.5px solid #ffffff15', borderRadius: '5px', padding: '2px 8px', fontSize: '10px', color: 'var(--text-secondary)', cursor: 'pointer' }}>✎ Change</div>
               </div>
               <div style={{ padding: '6px 10px' }}>
-                <div style={{ fontSize: '9px', fontWeight: 700, color: '#532fcf', letterSpacing: '0.5px' }}>GENERAL</div>
-                <div style={{ fontSize: '12px', color: '#777', marginTop: '2px' }}>Kling 3.0</div>
+                <div style={{ fontSize: '9px', fontWeight: 700, color: 'var(--accent)', letterSpacing: '0.5px' }}>GENERAL</div>
+                <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px' }}>Kling 3.0</div>
               </div>
             </div>
             {/* Frames */}
@@ -343,14 +343,14 @@ export default function VideoDashboard() {
                 return (
                   <div key={type} style={{ position: 'relative', aspectRatio: '1' }}>
                     <input ref={ref} type="file" accept="image/*" style={{ display: 'none' }} onChange={e => e.target.files?.[0] && handleFrameUpload(e.target.files[0], type)} />
-                    <div onClick={() => ref.current?.click()} style={{ background: '#0d0d0d', border: `0.5px solid ${frame ? '#532fcf' : '#1e1e1e'}`, borderRadius: '8px', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', cursor: 'pointer', overflow: 'hidden', position: 'relative' }}>
+                    <div onClick={() => ref.current?.click()} style={{ background: '#0d0d0d', border: `0.5px solid ${frame ? 'var(--accent)' : 'var(--border-color)'}`, borderRadius: 'var(--radius-btn)', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', cursor: 'pointer', overflow: 'hidden', position: 'relative' }}>
                       {frame ? (
-                        <img src={frame} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }} />
+                        <img src={frame} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius-btn)' }} />
                       ) : (
                         <>
-                          <span style={{ position: 'absolute', top: '5px', right: '6px', fontSize: '8px', color: '#777' }}>Optional</span>
+                          <span style={{ position: 'absolute', top: '5px', right: '6px', fontSize: '8px', color: 'var(--text-secondary)' }}>Optional</span>
                           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#222" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                          <span style={{ fontSize: '9px', color: '#777' }}>{type === 'start' ? 'Start frame' : 'End frame'}</span>
+                          <span style={{ fontSize: '9px', color: 'var(--text-secondary)' }}>{type === 'start' ? 'Start frame' : 'End frame'}</span>
                         </>
                       )}
                     </div>
@@ -363,9 +363,9 @@ export default function VideoDashboard() {
             </div>
             {/* Audio toggle */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
-              <span style={{ fontSize: '12px', color: audioEnabled ? '#532fcf' : '#777', transition: 'color 0.2s', cursor: 'pointer' }} onClick={() => setAudioEnabled(v => !v)}>Audio</span>
-              <div onClick={() => setAudioEnabled(v => !v)} style={{ width: '30px', height: '16px', background: audioEnabled ? '#532fcf' : '#1e1e1e', borderRadius: '20px', position: 'relative', cursor: 'pointer', transition: 'background 0.2s' }}>
-                <div style={{ width: '12px', height: '12px', background: audioEnabled ? '#fff' : '#444', borderRadius: '50%', position: 'absolute', left: audioEnabled ? '16px' : '2px', top: '2px', transition: 'left 0.2s, background 0.2s' }}></div>
+              <span style={{ fontSize: '12px', color: audioEnabled ? 'var(--accent)' : 'var(--text-secondary)', transition: 'color 0.2s', cursor: 'pointer' }} onClick={() => setAudioEnabled(v => !v)}>Audio</span>
+              <div onClick={() => setAudioEnabled(v => !v)} style={{ width: '30px', height: '16px', background: audioEnabled ? 'var(--accent)' : 'var(--border-color)', borderRadius: '20px', position: 'relative', cursor: 'pointer', transition: 'background 0.2s' }}>
+                <div style={{ width: '12px', height: '12px', background: audioEnabled ? 'var(--text)' : '#444', borderRadius: '50%', position: 'absolute', left: audioEnabled ? '16px' : '2px', top: '2px', transition: 'left 0.2s, background 0.2s' }}></div>
               </div>
             </div>
             {/* Prompt */}
@@ -373,28 +373,28 @@ export default function VideoDashboard() {
               value={prompt}
               onChange={e => setPrompt(e.target.value)}
               placeholder="Describe your video scene..."
-              style={{ background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '8px', padding: '10px', fontSize: '12px', color: '#ccc', flex: 1, minHeight: '120px', resize: 'none', outline: 'none', width: '100%', fontFamily: 'inherit', boxSizing: 'border-box' }}
+              style={{ background: '#0d0d0d', border: 'var(--border)', borderRadius: 'var(--radius-btn)', padding: '10px', fontSize: '12px', color: '#ccc', flex: 1, minHeight: '120px', resize: 'none', outline: 'none', width: '100%', fontFamily: 'inherit', boxSizing: 'border-box' }}
             />
             {/* Model select */}
             <div style={{ position: 'relative' }} data-menu="true">
-              <div onClick={e => { e.stopPropagation(); setShowModelMenu(v => !v); setShowQualityMenu(false); setShowAspectMenu(false); setShowDurationMenu(false); }} style={{ background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '8px', padding: '7px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
+              <div onClick={e => { e.stopPropagation(); setShowModelMenu(v => !v); setShowQualityMenu(false); setShowAspectMenu(false); setShowDurationMenu(false); }} style={{ background: '#0d0d0d', border: 'var(--border)', borderRadius: 'var(--radius-btn)', padding: '7px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
                 <div>
-                  <div style={{ fontSize: '9px', color: '#777' }}>Model</div>
-                  <div style={{ fontSize: '12px', color: '#777', display: 'flex', alignItems: 'center', gap: '5px', marginTop: '2px' }}>
-                    <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#532fcf' }}></div>
+                  <div style={{ fontSize: '9px', color: 'var(--text-secondary)' }}>Model</div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '5px', marginTop: '2px' }}>
+                    <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: 'var(--accent)' }}></div>
                     Kling 3.0
                   </div>
                 </div>
-                <span style={{ color: '#777', fontSize: '14px' }}>›</span>
+                <span style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>›</span>
               </div>
               {showModelMenu && (
-                <div data-menu="true" style={{ position: 'absolute', bottom: '110%', left: 0, right: 0, background: '#161616', border: '0.5px solid #1e1e1e', borderRadius: '8px', overflow: 'hidden', zIndex: 100 }}>
-                  <div style={{ padding: '8px 12px', fontSize: '12px', color: '#777', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div data-menu="true" style={{ position: 'absolute', bottom: '110%', left: 0, right: 0, background: 'var(--bg-navbar)', border: 'var(--border)', borderRadius: 'var(--radius-btn)', overflow: 'hidden', zIndex: 100 }}>
+                  <div style={{ padding: '8px 12px', fontSize: '12px', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#532fcf' }}></div>
+                      <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: 'var(--accent)' }}></div>
                       Kling 3.0
                     </div>
-                    <span style={{ color: '#532fcf' }}>✓</span>
+                    <span style={{ color: 'var(--accent)' }}>✓</span>
                   </div>
                 </div>
               )}
@@ -402,29 +402,29 @@ export default function VideoDashboard() {
             {error && <div style={{ fontSize: '11px', color: '#ef4444' }}>{error}</div>}
           </div>
           {/* Footer */}
-          <div style={{ borderTop: '0.5px solid #1e1e1e', padding: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div style={{ borderTop: 'var(--border)', padding: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <div style={{ display: 'flex', gap: '5px' }}>
               <div style={{ flex: 1, position: 'relative' }}>
-                <div data-menu="true" onClick={e => { e.stopPropagation(); setShowDurationMenu(v => !v); setShowQualityMenu(false); setShowAspectMenu(false); setShowModelMenu(false); }} style={{ background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '6px', padding: '7px 3px', textAlign: 'center', fontSize: '10px', color: '#777', cursor: 'pointer' }}>◷ {duration}s</div>
+                <div data-menu="true" onClick={e => { e.stopPropagation(); setShowDurationMenu(v => !v); setShowQualityMenu(false); setShowAspectMenu(false); setShowModelMenu(false); }} style={{ background: '#0d0d0d', border: 'var(--border)', borderRadius: '6px', padding: '7px 3px', textAlign: 'center', fontSize: '10px', color: 'var(--text-secondary)', cursor: 'pointer' }}>◷ {duration}s</div>
                 {showDurationMenu && (
-                  <div data-menu="true" style={{ position: 'absolute', bottom: '110%', left: 0, right: 0, background: '#161616', border: '0.5px solid #1e1e1e', borderRadius: '8px', overflow: 'hidden', zIndex: 100 }}>
+                  <div data-menu="true" style={{ position: 'absolute', bottom: '110%', left: 0, right: 0, background: 'var(--bg-navbar)', border: 'var(--border)', borderRadius: 'var(--radius-btn)', overflow: 'hidden', zIndex: 100 }}>
                     {[10, 9, 8, 7, 6, 5, 4, 3].map(d => (
-                      <div key={d} onClick={() => { setDuration(d); setShowDurationMenu(false); }} style={{ padding: '8px 12px', fontSize: '12px', color: '#777', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div key={d} onClick={() => { setDuration(d); setShowDurationMenu(false); }} style={{ padding: '8px 12px', fontSize: '12px', color: 'var(--text-secondary)', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         {d}s
-                        {duration === d && <span style={{ color: '#532fcf' }}>✓</span>}
+                        {duration === d && <span style={{ color: 'var(--accent)' }}>✓</span>}
                       </div>
                     ))}
                   </div>
                 )}
               </div>
               <div style={{ flex: 1, position: 'relative' }}>
-                <div data-menu="true" onClick={e => { e.stopPropagation(); setShowAspectMenu(v => !v); setShowQualityMenu(false); setShowDurationMenu(false); setShowModelMenu(false); }} style={{ background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '6px', padding: '7px 3px', textAlign: 'center', fontSize: '10px', color: '#777', cursor: 'pointer' }}>▭ {aspectRatio}</div>
+                <div data-menu="true" onClick={e => { e.stopPropagation(); setShowAspectMenu(v => !v); setShowQualityMenu(false); setShowDurationMenu(false); setShowModelMenu(false); }} style={{ background: '#0d0d0d', border: 'var(--border)', borderRadius: '6px', padding: '7px 3px', textAlign: 'center', fontSize: '10px', color: 'var(--text-secondary)', cursor: 'pointer' }}>▭ {aspectRatio}</div>
                 {showAspectMenu && (
-                  <div data-menu="true" style={{ position: 'absolute', bottom: '110%', left: 0, right: 0, background: '#161616', border: '0.5px solid #1e1e1e', borderRadius: '8px', overflow: 'hidden', zIndex: 100 }}>
+                  <div data-menu="true" style={{ position: 'absolute', bottom: '110%', left: 0, right: 0, background: 'var(--bg-navbar)', border: 'var(--border)', borderRadius: 'var(--radius-btn)', overflow: 'hidden', zIndex: 100 }}>
                     {(['9:16', '16:9', '1:1'] as const).map(r => (
-                      <div key={r} onClick={() => { setAspectRatio(r); setShowAspectMenu(false); }} style={{ padding: '8px 12px', fontSize: '12px', color: '#777', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div key={r} onClick={() => { setAspectRatio(r); setShowAspectMenu(false); }} style={{ padding: '8px 12px', fontSize: '12px', color: 'var(--text-secondary)', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         {r}
-                        {aspectRatio === r && <span style={{ color: '#532fcf' }}>✓</span>}
+                        {aspectRatio === r && <span style={{ color: 'var(--accent)' }}>✓</span>}
                       </div>
                     ))}
                   </div>
@@ -434,18 +434,18 @@ export default function VideoDashboard() {
                 <div
                   data-menu="true"
                   onClick={e => { e.stopPropagation(); setShowQualityMenu(v => !v); setShowAspectMenu(false); setShowDurationMenu(false); setShowModelMenu(false); }}
-                  style={{ background: '#0d0d0d', border: '0.5px solid #1e1e1e', borderRadius: '6px', padding: '7px 3px', textAlign: 'center', fontSize: '10px', color: '#777', cursor: 'pointer' }}
+                  style={{ background: '#0d0d0d', border: 'var(--border)', borderRadius: '6px', padding: '7px 3px', textAlign: 'center', fontSize: '10px', color: 'var(--text-secondary)', cursor: 'pointer' }}
                 >◇ {quality}</div>
                 {showQualityMenu && (
-                  <div data-menu="true" style={{ position: 'absolute', bottom: '110%', left: 0, right: 0, background: '#161616', border: '0.5px solid #1e1e1e', borderRadius: '8px', overflow: 'hidden', zIndex: 100 }}>
+                  <div data-menu="true" style={{ position: 'absolute', bottom: '110%', left: 0, right: 0, background: 'var(--bg-navbar)', border: 'var(--border)', borderRadius: 'var(--radius-btn)', overflow: 'hidden', zIndex: 100 }}>
                     {(['720p', '1080p'] as const).map(q => (
                       <div
                         key={q}
                         onClick={() => { setQuality(q); setShowQualityMenu(false); }}
-                        style={{ padding: '8px 12px', fontSize: '12px', color: '#777', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+                        style={{ padding: '8px 12px', fontSize: '12px', color: 'var(--text-secondary)', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
                       >
                         {q}
-                        {quality === q && <span style={{ color: '#532fcf' }}>✓</span>}
+                        {quality === q && <span style={{ color: 'var(--accent)' }}>✓</span>}
                       </div>
                     ))}
                   </div>
@@ -455,16 +455,16 @@ export default function VideoDashboard() {
             <button
               onClick={handleGenerate}
               disabled={isGenerating || !prompt.trim() || (creditCount !== null && creditCount < ((quality === '1080p' ? 4 : 3) + (audioEnabled ? 1 : 0)) * duration)}
-              style={{ 
-                background: (creditCount !== null && creditCount <= 0) ? '#2a2a2a' : '#532fcf', 
-                border: 'none', 
-                borderRadius: '8px', 
-                padding: '14px', 
-                fontSize: '14px', 
-                fontWeight: 600, 
-                color: (creditCount !== null && creditCount <= 0) ? '#777' : '#fff', 
-                cursor: (isGenerating || (creditCount !== null && creditCount <= 0)) ? 'not-allowed' : 'pointer', 
-                opacity: isGenerating ? 0.7 : 1, 
+              style={{
+                background: (creditCount !== null && creditCount <= 0) ? '#2a2a2a' : 'var(--accent)',
+                border: 'none',
+                borderRadius: 'var(--radius-btn)',
+                padding: '14px',
+                fontSize: '14px',
+                fontWeight: 600,
+                color: (creditCount !== null && creditCount <= 0) ? 'var(--text-secondary)' : 'var(--text)',
+                cursor: (isGenerating || (creditCount !== null && creditCount <= 0)) ? 'not-allowed' : 'pointer',
+                opacity: isGenerating ? 0.7 : 1,
                 width: '100%', 
                 display: 'flex', 
                 alignItems: 'center', 
@@ -485,9 +485,9 @@ export default function VideoDashboard() {
         <div ref={feedRef} className="feed" style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px', minWidth: 0 }}>
           {/* Generating placeholder */}
           {isGenerating && (
-            <div style={{ width: '100%', aspectRatio: '16/9', background: '#111', border: '0.5px solid #1e1e1e', borderRadius: '14px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
-              <div style={{ width: '36px', height: '36px', border: '2px solid #532fcf', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
-              <span style={{ fontSize: '12px', color: '#777' }}>{status || 'Generating...'}</span>
+            <div style={{ width: '100%', aspectRatio: '16/9', background: 'var(--bg-card)', border: 'var(--border)', borderRadius: 'var(--radius-card)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
+              <div style={{ width: '36px', height: '36px', border: '2px solid var(--accent)', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+              <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{status || 'Generating...'}</span>
             </div>
           )}
           {/* Empty state */}
@@ -497,13 +497,13 @@ export default function VideoDashboard() {
                 <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: '#ffffff08', border: '0.5px solid #ffffff12', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <div style={{ width: 0, height: 0, borderTop: '9px solid transparent', borderBottom: '9px solid transparent', borderLeft: '16px solid #ffffff20', marginLeft: '4px' }}></div>
                 </div>
-                <span style={{ fontSize: '12px', color: '#777' }}>Your videos will appear here</span>
+                <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Your videos will appear here</span>
               </div>
             </div>
           )}
           {/* Video list */}
           {videos.map(v => (
-            <div key={v.id} style={{ width: '100%', background: '#111', border: '0.5px solid #1e1e1e', borderRadius: '14px', overflow: 'hidden', flexShrink: 0, display: 'flex' }}>
+            <div key={v.id} style={{ width: '100%', background: 'var(--bg-card)', border: 'var(--border)', borderRadius: 'var(--radius-card)', overflow: 'hidden', flexShrink: 0, display: 'flex' }}>
               {/* Video */}
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ position: 'relative' }}
@@ -527,35 +527,35 @@ export default function VideoDashboard() {
                     <button className="download-btn" onClick={() => downloadVideo(v.videoUrl, v.id)} style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff' }}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                     </button>
-                    <button onClick={() => toggleLike(v.id)} style={{ width: '32px', height: '32px', borderRadius: '50%', background: likedVideos.has(v.id) ? '#532fcf22' : 'rgba(255,255,255,0.1)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill={likedVideos.has(v.id) ? '#532fcf' : 'none'} stroke={likedVideos.has(v.id) ? '#532fcf' : 'white'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    <button onClick={() => toggleLike(v.id)} style={{ width: '32px', height: '32px', borderRadius: '50%', background: likedVideos.has(v.id) ? 'var(--accent-subtle, rgba(83,47,207,0.13))' : 'rgba(255,255,255,0.1)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill={likedVideos.has(v.id) ? 'var(--accent)' : 'none'} stroke={likedVideos.has(v.id) ? 'var(--accent)' : 'white'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
                     </button>
                   </div>
                 </div>
               </div>
               {/* Info sidebar */}
-              <div style={{ width: '200px', flexShrink: 0, borderLeft: '0.5px solid #1e1e1e', padding: '14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <div style={{ fontSize: '11px', color: '#777', display: 'flex', alignItems: 'center', gap: '5px', fontWeight: 600 }}>
-                  <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#532fcf' }}></div>
+              <div style={{ width: '200px', flexShrink: 0, borderLeft: 'var(--border)', padding: '14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '5px', fontWeight: 600 }}>
+                  <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: 'var(--accent)' }}></div>
                   Kling 3.0
                 </div>
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '6px' }}>
-                  <div style={{ fontSize: '11px', color: '#777', lineHeight: '1.6', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical' as const, flex: 1 }}>{v.prompt}</div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-secondary)', lineHeight: '1.6', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical' as const, flex: 1 }}>{v.prompt}</div>
                   <div
                     onClick={() => navigator.clipboard.writeText(v.prompt)}
                     title="Copy prompt"
-                    style={{ flexShrink: 0, cursor: 'pointer', color: '#777', padding: '2px' }}
+                    style={{ flexShrink: 0, cursor: 'pointer', color: 'var(--text-secondary)', padding: '2px' }}
                   >
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                   </div>
                 </div>
                 <div style={{ height: '0.5px', background: '#1a1a1a' }}></div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', fontSize: '11px', color: '#777' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', fontSize: '11px', color: 'var(--text-secondary)' }}>
                   <span>👁 {v.quality || '720p'}</span>
                   <span>◷ {v.duration || 5}s</span>
                   <span>▭ {v.aspectRatio || '9:16'}</span>
                 </div>
-                <div style={{ marginTop: 'auto', fontSize: '10px', color: '#777' }}>
+                <div style={{ marginTop: 'auto', fontSize: '10px', color: 'var(--text-secondary)' }}>
                   {v.createdAt.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                 </div>
               </div>

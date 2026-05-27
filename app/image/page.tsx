@@ -439,11 +439,11 @@ export default function ImageDashboard() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {/* Loading Skeleton */}
           {isLoading && (
-            <div className="relative rounded-xl overflow-hidden bg-gradient-to-br from-[#161616] to-[#0f0f0f] border border-[#ff3377]/20 shadow-lg animate-pulse" style={{ height: '220px' }}>
+            <div className="relative rounded-xl overflow-hidden bg-gradient-to-br from-bg-navbar to-bg-card border border-accent/20 shadow-lg animate-pulse" style={{ height: '220px' }}>
                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.04] to-transparent w-[200%] animate-[shimmer_2.5s_ease_infinite]"></div>
                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-                  <div className="w-8 h-8 border-2 border-[#ff3377] border-t-transparent rounded-full animate-spin"></div>
-                  <span className="font-syne font-bold text-[#ff3377] text-xs uppercase tracking-widest">Generating...</span>
+                  <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin"></div>
+                  <span className="font-syne font-bold text-accent text-xs uppercase tracking-widest">Generating...</span>
                </div>
             </div>
           )}
@@ -452,9 +452,9 @@ export default function ImageDashboard() {
           {generatedImages.map((img, i) => {
             const isLiked = likedImages.has(img.url);
             return (
-              <div 
-                key={img.url} 
-                className="relative rounded-xl overflow-hidden bg-[#161616] border border-white/[0.06] hover:border-white/10 group shadow-lg transition-colors cursor-zoom-in"
+              <div
+                key={img.url}
+                className="relative rounded-xl overflow-hidden bg-bg-navbar border border-white/[0.06] hover:border-white/10 group shadow-lg transition-colors cursor-zoom-in"
                 onClick={() => setSelectedFullImage(img)}
               >
                 <Image 
@@ -470,7 +470,7 @@ export default function ImageDashboard() {
                 {/* Liked state persistence (Heart stays visible if liked) */}
                 {isLiked && (
                   <div className="absolute top-3 right-3 z-20 pointer-events-none group-hover:opacity-0 transition-opacity">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="#ff3377" stroke="#ff3377" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--accent)" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                     </svg>
                   </div>
@@ -488,10 +488,10 @@ export default function ImageDashboard() {
                     onClick={(e) => { e.stopPropagation(); toggleLike(img.url); }}
                     className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center backdrop-blur-md transition-colors"
                   >
-                    <svg 
-                      width="14" height="14" viewBox="0 0 24 24" 
-                      fill={isLiked ? "#ff3377" : "none"} 
-                      stroke={isLiked ? "#ff3377" : "white"} 
+                    <svg
+                      width="14" height="14" viewBox="0 0 24 24"
+                      fill={isLiked ? "var(--accent)" : "none"}
+                      stroke={isLiked ? "var(--accent)" : "white"}
                       strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
                     >
                       <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
@@ -505,7 +505,7 @@ export default function ImageDashboard() {
           {/* Initial Placeholders */}
           {generatedImages.length === 0 && !isLoading && (
             [1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="relative rounded-xl overflow-hidden bg-gradient-to-br from-[#161616] to-[#0f0f0f] border border-white/[0.06] aspect-square break-inside-avoid shadow-lg opacity-20"></div>
+              <div key={i} className="relative rounded-xl overflow-hidden bg-gradient-to-br from-bg-navbar to-bg-card border border-white/[0.06] aspect-square break-inside-avoid shadow-lg opacity-20"></div>
             ))
           )}
         </div>
@@ -534,13 +534,13 @@ export default function ImageDashboard() {
           <img
             src={selectedFullImage.url}
             alt="Full view"
-            style={{ maxWidth: '100%', maxHeight: '85vh', objectFit: 'contain', borderRadius: '8px' }}
+            style={{ maxWidth: '100%', maxHeight: '85vh', objectFit: 'contain', borderRadius: 'var(--radius-btn)' }}
             onClick={(e) => e.stopPropagation()}
           />
 
           {/* RIGHT SIDEBAR */}
           <div
-            style={{ position: 'fixed', right: 0, top: 0, height: '100vh', width: '300px', background: '#0f0f0f', borderLeft: '1px solid rgba(255,255,255,0.06)', padding: '24px', overflowY: 'auto' }}
+            style={{ position: 'fixed', right: 0, top: 0, height: '100vh', width: '300px', background: 'var(--bg-card)', borderLeft: '1px solid rgba(255,255,255,0.06)', padding: '24px', overflowY: 'auto' }}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header Row */}
@@ -577,12 +577,12 @@ export default function ImageDashboard() {
                   <div className="text-white text-[14px] font-dm font-bold leading-none">
                     {user?.fullName || user?.primaryEmailAddress?.emailAddress?.split('@')[0] || 'User'}
                   </div>
-                  <div className="text-[#777] text-[12px] font-dm mt-1">Author</div>
+                  <div className="text-text-secondary text-[12px] font-dm mt-1">Author</div>
                 </div>
               </a>
               <button 
                 onClick={() => setSelectedFullImage(null)}
-                className="text-[#777] hover:text-white transition-colors flex items-center justify-center w-8 h-8 bg-white/[0.04] hover:bg-white/10 rounded-full"
+                className="text-text-secondary hover:text-white transition-colors flex items-center justify-center w-8 h-8 bg-white/[0.04] hover:bg-white/10 rounded-full"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
               </button>
@@ -593,16 +593,16 @@ export default function ImageDashboard() {
             {/* Prompt Section */}
             <div className="mb-8">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-[11px] text-[#777] uppercase tracking-[1px] font-syne font-bold">Prompt</span>
-                <button 
+                <span className="text-[11px] text-text-secondary uppercase tracking-[1px] font-syne font-bold">Prompt</span>
+                <button
                   onClick={() => navigator.clipboard.writeText(selectedFullImage.prompt)}
-                  className="text-[11px] text-[#777] border border-white/[0.08] hover:border-white/20 hover:text-white transition-colors rounded-[6px] px-2 py-[3px]"
+                  className="text-[11px] text-text-secondary border border-white/[0.08] hover:border-white/20 hover:text-white transition-colors rounded-[6px] px-2 py-[3px]"
                 >
                   copy
                 </button>
               </div>
-              <p 
-                className="text-[14px] text-[#777] font-dm leading-relaxed"
+              <p
+                className="text-[14px] text-text-secondary font-dm leading-relaxed"
                 style={{ userSelect: 'text', cursor: 'text' }}
               >
                 {selectedFullImage.prompt}
@@ -613,20 +613,20 @@ export default function ImageDashboard() {
 
             {/* Information Section */}
             <div className="mb-8 flex-1">
-              <span className="text-[11px] text-[#777] uppercase tracking-[1px] font-syne font-bold block mb-4">Information</span>
-              
+              <span className="text-[11px] text-text-secondary uppercase tracking-[1px] font-syne font-bold block mb-4">Information</span>
+
               <div className="flex items-center justify-between py-2 border-b border-white/[0.04]">
-                <span className="text-[13px] text-[#777] font-dm">Model</span>
+                <span className="text-[13px] text-text-secondary font-dm">Model</span>
                 <span className="text-[13px] text-white font-dm">Nano Banana 2</span>
               </div>
-              
+
               <div className="flex items-center justify-between py-2 border-b border-white/[0.04]">
-                <span className="text-[13px] text-[#777] font-dm">Aspect ratio</span>
+                <span className="text-[13px] text-text-secondary font-dm">Aspect ratio</span>
                 <span className="text-[13px] text-white font-dm">{selectedFullImage.aspectRatio}</span>
               </div>
 
               <div className="flex items-center justify-between py-2 border-b border-white/[0.04]">
-                <span className="text-[13px] text-[#777] font-dm">Quality</span>
+                <span className="text-[13px] text-text-secondary font-dm">Quality</span>
                 <span className="text-[13px] text-white font-dm">{selectedFullImage.resolution || '1K'}</span>
               </div>
             </div>
@@ -635,7 +635,7 @@ export default function ImageDashboard() {
             <div>
               <button 
                 onClick={() => handleDownload(selectedFullImage.url)}
-                className="w-full text-[#777] hover:text-white border border-white/[0.1] hover:border-white/20 bg-transparent hover:bg-white/[0.02] transition-colors rounded-lg py-[10px] text-[13px] font-dm font-medium flex items-center justify-center gap-2"
+                className="w-full text-text-secondary hover:text-white border border-white/[0.1] hover:border-white/20 bg-transparent hover:bg-white/[0.02] transition-colors rounded-lg py-[10px] text-[13px] font-dm font-medium flex items-center justify-center gap-2"
               >
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                 Download image
@@ -664,7 +664,7 @@ export default function ImageDashboard() {
             <div className="flex items-center gap-2 px-3 md:px-4 pt-3 overflow-x-auto">
               {uploadedImages.map((img, idx) => (
                 <div key={idx} className="relative flex-shrink-0" style={{ width: '60px', height: '60px' }}>
-                  <img src={img.url} alt="Uploaded preview" className={`w-full h-full object-cover ${img.uploading ? 'opacity-50' : ''}`} style={{ borderRadius: '8px', background: '#111', border: '1px solid rgba(255,255,255,0.1)' }} />
+                  <img src={img.url} alt="Uploaded preview" className={`w-full h-full object-cover ${img.uploading ? 'opacity-50' : ''}`} style={{ borderRadius: 'var(--radius-btn)', background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.1)' }} />
                   {img.uploading && (
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -673,7 +673,7 @@ export default function ImageDashboard() {
                   {!img.uploading && (
                     <button 
                       onClick={() => removeImage(idx)}
-                      className="absolute -top-2 -right-2 w-5 h-5 bg-white/20 hover:bg-white/40 rounded-full text-white flex items-center justify-center text-xs shadow-md border border-[#111]"
+                      className="absolute -top-2 -right-2 w-5 h-5 bg-white/20 hover:bg-white/40 rounded-full text-white flex items-center justify-center text-xs shadow-md border border-bg-card"
                     >
                       ×
                     </button>
@@ -687,7 +687,7 @@ export default function ImageDashboard() {
           <div className="p-3 md:p-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 md:gap-4 border-b border-white/[0.06]">
             <button 
               onClick={() => fileInputRef.current?.click()}
-              className="w-10 h-10 md:w-12 md:h-12 flex-shrink-0 flex items-center justify-center rounded-xl bg-[#080808] border border-white/[0.04] text-[#777] hover:text-white hover:border-white/20 transition-colors"
+              className="w-10 h-10 md:w-12 md:h-12 flex-shrink-0 flex items-center justify-center rounded-xl bg-bg border border-white/[0.04] text-text-secondary hover:text-white hover:border-white/20 transition-colors"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             </button>
@@ -713,21 +713,21 @@ export default function ImageDashboard() {
                 scrollbarWidth: 'thin',
                 scrollbarColor: '#333 transparent'
               }}
-              className="flex-1 bg-transparent border-none outline-none text-white font-dm text-sm placeholder:text-[#777] resize-none py-2"
+              className="flex-1 bg-transparent border-none outline-none text-white font-dm text-sm placeholder:text-text-secondary resize-none py-2"
             />
             <div className="flex flex-col gap-1.5 items-center">
               <button 
                 onClick={handleGenerate}
                 disabled={isLoaded && isSignedIn && (isLoading || !prompt.trim() || (creditCount !== null && creditCount <= 0))}
                 className={`px-4 md:px-7 py-3 md:py-3.5 text-white font-dm font-[700] rounded-xl flex items-center justify-center gap-2 transition-all flex-shrink-0 ${(isLoading || (isLoaded && !isSignedIn)) ? 'opacity-70 cursor-pointer' : ''}`}
-                style={{ 
-                  background: (isLoaded && isSignedIn && creditCount !== null && creditCount <= 0) ? '#2a2a2a' : '#532fcf',
-                  border: 'none', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center', 
-                  gap: '8px', 
-                  color: (isLoaded && isSignedIn && creditCount !== null && creditCount <= 0) ? '#777' : '#fff',
+                style={{
+                  background: (isLoaded && isSignedIn && creditCount !== null && creditCount <= 0) ? '#2a2a2a' : 'var(--accent)',
+                  border: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  color: (isLoaded && isSignedIn && creditCount !== null && creditCount <= 0) ? 'var(--text-secondary)' : '#fff',
                   cursor: (isLoaded && isSignedIn && creditCount !== null && creditCount <= 0) ? 'not-allowed' : 'pointer'
                 }}
               >
@@ -738,7 +738,7 @@ export default function ImageDashboard() {
                   </>
                 ) : (isLoaded && isSignedIn && creditCount !== null && creditCount <= 0) ? (
                   <>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="#777" xmlns="http://www.w3.org/2000/svg"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--text-secondary)" xmlns="http://www.w3.org/2000/svg"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg>
                     No credits
                   </>
                 ) : (
@@ -756,13 +756,13 @@ export default function ImageDashboard() {
             <div className="relative" ref={dropdownRef}>
               <button 
                 onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
-                className={`px-3 py-1 rounded-full bg-white/[0.06] border font-dm text-[11px] md:text-xs transition-all flex items-center gap-1.5 ${isModelDropdownOpen ? 'border-[#532fcf] text-white bg-white/10' : 'border-white/10 text-[#777] hover:text-white hover:bg-white/10'}`}
+                className={`px-3 py-1 rounded-full bg-white/[0.06] border font-dm text-[11px] md:text-xs transition-all flex items-center gap-1.5 ${isModelDropdownOpen ? 'border-accent text-white bg-white/10' : 'border-white/10 text-text-secondary hover:text-white hover:bg-white/10'}`}
               >
                 {modelOptions.find(m => m.id === selectedModel)?.name} ▾
               </button>
               
               {isModelDropdownOpen && (
-                <div className="absolute bottom-full left-0 mb-2 w-[220px] bg-[#161616] border border-white/[0.08] rounded-xl overflow-hidden shadow-2xl z-[60] backdrop-blur-xl animate-in fade-in slide-in-from-bottom-2 duration-200">
+                <div className="absolute bottom-full left-0 mb-2 w-[220px] bg-bg-navbar border border-white/[0.08] rounded-xl overflow-hidden shadow-2xl z-[60] backdrop-blur-xl animate-in fade-in slide-in-from-bottom-2 duration-200">
                   {modelOptions.map((model) => (
                     <button
                       key={model.id}
@@ -770,13 +770,13 @@ export default function ImageDashboard() {
                         setSelectedModel(model.id);
                         setIsModelDropdownOpen(false);
                       }}
-                      className={`w-full text-left px-4 py-3 hover:bg-white/[0.04] transition-colors flex flex-col gap-0.5 ${selectedModel === model.id ? 'bg-[#532fcf]/5' : ''}`}
+                      className={`w-full text-left px-4 py-3 hover:bg-white/[0.04] transition-colors flex flex-col gap-0.5 ${selectedModel === model.id ? 'bg-accent/5' : ''}`}
                     >
                       <div className="flex items-center justify-between">
-                        <span className={`font-dm font-[600] text-sm text-[#777]`}>{model.name}</span>
-                        {selectedModel === model.id && <div className="w-1 h-1 rounded-full bg-[#532fcf]" />}
+                        <span className={`font-dm font-[600] text-sm text-text-secondary`}>{model.name}</span>
+                        {selectedModel === model.id && <div className="w-1 h-1 rounded-full bg-accent" />}
                       </div>
-                      <span className="font-dm text-[11px] text-[#777]">{model.price}</span>
+                      <span className="font-dm text-[11px] text-text-secondary">{model.price}</span>
                     </button>
                   ))}
                 </div>
@@ -787,7 +787,7 @@ export default function ImageDashboard() {
               <button
                 ref={ratioButtonRef}
                 onClick={(e) => { e.stopPropagation(); handleOpenRatio(); }}
-                className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] text-[#777] border border-white/10 hover:text-white transition-colors"
+                className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] text-text-secondary border border-white/10 hover:text-white transition-colors"
                 style={{ minWidth: '60px' }}
               >
                 {aspectRatio}
@@ -808,16 +808,16 @@ export default function ImageDashboard() {
                       transform: 'translateX(-50%)'
                     }}
                   >
-                    <p className="text-[11px] text-[#777] mb-3 uppercase tracking-wider">Aspect ratio</p>
+                    <p className="text-[11px] text-text-secondary mb-3 uppercase tracking-wider">Aspect ratio</p>
                     <div className="flex flex-col gap-1">
                       {ratioOptions.map(ratio => (
                         <button
                           key={ratio.value}
                           onClick={() => { setAspectRatio(ratio.value); setShowRatioDropdown(false); }}
                           className={`flex items-center gap-3 px-3 py-1 rounded-lg text-xs transition-colors text-left w-full ${
-                            aspectRatio === ratio.value 
-                              ? 'text-white bg-white/[0.08]' 
-                              : 'text-[#777] hover:text-white hover:bg-white/[0.04]'
+                            aspectRatio === ratio.value
+                              ? 'text-white bg-white/[0.08]'
+                              : 'text-text-secondary hover:text-white hover:bg-white/[0.04]'
                           }`}
                         >
                           <div style={{
@@ -841,7 +841,7 @@ export default function ImageDashboard() {
               <button 
                 ref={qualityButtonRef}
                 onClick={handleOpenQuality}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] text-[#777] border border-white/10 hover:text-white transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] text-text-secondary border border-white/10 hover:text-white transition-colors"
               >
                 ◇ {quality}
               </button>
@@ -861,16 +861,16 @@ export default function ImageDashboard() {
                       transform: 'translateX(-50%)'
                     }}
                   >
-                    <p className="text-[11px] text-[#777] mb-3 uppercase tracking-wider">Select quality</p>
+                    <p className="text-[11px] text-text-secondary mb-3 uppercase tracking-wider">Select quality</p>
                     <div className="flex flex-col gap-1">
                       {qualityOptions.map(q => (
                         <button
                           key={q.value}
                           onClick={() => { setQuality(q.value); setShowQualityModal(false); }}
                           className={`flex items-center justify-between px-3 py-2 rounded-lg text-[13px] w-full text-left transition-colors ${
-                            quality === q.value 
-                              ? 'text-white bg-white/[0.08]' 
-                              : 'text-[#777] hover:text-white'
+                            quality === q.value
+                              ? 'text-white bg-white/[0.08]'
+                              : 'text-text-secondary hover:text-white'
                           }`}
                         >
                           {q.label}

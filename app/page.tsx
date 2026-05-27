@@ -59,7 +59,7 @@ export default function Home() {
       <Navbar />
 
       {/* Page wrapper — top padding accounts for fixed navbar + mobile sub-nav */}
-      <main className="min-h-screen font-dm" style={{ paddingTop: '64px', background: '#080808' }}>
+      <main className="min-h-screen font-dm" style={{ paddingTop: '64px', background: 'var(--bg)' }}>
         <div className="w-full" style={{ padding: '30px' }}>
 
           {/* ══════════════════════════════════════
@@ -91,7 +91,7 @@ export default function Home() {
             style={{ gap: '30px', marginBottom: '30px' }}
           >
             {/* Image card */}
-            <Link href="/image" className="group block" style={{ borderRadius: '12px', background: '#111', border: '0.5px solid #1e1e1e', overflow: 'hidden', textDecoration: 'none', position: 'relative' }}>
+            <Link href="/image" className="group block" style={{ borderRadius: '12px', background: 'var(--bg-card)', border: 'var(--border)', overflow: 'hidden', textDecoration: 'none', position: 'relative' }}>
               <video
                 src="/image-bg.mp4"
                 autoPlay
@@ -120,7 +120,7 @@ export default function Home() {
             </Link>
 
             {/* Video card */}
-            <Link href="/video" className="group block" style={{ borderRadius: '12px', background: '#111', border: '0.5px solid #1e1e1e', overflow: 'hidden', textDecoration: 'none', position: 'relative' }}>
+            <Link href="/video" className="group block" style={{ borderRadius: '12px', background: 'var(--bg-card)', border: 'var(--border)', overflow: 'hidden', textDecoration: 'none', position: 'relative' }}>
               <video
                 src="/video-bg.mp4"
                 autoPlay
@@ -149,7 +149,7 @@ export default function Home() {
             </Link>
 
             {/* Audio card */}
-            <Link href="/audio" className="group block" style={{ borderRadius: '12px', background: '#111', border: '0.5px solid #1e1e1e', overflow: 'hidden', textDecoration: 'none', position: 'relative' }}>
+            <Link href="/audio" className="group block" style={{ borderRadius: '12px', background: 'var(--bg-card)', border: 'var(--border)', overflow: 'hidden', textDecoration: 'none', position: 'relative' }}>
               <video
                 src="/audio-bg.mp4"
                 autoPlay
@@ -184,9 +184,9 @@ export default function Home() {
           <section
             className="animate-fadeUp delay-200"
             style={{
-              background: '#111',
-              border: '0.5px solid #1e1e1e',
-              borderRadius: '14px',
+              background: 'var(--bg-card)',
+              border: 'var(--border)',
+              borderRadius: 'var(--radius-card)',
               padding: '16px',
               marginBottom: '30px',
             }}
@@ -204,7 +204,7 @@ export default function Home() {
               <Link
                 href="/explore"
                 className="font-dm font-[500] hover:text-white transition-colors duration-200"
-                style={{ fontSize: '12px', color: '#532fcf' }}
+                style={{ fontSize: '12px', color: 'var(--accent)' }}
               >
                 See all ›
               </Link>
@@ -216,14 +216,14 @@ export default function Home() {
                 <div
                   key={img.id}
                   className="group relative overflow-hidden"
-                  style={{ aspectRatio: '3/4', borderRadius: '8px', cursor: 'pointer', background: img.gradient }}
+                  style={{ aspectRatio: '3/4', borderRadius: 'var(--radius-btn)', cursor: 'pointer', background: img.gradient }}
                 >
                   {/* Hover overlay */}
                   <div
                     className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col justify-end"
                     style={{
                       background: 'linear-gradient(to top, rgba(0,0,0,0.88) 0%, transparent 55%)',
-                      borderRadius: '8px',
+                      borderRadius: 'var(--radius-btn)',
                       padding: '10px 8px 8px',
                     }}
                   >
@@ -237,7 +237,7 @@ export default function Home() {
                       className="font-dm font-[600] text-white w-full"
                       style={{
                         fontSize: '9px',
-                        background: '#532fcf',
+                        background: 'var(--accent)',
                         border: 'none',
                         borderRadius: '4px',
                         padding: '4px 6px',
@@ -257,7 +257,7 @@ export default function Home() {
             FOOTER
         ══════════════════════════════════════ */}
           <footer
-            style={{ background: '#532fcf', padding: '48px 48px 32px', marginTop: '0px' }}
+            style={{ background: 'var(--accent)', padding: '48px 48px 32px', marginTop: '0px' }}
           >
           <div className="w-full">
             {/* Top grid: logo col + 3 link cols */}

@@ -44,7 +44,7 @@ export default function DashboardPage() {
     'User';
 
   return (
-    <div className="min-h-screen bg-[#080808] text-white selection:bg-[#ff3377] selection:text-white">
+    <div className="min-h-screen bg-bg text-white selection:bg-accent selection:text-white">
       <Navbar />
 
       <main className="pt-[105px] md:pt-[120px] pb-20">
@@ -71,13 +71,13 @@ export default function DashboardPage() {
                 </h1>
                 <button className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-white/10 bg-white/[0.02] hover:bg-white/[0.05] transition-colors group">
                   <span className="text-[12px] group-hover:scale-110 transition-transform">✏️</span>
-                  <span className="font-dm text-[12px] text-[#555] group-hover:text-white/60 transition-colors">Edit</span>
+                  <span className="font-dm text-[12px] text-text-secondary group-hover:text-white/60 transition-colors">Edit</span>
                 </button>
               </div>
 
               {/* Stats Row */}
-              <div className="mt-2.5 flex items-center gap-2.5 font-dm text-[14px] text-[#555]">
-                <span className="text-[#ff3377] font-bold">✨ {credits ?? '...'} Credits</span>
+              <div className="mt-2.5 flex items-center gap-2.5 font-dm text-[14px] text-text-secondary">
+                <span className="text-accent font-bold">✨ {credits ?? '...'} Credits</span>
                 <span className="w-1 h-1 rounded-full bg-[#333]"></span>
                 <span>0 Followers</span>
                 <span className="w-1 h-1 rounded-full bg-[#333]"></span>
@@ -87,11 +87,11 @@ export default function DashboardPage() {
 
             {/* RIGHT SIDE: Featured Content */}
             <div className="flex-1 w-full">
-              <div className="bg-[#0f0f0f] border border-dashed border-white/10 rounded-2xl min-h-[220px] flex flex-col items-center justify-center p-8 group cursor-pointer hover:border-[#ff3377]/30 transition-all duration-300">
-                <div className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-[#444] text-[20px] group-hover:text-[#ff3377] group-hover:border-[#ff3377]/50 group-hover:scale-110 transition-all duration-300">
+              <div className="bg-bg-card border border-dashed border-white/10 rounded-2xl min-h-[220px] flex flex-col items-center justify-center p-8 group cursor-pointer hover:border-accent/30 transition-all duration-300">
+                <div className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-text-secondary text-[20px] group-hover:text-accent group-hover:border-accent/50 group-hover:scale-110 transition-all duration-300">
                   +
                 </div>
-                <h3 className="mt-2.5 font-dm font-[500] text-[14px] text-[#555] group-hover:text-white/80 transition-colors">
+                <h3 className="mt-2.5 font-dm font-[500] text-[14px] text-text-secondary group-hover:text-white/80 transition-colors">
                   Add featured Project
                 </h3>
                 <p className="mt-1 font-dm text-[12px] text-[#333] text-center max-w-[240px]">
@@ -115,7 +115,7 @@ export default function DashboardPage() {
                   <Link 
                     key={img.id} 
                     href={`/image?id=${img.id}`}
-                    className="relative bg-[#0f0f0f] border border-white/[0.04] rounded-[10px] aspect-square overflow-hidden group hover:border-[#ff3377]/30 transition-all"
+                    className="relative bg-bg-card border border-white/[0.04] rounded-[10px] aspect-square overflow-hidden group hover:border-accent/30 transition-all"
                   >
                     <Image 
                       src={img.image_url} 
@@ -133,7 +133,7 @@ export default function DashboardPage() {
                 [1, 2, 3, 4, 5].map((idx) => (
                   <div 
                     key={idx} 
-                    className="bg-[#0f0f0f] border border-white/[0.04] rounded-[10px] aspect-square opacity-40 shadow-inner"
+                    className="bg-bg-card border border-white/[0.04] rounded-[10px] aspect-square opacity-40 shadow-inner"
                   />
                 ))
               )}
@@ -146,12 +146,12 @@ export default function DashboardPage() {
                   <h3 className="font-syne font-[800] text-[22px] text-white leading-tight">
                     READY TO SHOW YOUR WORK?
                   </h3>
-                  <p className="mt-2 font-dm text-[14px] text-[#555] max-w-[300px]">
+                  <p className="mt-2 font-dm text-[14px] text-text-secondary max-w-[300px]">
                     Create your first image or video to showcase here
                   </p>
-                  <Link 
+                  <Link
                     href="/image"
-                    className="mt-6 px-7 py-3 rounded-lg bg-[#ff3377] text-black font-syne font-[700] text-[14px] hover:scale-105 hover:brightness-110 active:scale-95 transition-all shadow-lg"
+                    className="mt-6 px-7 py-3 rounded-lg bg-accent text-black font-syne font-[700] text-[14px] hover:scale-105 hover:brightness-110 active:scale-95 transition-all shadow-lg"
                   >
                     Start creating →
                   </Link>

@@ -3,6 +3,7 @@ import { Syne, DM_Sans } from 'next/font/google';
 import './globals.css';
 import { ClerkProvider } from '@clerk/nextjs';
 import Providers from '../components/Providers';
+import CookieConsentBanner from '../components/CookieConsent';
 import type { ReactNode } from 'react';
 
 const syne = Syne({
@@ -22,6 +23,32 @@ const dmSans = DM_Sans({
 export const metadata: Metadata = {
   title: 'Keyo Studio - AI Creative Platform',
   description: 'Generate text, images and video using top AI models in one place.',
+  icons: {
+    icon: '/favicon.png',
+    shortcut: '/favicon.png',
+    apple: '/favicon.png',
+  },
+  openGraph: {
+    title: 'Keyo Studio - AI Creative Platform',
+    description: 'Generate text, images and video using top AI models in one place.',
+    url: 'https://keyo.studio',
+    siteName: 'Keyo Studio',
+    images: [
+      {
+        url: '/ot-banner.png',
+        width: 1200,
+        height: 630,
+        alt: 'Keyo Studio',
+      },
+    ],
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Keyo Studio - AI Creative Platform',
+    description: 'Generate text, images and video using top AI models in one place.',
+    images: ['/ot-banner.png'],
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -50,6 +77,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <Providers>
             {children}
           </Providers>
+          <CookieConsentBanner />
         </ClerkProvider>
       </body>
     </html>
