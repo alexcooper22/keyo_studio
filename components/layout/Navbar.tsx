@@ -84,7 +84,6 @@ export default function Navbar() {
     { name: 'Image', href: '/image' },
     { name: 'Video', href: '/video' },
     { name: 'Audio', href: '/audio' },
-    { name: 'Pricing', href: '/pricing' },
   ];
 
   const avatarLetter = (
@@ -109,6 +108,11 @@ export default function Navbar() {
         .keyo-auth-modal .cl-rootBox { width: 100% !important; }
         .keyo-auth-modal [class*="formButtonPrimary"] { background: linear-gradient(135deg, #c4b0ff 0%, #9b7eff 40%, #6b4ef5 100%) !important; background-color: transparent !important; }
         .keyo-auth-modal [class*="formButtonPrimary"] * { background: transparent !important; background-color: transparent !important; }
+        @keyframes pricing-glow {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(83,47,207,0); border-color: rgba(120,80,255,0.3); background: rgba(120,80,255,0.15); }
+          50%       { box-shadow: 0 0 12px rgba(120,80,255,0.35), 0 0 24px rgba(83,47,207,0.15); border-color: rgba(150,110,255,0.6); background: rgba(120,80,255,0.22); }
+        }
+        .pricing-pill { animation: pricing-glow 2.8s ease-in-out infinite; }
       `}</style>
 
       {/* ── Main navbar ── */}
@@ -150,7 +154,25 @@ export default function Navbar() {
           </div>
 
           {/* ── Right controls ── */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
+
+            {/* ── Pricing pill ── */}
+            <Link
+              href="/pricing"
+              className="pricing-pill hidden md:inline-flex items-center gap-1.5 font-dm font-[500] text-[12px] transition-colors duration-200"
+              style={{
+                padding: '5px 11px 5px 8px',
+                borderRadius: '20px',
+                background: 'rgba(120,80,255,0.15)',
+                border: '1px solid rgba(120,80,255,0.3)',
+                color: 'rgba(190,165,255,0.9)',
+              }}
+            >
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
+              </svg>
+              Pricing
+            </Link>
 
             {isSignedIn ? (
               /* ── Signed in ── */
@@ -164,11 +186,14 @@ export default function Navbar() {
                     }
                     setShowUserMenu(v => !v);
                   }}
-                  className="w-[30px] h-[30px] rounded-full flex items-center justify-center cursor-pointer shrink-0 transition-all duration-200 hover:opacity-75"
-                  style={{ background: 'rgba(255,255,255,0.06)', border: '0.5px solid rgba(255,255,255,0.1)' }}
+                  className="w-[30px] h-[30px] rounded-full flex items-center justify-center cursor-pointer shrink-0 transition-all duration-200 hover:border-[rgba(120,80,255,0.5)]"
+                  style={{
+                    background: 'rgba(120,80,255,0.15)',
+                    border: '1px solid rgba(120,80,255,0.3)',
+                  }}
                   aria-label="User menu"
                 >
-                  <span className="font-syne font-[800] text-white leading-none select-none" style={{ fontSize: avatarLetter.length > 1 ? '10px' : '13px' }}>
+                  <span className="font-dm font-[600] leading-none select-none" style={{ fontSize: avatarLetter.length > 1 ? '10px' : '12px', color: 'rgba(190,165,255,0.9)' }}>
                     {avatarLetter}
                   </span>
                 </button>
