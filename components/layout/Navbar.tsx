@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useUser, useClerk, SignIn, SignUp } from '@clerk/nextjs';
@@ -42,6 +42,9 @@ export default function Navbar() {
   const [credits, setCredits] = useState<number | null>(null);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const avatarButtonRef = useRef<HTMLButtonElement>(null);
+  const [menuPos, setMenuPos] = useState({ top: 0, right: 0 });
 
   const fetchCredits = async () => {
     if (!isSignedIn) return;
@@ -84,15 +87,15 @@ export default function Navbar() {
     { name: 'Pricing', href: '/pricing' },
   ];
 
-  const avatarLetter = user?.emailAddresses?.[0]?.emailAddress?.[0]?.toUpperCase() || 'K';
+  const avatarLetter = (
+    (user?.firstName?.[0] ?? '') + (user?.lastName?.[0] ?? '')
+  ).toUpperCase() || user?.emailAddresses?.[0]?.emailAddress?.[0]?.toUpperCase() || 'K';
   const displayName = user?.fullName ?? user?.firstName ?? user?.emailAddresses?.[0]?.emailAddress ?? 'User';
 
   return (
     <>
       <style>{`
         .nav-active { color: rgba(170,140,255,0.95) !important; background: rgba(120,80,255,0.1); border: 0.5px solid rgba(120,80,255,0.22); border-radius: 20px; }
-        .nav-drop { opacity: 0; visibility: hidden; pointer-events: none; transform: translateY(-4px); transition: opacity 0.15s ease, visibility 0.15s ease, transform 0.15s ease; }
-        .nav-avatar:hover .nav-drop { opacity: 1; visibility: visible; pointer-events: auto; transform: translateY(0); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -122,7 +125,6 @@ export default function Navbar() {
           borderLeft: '0.5px solid rgba(255,255,255,0.05)',
           borderRight: '0.5px solid rgba(255,255,255,0.05)',
           boxShadow: '0 0 0 1px rgba(83,47,207,0.06), 0 8px 40px rgba(0,0,0,0.5)',
-          overflow: 'hidden',
         }}
       >
 
@@ -152,62 +154,74 @@ export default function Navbar() {
 
             {isSignedIn ? (
               /* ── Signed in ── */
-              <div className="nav-avatar relative">
+              <div>
                 <button
+                  ref={avatarButtonRef}
+                  onClick={() => {
+                    if (avatarButtonRef.current) {
+                      const r = avatarButtonRef.current.getBoundingClientRect();
+                      setMenuPos({ top: r.bottom + 8, right: window.innerWidth - r.right });
+                    }
+                    setShowUserMenu(v => !v);
+                  }}
                   className="w-[30px] h-[30px] rounded-full flex items-center justify-center cursor-pointer shrink-0 transition-all duration-200 hover:opacity-75"
                   style={{ background: 'rgba(255,255,255,0.06)', border: '0.5px solid rgba(255,255,255,0.1)' }}
                   aria-label="User menu"
                 >
-                  <span className="font-syne font-[800] text-white text-[13px] leading-none select-none">
+                  <span className="font-syne font-[800] text-white leading-none select-none" style={{ fontSize: avatarLetter.length > 1 ? '10px' : '13px' }}>
                     {avatarLetter}
                   </span>
                 </button>
 
-                <div className="nav-drop absolute top-full right-0 pt-3 z-[200]">
-                  <div
-                    className="rounded-2xl p-2 min-w-[210px] shadow-2xl"
-                    style={{ background: 'rgba(10,10,10,0.96)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', border: '1px solid rgba(255,255,255,0.07)' }}
-                  >
-                    <div className="px-3 py-2.5 flex items-center gap-2.5">
-                      <div
-                        className="w-[30px] h-[30px] rounded-full flex items-center justify-center shrink-0"
-                        style={{ background: 'linear-gradient(135deg, rgba(83,47,207,0.5), rgba(140,90,255,0.3))', border: '1px solid rgba(120,80,255,0.3)' }}
-                      >
-                        <span className="font-syne font-[800] text-white text-[11px]">{avatarLetter}</span>
-                      </div>
-                      <div className="overflow-hidden">
-                        <p className="font-dm font-[500] text-[12px] text-white truncate leading-tight">{displayName}</p>
-                        <div className="flex items-center gap-1 mt-0.5">
-                          <span style={{ color: 'rgba(120,80,255,0.8)', fontSize: '9px' }}>✦</span>
-                          <span className="font-dm text-[11px] text-white/30">
-                            {credits !== null ? `${credits} credits` : '···'}
-                          </span>
+                {showUserMenu && (
+                  <Portal>
+                    <div className="fixed inset-0 z-[300]" onClick={() => setShowUserMenu(false)} />
+                    <div
+                      className="fixed z-[301] rounded-2xl p-2 min-w-[210px] shadow-2xl"
+                      style={{ top: menuPos.top, right: menuPos.right, background: 'rgba(10,10,10,0.96)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', border: '1px solid rgba(255,255,255,0.07)' }}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="px-3 py-2.5 flex items-center gap-2.5">
+                        <div
+                          className="w-[30px] h-[30px] rounded-full flex items-center justify-center shrink-0"
+                          style={{ background: 'linear-gradient(135deg, rgba(83,47,207,0.5), rgba(140,90,255,0.3))', border: '1px solid rgba(120,80,255,0.3)' }}
+                        >
+                          <span className="font-syne font-[800] text-white leading-none" style={{ fontSize: avatarLetter.length > 1 ? '9px' : '11px' }}>{avatarLetter}</span>
+                        </div>
+                        <div className="overflow-hidden">
+                          <p className="font-dm font-[500] text-[12px] text-white truncate leading-tight">{displayName}</p>
+                          <div className="flex items-center gap-1 mt-0.5">
+                            <span style={{ color: 'rgba(120,80,255,0.8)', fontSize: '9px' }}>✦</span>
+                            <span className="font-dm text-[11px] text-white/30">
+                              {credits !== null ? `${credits} credits` : '···'}
+                            </span>
+                          </div>
                         </div>
                       </div>
+
+                      <div className="h-[1px] mx-1 my-1.5" style={{ background: 'rgba(255,255,255,0.05)' }} />
+
+                      <Link href="/dashboard" onClick={() => setShowUserMenu(false)} className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl text-[12px] text-white/40 hover:text-white hover:bg-white/[0.04] transition-all duration-150 font-dm">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        View profile
+                      </Link>
+                      <Link href="/settings" onClick={() => setShowUserMenu(false)} className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl text-[12px] text-white/40 hover:text-white hover:bg-white/[0.04] transition-all duration-150 font-dm">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                        Settings
+                      </Link>
+
+                      <div className="h-[1px] mx-1 my-1.5" style={{ background: 'rgba(255,255,255,0.05)' }} />
+
+                      <button
+                        onClick={() => { setShowUserMenu(false); signOut({ redirectUrl: '/' }); }}
+                        className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl text-[12px] text-white/40 hover:text-red-400 hover:bg-red-500/[0.06] transition-all duration-150 font-dm"
+                      >
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                        Sign out
+                      </button>
                     </div>
-
-                    <div className="h-[1px] mx-1 my-1.5" style={{ background: 'rgba(255,255,255,0.05)' }} />
-
-                    <Link href="/dashboard" className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl text-[12px] text-white/40 hover:text-white hover:bg-white/[0.04] transition-all duration-150 font-dm">
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                      View profile
-                    </Link>
-                    <Link href="/settings" className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl text-[12px] text-white/40 hover:text-white hover:bg-white/[0.04] transition-all duration-150 font-dm">
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                      Settings
-                    </Link>
-
-                    <div className="h-[1px] mx-1 my-1.5" style={{ background: 'rgba(255,255,255,0.05)' }} />
-
-                    <button
-                      onClick={() => signOut({ redirectUrl: '/' })}
-                      className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl text-[12px] text-white/40 hover:text-red-400 hover:bg-red-500/[0.06] transition-all duration-150 font-dm"
-                    >
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                      Sign out
-                    </button>
-                  </div>
-                </div>
+                  </Portal>
+                )}
               </div>
 
             ) : (
@@ -226,17 +240,17 @@ export default function Navbar() {
 
                 {showAuthModal && (
                   <Portal>
-                    {/* Backdrop */}
+                    {/* Backdrop + scrollable container */}
                     <div
-                      className="fixed inset-0 z-[500]"
+                      className="fixed inset-0 z-[500] overflow-y-auto"
                       style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}
                       onClick={() => setShowAuthModal(false)}
-                    />
-
+                    >
+                    <div className="flex min-h-full items-center justify-center p-4">
                     {/* Modal */}
                     <div
-                      className="fixed z-[501] w-full"
-                      style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', maxWidth: '440px', padding: '0 16px' }}
+                      className="relative w-full"
+                      style={{ maxWidth: '440px' }}
                       onClick={(e) => e.stopPropagation()}
                     >
                       <div
@@ -340,6 +354,8 @@ export default function Navbar() {
                           )}
                         </div>
                       </div>
+                    </div>
+                    </div>
                     </div>
                   </Portal>
                 )}

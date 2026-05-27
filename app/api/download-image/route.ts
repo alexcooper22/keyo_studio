@@ -16,7 +16,12 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const response = await fetch(url, { signal: AbortSignal.timeout(15_000) });
+    const response = await fetch(url, { redirect: 'manual', signal: AbortSignal.timeout(15_000) });
+
+    // Reject redirects — a trusted domain could redirect to an internal IP (SSRF bypass)
+    if (response.status >= 300 && response.status < 400) {
+      return NextResponse.json({ error: 'URL not allowed' }, { status: 403 });
+    }
 
     if (!response.ok) {
       return NextResponse.json({ error: 'Failed to fetch image' }, { status: 502 });

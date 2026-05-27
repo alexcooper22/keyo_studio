@@ -101,7 +101,9 @@ export async function POST(request: NextRequest) {
 
       const imageParts = await Promise.all(
         (imageUrls as string[]).map(async (url) => {
-          const res = await fetch(url, { signal: AbortSignal.timeout(15_000) });
+          const res = await fetch(url, { redirect: 'manual', signal: AbortSignal.timeout(15_000) });
+          // Reject redirects — a trusted domain could redirect to an internal IP (SSRF bypass)
+          if (res.status >= 300 && res.status < 400) throw new Error('Invalid image URL');
           if (!res.ok) throw new Error('Failed to fetch reference image');
           const arrayBuffer = await res.arrayBuffer();
           if (arrayBuffer.byteLength > 20 * 1024 * 1024) throw new Error('Reference image too large');
