@@ -25,91 +25,139 @@ const socials = [
   {
     label: 'LinkedIn',
     href: 'https://linkedin.com',
-    path: 'M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 23.2 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z',
+    path: 'M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z',
   },
 ];
 
-const footerLinks: Record<string, string[]> = {
-  Product: ['Image', 'Video', 'Audio', 'Pricing'],
-  Company: ['About', 'Blog', 'Careers', 'Contact'],
-  Legal: ['Privacy', 'Terms', 'Cookies'],
-};
+const productLinks = [
+  { label: 'Image', href: '/image' },
+  { label: 'Video', href: '/video' },
+  { label: 'Audio', href: '/audio' },
+  { label: 'Pricing', href: '/pricing' },
+];
+
+const legalLinks = [
+  { label: 'Privacy', href: '/privacy' },
+  { label: 'Terms', href: '/terms' },
+  { label: 'Cookies', href: '/cookies' },
+];
 
 export default function Footer() {
   return (
-    <footer style={{ background: 'var(--accent)', padding: '48px 48px 32px' }}>
-      <div className="w-full">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12" style={{ marginBottom: '28px' }}>
-          <div>
-            <p className="font-syne font-[800] text-white" style={{ fontSize: '18px', marginBottom: '10px' }}>
-              keyo.studio
-            </p>
-            <p className="font-dm" style={{ fontSize: '12px', color: 'rgba(255,255,255,0.38)', lineHeight: '1.7', marginBottom: '16px', maxWidth: '200px' }}>
-              Generate images, videos and audio with the world&apos;s best AI models all in one place.
-            </p>
-            <div className="flex items-center gap-2 flex-wrap">
-              {socials.map((s) => (
-                <a
-                  key={s.label}
-                  href={s.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={s.label}
-                  className="flex items-center justify-center transition-opacity duration-200 hover:opacity-70"
-                  style={{ width: 30, height: 30, background: 'rgba(255,255,255,0.15)', borderRadius: '6px' }}
+    <footer style={{ position: 'relative', background: '#0a0a0a', overflow: 'hidden' }}>
+
+      {/* Top shimmer */}
+      <div style={{
+        position: 'absolute', top: 0, left: 0, right: 0, height: '1px',
+        background: 'linear-gradient(90deg, transparent 0%, rgba(120,80,255,0.4) 30%, rgba(83,47,207,0.6) 50%, rgba(120,80,255,0.4) 70%, transparent 100%)',
+        pointerEvents: 'none',
+      }} />
+
+      {/* Bottom glow */}
+      <div style={{
+        position: 'absolute', bottom: '-60px', left: '50%', transform: 'translateX(-50%)',
+        width: '700px', height: '280px',
+        background: 'radial-gradient(ellipse at center, rgba(83,47,207,0.14) 0%, transparent 70%)',
+        pointerEvents: 'none',
+      }} />
+
+      <div className="relative" style={{ padding: '28px 32px 24px' }}>
+
+        {/* ── Row 1: logo · product links · socials ── */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4" style={{ marginBottom: '18px' }}>
+
+          {/* Logo */}
+          <Link href="/" style={{ display: 'inline-flex', alignItems: 'baseline', textDecoration: 'none', flexShrink: 0 }}>
+            <span style={{ fontFamily: 'var(--font-clash)', fontWeight: 700, color: '#fff', fontSize: '16px', letterSpacing: '-0.01em' }}>keyo</span>
+            <span style={{ fontFamily: 'var(--font-clash)', fontWeight: 700, color: 'rgba(120,80,255,0.8)', fontSize: '16px' }}>.</span>
+            <span style={{ fontFamily: 'var(--font-clash)', fontWeight: 600, color: 'rgba(255,255,255,0.2)', fontSize: '16px' }}>studio</span>
+          </Link>
+
+          {/* Product links — center */}
+          <div className="flex items-center gap-0">
+            {productLinks.map((link, i) => (
+              <React.Fragment key={link.label}>
+                <Link
+                  href={link.href}
+                  className="font-dm transition-colors duration-200 hover:text-white"
+                  style={{ fontSize: '13px', color: 'rgba(255,255,255,0.32)', textDecoration: 'none' }}
                 >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="white" stroke="none">
-                    <path d={s.path} />
-                  </svg>
-                </a>
-              ))}
+                  {link.label}
+                </Link>
+                {i < productLinks.length - 1 && (
+                  <span style={{ color: 'rgba(255,255,255,0.1)', margin: '0 10px', fontSize: '12px' }}>·</span>
+                )}
+              </React.Fragment>
+            ))}
+          </div>
+
+          {/* Socials */}
+          <div className="flex items-center gap-1.5">
+            {socials.map((s) => (
+              <a
+                key={s.label}
+                href={s.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={s.label}
+                className="flex items-center justify-center transition-all duration-200 hover:opacity-70 hover:-translate-y-0.5"
+                style={{
+                  width: 28, height: 28,
+                  background: 'rgba(255,255,255,0.04)',
+                  border: '0.5px solid rgba(255,255,255,0.07)',
+                  borderRadius: '7px',
+                  opacity: 0.4,
+                }}
+              >
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="white" stroke="none">
+                  <path d={s.path} />
+                </svg>
+              </a>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Divider ── */}
+        <div style={{ height: '0.5px', background: 'rgba(255,255,255,0.05)', marginBottom: '16px' }} />
+
+        {/* ── Row 2: copyright · legal ── */}
+        <div className="flex flex-col md:flex-row items-center justify-between gap-2">
+          <div className="flex items-center gap-3">
+            <p className="font-dm" style={{ fontSize: '11px', color: 'rgba(255,255,255,0.18)', margin: 0 }}>
+              © 2026 keyo.studio
+            </p>
+            <div
+              className="inline-flex items-center gap-1"
+              style={{
+                background: 'rgba(83,47,207,0.08)',
+                border: '0.5px solid rgba(83,47,207,0.18)',
+                borderRadius: '20px',
+                padding: '2px 8px',
+              }}
+            >
+              <span style={{ color: 'rgba(120,80,255,0.7)', fontSize: '8px' }}>✦</span>
+              <span style={{ color: 'rgba(120,80,255,0.5)', fontSize: '10px', fontWeight: 500 }}>Powered by AI</span>
             </div>
           </div>
 
-          {(Object.entries(footerLinks) as [string, string[]][]).map(([col, links]) => (
-            <div key={col}>
-              <p className="font-dm font-[600] text-white" style={{ fontSize: '12px', marginBottom: '12px', opacity: 0.9 }}>
-                {col}
-              </p>
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {links.map((l) => (
-                  <li key={l}>
-                    <Link
-                      href={`/${l.toLowerCase()}`}
-                      className="font-dm hover:text-white transition-colors duration-200"
-                      style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', textDecoration: 'none' }}
-                    >
-                      {l}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-
-        <div
-          className="flex flex-col md:flex-row items-center justify-between gap-2"
-          style={{ borderTop: '0.5px solid rgba(255,255,255,0.2)', paddingTop: '16px' }}
-        >
-          <p className="font-dm" style={{ fontSize: '11px', color: 'rgba(255,255,255,0.25)', margin: 0 }}>
-            © 2026 keyo.studio. All rights reserved.
-          </p>
-          <div className="flex items-center gap-4">
-            {['Privacy', 'Terms', 'Cookies'].map((l, i) => (
-              <React.Fragment key={l}>
-                {i > 0 && <span style={{ color: 'rgba(255,255,255,0.15)', fontSize: '11px' }}>·</span>}
+          <div className="flex items-center">
+            {legalLinks.map((link, i) => (
+              <React.Fragment key={link.label}>
+                {i > 0 && (
+                  <span style={{ color: 'rgba(255,255,255,0.08)', fontSize: '11px', margin: '0 8px' }}>·</span>
+                )}
                 <Link
-                  href={`/${l.toLowerCase()}`}
-                  className="font-dm hover:text-white transition-colors duration-200"
-                  style={{ fontSize: '11px', color: 'rgba(255,255,255,0.25)', textDecoration: 'none' }}
+                  href={link.href}
+                  className="font-dm hover:text-white/40 transition-colors duration-200"
+                  style={{ fontSize: '11px', color: 'rgba(255,255,255,0.18)', textDecoration: 'none' }}
                 >
-                  {l}
+                  {link.label}
                 </Link>
               </React.Fragment>
             ))}
           </div>
         </div>
+
       </div>
     </footer>
   );

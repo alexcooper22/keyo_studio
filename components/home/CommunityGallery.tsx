@@ -1,12 +1,12 @@
 import Link from 'next/link';
 
-const galleryImages = [
-  { id: 1, prompt: 'portrait of a young woman, natural window light, Canon 50mm', gradient: 'linear-gradient(160deg, #3a2a5a, #1a1240)' },
-  { id: 2, prompt: 'Tokyo street at night, rain, neon lights, shallow depth', gradient: 'linear-gradient(160deg, #2a3545, #0f1a2e)' },
-  { id: 3, prompt: 'studio portrait, dramatic lighting, 85mm lens', gradient: 'linear-gradient(160deg, #3a2a2a, #1a1010)' },
-  { id: 4, prompt: 'botanical garden, soft golden light, film grain', gradient: 'linear-gradient(160deg, #2a3a2a, #101a10)' },
-  { id: 5, prompt: 'candid street portrait, natural light, film look', gradient: 'linear-gradient(160deg, #3a2a3a, #1a0f20)' },
-  { id: 6, prompt: 'night city reflections, long exposure, moody', gradient: 'linear-gradient(160deg, #2a2a3a, #0f1020)' },
+const galleryVideos = [
+  { id: 1, prompt: 'portrait of a young woman, natural window light, Canon 50mm', src: 'https://cdn.higgsfield.ai/job_set_chain_preset/2b5ee036-8873-4871-a3f8-4ed4eeab1721.mp4' },
+  { id: 2, prompt: 'Tokyo street at night, rain, neon lights, shallow depth', src: 'https://cdn.higgsfield.ai/job_set_chain_preset/06bf5a41-ed5e-49bf-88c6-2d5a7aa8acdb.mp4' },
+  { id: 3, prompt: 'studio portrait, dramatic lighting, 85mm lens', src: 'https://cdn.higgsfield.ai/job_set_chain_preset/d4921e56-a83d-435f-9831-709e4aa1e625.mp4' },
+  { id: 4, prompt: 'botanical garden, soft golden light, film grain', src: 'https://cdn.higgsfield.ai/job_set_chain_preset/f3617f5e-64d8-41de-bbf5-3648e8229e49.mp4' },
+  { id: 5, prompt: 'candid street portrait, natural light, film look', src: 'https://cdn.higgsfield.ai/job_set_chain_preset/def7ae61-e8cb-4ddc-809b-fd13473995ee.mp4' },
+  { id: 6, prompt: 'night city reflections, long exposure, moody', src: 'https://cdn.higgsfield.ai/job_set_chain_preset/d29483b9-aa2b-4c59-9aa7-37044bc2c4c0.mp4' },
 ];
 
 export default function CommunityGallery() {
@@ -40,12 +40,20 @@ export default function CommunityGallery() {
       </div>
 
       <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
-        {galleryImages.map((img) => (
+        {galleryVideos.map((item) => (
           <div
-            key={img.id}
+            key={item.id}
             className="group relative overflow-hidden"
-            style={{ aspectRatio: '3/4', borderRadius: 'var(--radius-btn)', cursor: 'pointer', background: img.gradient }}
+            style={{ aspectRatio: '3/4', borderRadius: 'var(--radius-btn)', cursor: 'pointer', background: '#0a0a0a' }}
           >
+            <video
+              src={item.src}
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="absolute inset-0 w-full h-full object-cover"
+            />
             <div
               className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col justify-end"
               style={{
@@ -58,7 +66,7 @@ export default function CommunityGallery() {
                 className="font-dm text-white"
                 style={{ fontSize: '9px', lineHeight: '1.4', opacity: 0.8, marginBottom: '6px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
               >
-                {img.prompt}
+                {item.prompt}
               </p>
               <button
                 className="font-dm font-[600] text-white w-full"
