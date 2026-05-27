@@ -6,13 +6,22 @@ import { useUser } from '@clerk/nextjs';
 
 type Section = 'Personal Profile' | 'Gifts' | 'Referrals' | 'Subscription' | 'Credits Usage' | 'Promo Code';
 
-const sections: { name: Section; icon: string; badge?: string; group: string }[] = [
-  { name: 'Personal Profile', icon: '👤', group: 'account' },
-  { name: 'Gifts',            icon: '🎁', group: 'account' },
-  { name: 'Referrals',        icon: '👥', badge: 'NEW', group: 'account' },
-  { name: 'Subscription',     icon: '💳', group: 'workspace' },
-  { name: 'Credits Usage',    icon: '⚡', group: 'workspace' },
-  { name: 'Promo Code',       icon: '🎟️', group: 'workspace' },
+const icons: Record<Section, React.ReactNode> = {
+  'Personal Profile': <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
+  'Gifts':            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>,
+  'Referrals':        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+  'Subscription':     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>,
+  'Credits Usage':    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>,
+  'Promo Code':       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>,
+};
+
+const sections: { name: Section; badge?: string; group: string }[] = [
+  { name: 'Personal Profile', group: 'account' },
+  { name: 'Gifts',            group: 'account' },
+  { name: 'Referrals',        badge: 'NEW', group: 'account' },
+  { name: 'Subscription',     group: 'workspace' },
+  { name: 'Credits Usage',    group: 'workspace' },
+  { name: 'Promo Code',       group: 'workspace' },
 ];
 
 export default function SettingsPage() {
@@ -62,7 +71,7 @@ export default function SettingsPage() {
                 color: activeSection === s.name ? 'rgba(170,140,255,0.95)' : 'rgba(255,255,255,0.35)',
               }}
             >
-              <span style={{ fontSize: '13px' }}>{s.icon}</span>
+              {icons[s.name]}
               {s.name}
               {s.badge && (
                 <span className="text-[8px] font-bold px-1 py-0.5 rounded" style={{ background: 'rgba(83,47,207,0.2)', color: 'rgba(120,80,255,0.9)' }}>
@@ -100,7 +109,7 @@ export default function SettingsPage() {
                   color: activeSection === s.name ? 'rgba(170,140,255,0.95)' : 'rgba(255,255,255,0.4)',
                 }}>
                 <div className="flex items-center gap-2.5">
-                  <span style={{ fontSize: '14px' }}>{s.icon}</span>
+                  {icons[s.name]}
                   {s.name}
                 </div>
                 {s.badge && (
@@ -121,7 +130,7 @@ export default function SettingsPage() {
                   color: activeSection === s.name ? 'rgba(170,140,255,0.95)' : 'rgba(255,255,255,0.4)',
                 }}>
                 <div className="flex items-center gap-2.5">
-                  <span style={{ fontSize: '14px' }}>{s.icon}</span>
+                  {icons[s.name]}
                   {s.name}
                 </div>
               </button>
