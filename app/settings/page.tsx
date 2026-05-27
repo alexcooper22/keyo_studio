@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import Navbar from '../../components/Navbar';
+import Navbar from '../../components/layout/Navbar';
 import { useUser } from '@clerk/nextjs';
 
 type Section = 'Personal Profile' | 'Gifts' | 'Referrals' | 'Subscription' | 'Credits Usage' | 'Promo Code';

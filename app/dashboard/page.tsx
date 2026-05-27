@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import Navbar from '../../components/Navbar';
+import Navbar from '../../components/layout/Navbar';
 import { useUser } from '@clerk/nextjs';
 
 export default function DashboardPage() {

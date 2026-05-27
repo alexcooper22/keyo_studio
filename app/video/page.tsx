@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useRef, useEffect } from 'react';
-import Navbar from '../../components/Navbar';
+import Navbar from '../../components/layout/Navbar';
 
 interface VideoItem {
   id: string;

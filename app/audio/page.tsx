@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import Navbar from '../../components/Navbar';
+import Navbar from '../../components/layout/Navbar';
 
 export default function AudioPage() {
   const [prompt, setPrompt] = useState('');

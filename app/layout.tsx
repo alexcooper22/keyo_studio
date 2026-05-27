@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import { Syne, DM_Sans } from 'next/font/google';
 import './globals.css';
 import { ClerkProvider } from '@clerk/nextjs';
-import Providers from '../components/Providers';
-import CookieConsentBanner from '../components/CookieConsent';
+import Providers from '../components/layout/Providers';
+import CookieConsentBanner from '../components/layout/CookieConsent';
 import type { ReactNode } from 'react';
 
 const syne = Syne({
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     siteName: 'Keyo Studio',
     images: [
       {
-        url: '/ot-banner.png',
+        url: 'https://keyo.studio/ot-banner.png',
         width: 1200,
         height: 630,
         alt: 'Keyo Studio',
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Keyo Studio - AI Creative Platform',
     description: 'Generate text, images and video using top AI models in one place.',
-    images: ['/ot-banner.png'],
+    images: ['https://keyo.studio/ot-banner.png'],
   },
 };
 

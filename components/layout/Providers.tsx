@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
-import { AuthProvider, useAuth } from '../context/AuthContext';
-import AuthModal from './AuthModal';
+import { AuthProvider, useAuth } from '../../context/AuthContext';
+import AuthModal from '../auth/AuthModal';
 import { useUser } from '@clerk/nextjs';
 import { useEffect } from 'react';
 
