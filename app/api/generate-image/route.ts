@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { GoogleGenAI } from "@google/genai";
 import { supabaseAdmin } from "../../../lib/supabase";
+import { rateLimit, isAllowedImageUrl } from "../../../lib/rateLimit";
 
 export const maxDuration = 120;
 
@@ -14,6 +15,11 @@ export async function POST(request: NextRequest) {
         { error: "Unauthorized. Please sign in to generate images." },
         { status: 401 }
       );
+    }
+
+    const { allowed } = rateLimit(`gen-image:${userId}`, 10, 60_000);
+    if (!allowed) {
+      return NextResponse.json({ error: 'Too many requests. Please wait a moment.' }, { status: 429 });
     }
 
     // Parse request body
@@ -86,17 +92,22 @@ export async function POST(request: NextRequest) {
     let contents: any[];
 
     if (isEdit) {
-      // image-to-image: fetch images and convert to base64 inlineData
+      // Validate all URLs before fetching (SSRF prevention)
+      for (const url of imageUrls) {
+        if (!isAllowedImageUrl(url)) {
+          return NextResponse.json({ error: 'Invalid image URL' }, { status: 400 });
+        }
+      }
+
       const imageParts = await Promise.all(
-        imageUrls.map(async (url: string) => {
-          const res = await fetch(url);
-          if (!res.ok) throw new Error(`Failed to fetch image: ${url}`);
+        (imageUrls as string[]).map(async (url) => {
+          const res = await fetch(url, { signal: AbortSignal.timeout(15_000) });
+          if (!res.ok) throw new Error('Failed to fetch reference image');
           const arrayBuffer = await res.arrayBuffer();
+          if (arrayBuffer.byteLength > 20 * 1024 * 1024) throw new Error('Reference image too large');
           const base64 = Buffer.from(arrayBuffer).toString('base64');
           const mimeType = res.headers.get('content-type') || 'image/jpeg';
-          return {
-            inlineData: { data: base64, mimeType }
-          };
+          return { inlineData: { data: base64, mimeType } };
         })
       );
 
@@ -145,8 +156,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!imageBase64) {
-      console.error("Gemini response:", JSON.stringify(geminiResponse, null, 2));
-      throw new Error("No image data received from Gemini API");
+      throw new Error("No image data received");
     }
 
     // 5. Upload base64 image to Supabase Storage
@@ -185,18 +195,23 @@ export async function POST(request: NextRequest) {
 
     if (saveError) throw saveError;
 
-    // 7. Deduct credits from user_subscriptions
+    // 7. Deduct credits atomically — the .gte guard prevents overdraft in race conditions
     const { data: updatedSub, error: updateError } = await supabaseAdmin
       .from('user_subscriptions')
-      .update({ 
+      .update({
         credits_remaining: currentCredits - creditCost,
         updated_at: new Date().toISOString()
       })
       .eq('clerk_id', userId)
+      .eq('status', 'active')
+      .gte('credits_remaining', creditCost)
       .select('credits_remaining')
-      .single();
+      .maybeSingle();
 
     if (updateError) throw updateError;
+    if (!updatedSub) {
+      return NextResponse.json({ error: 'Insufficient credits' }, { status: 403 });
+    }
 
     return NextResponse.json({
       images: [{ url: publicUrl }],
@@ -206,9 +221,6 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     console.error("Generation error:", error);
-    return NextResponse.json(
-      { error: error?.message || "Failed to generate image" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to generate image" }, { status: 500 });
   }
 }

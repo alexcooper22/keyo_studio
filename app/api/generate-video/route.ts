@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import * as jose from 'jose';
 import { supabaseAdmin } from '../../../lib/supabase';
+import { rateLimit } from '../../../lib/rateLimit';
 
 export const maxDuration = 60;
 export const dynamic = 'force-dynamic';
@@ -23,6 +24,9 @@ async function generateKlingToken(): Promise<string> {
 export async function POST(req: NextRequest) {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const { allowed } = rateLimit(`gen-video:${userId}`, 5, 60_000);
+  if (!allowed) return NextResponse.json({ error: 'Too many requests. Please wait a moment.' }, { status: 429 });
 
   const { prompt, duration = 5, aspectRatio = '9:16', mode = 'std', quality = '720p', audio = false, startFrame = null, endFrame = null } = await req.json();
   if (!prompt) return NextResponse.json({ error: 'Prompt required' }, { status: 400 });
@@ -92,17 +96,26 @@ export async function POST(req: NextRequest) {
         status: 'processing'
       });
 
-      await supabaseAdmin
+      // Deduct credits atomically — .gte guard prevents overdraft in race conditions
+      const { data: updatedSub } = await supabaseAdmin
         .from('user_subscriptions')
         .update({
           credits_remaining: subscription.credits_remaining - creditCost,
           updated_at: new Date().toISOString()
         })
-        .eq('clerk_id', userId);
+        .eq('clerk_id', userId)
+        .eq('status', 'active')
+        .gte('credits_remaining', creditCost)
+        .select('credits_remaining')
+        .maybeSingle();
+
+      if (!updatedSub) {
+        return NextResponse.json({ error: 'Insufficient credits' }, { status: 403 });
+      }
     }
 
     return NextResponse.json({ taskId, remainingCredits: subscription.credits_remaining - creditCost });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to generate video' }, { status: 500 });
   }
 }

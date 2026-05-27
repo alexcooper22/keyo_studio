@@ -23,6 +23,11 @@ export async function GET(req: NextRequest) {
   const taskId = req.nextUrl.searchParams.get('taskId');
   if (!taskId) return NextResponse.json({ error: 'taskId required' }, { status: 400 });
 
+  // Validate taskId format — only UUIDs / alphanumeric+hyphens, max 64 chars
+  if (!/^[a-zA-Z0-9_-]{1,64}$/.test(taskId)) {
+    return NextResponse.json({ error: 'Invalid taskId' }, { status: 400 });
+  }
+
   try {
     const token = await generateKlingToken();
 
@@ -31,7 +36,7 @@ export async function GET(req: NextRequest) {
     });
 
     const data = await response.json();
-    if (!response.ok) return NextResponse.json({ error: data }, { status: response.status });
+    if (!response.ok) return NextResponse.json({ error: 'Failed to check video status' }, { status: 502 });
 
     const task = data.data;
     const status = task?.task_status;
