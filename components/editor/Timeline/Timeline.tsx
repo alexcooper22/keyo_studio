@@ -4,6 +4,8 @@ import { useEditor } from '../../../lib/editor/EditorContext'
 import { secondsToPixels } from '../../../lib/editor/timeline-utils'
 import TimelineRuler from './TimelineRuler'
 import Playhead from './Playhead'
+import VideoTrack from './VideoTrack'
+import AudioTrack from './AudioTrack'
 
 const TRACK_HEIGHT = 40
 const RULER_HEIGHT = 24
@@ -66,8 +68,15 @@ export default function Timeline() {
               </div>
             ))}
 
-            <div style={{ position: 'absolute', left: LABEL_WIDTH, right: 0, top: TRACK_HEIGHT, height: TRACK_HEIGHT }} id="video-track-slot" />
-            <div style={{ position: 'absolute', left: LABEL_WIDTH, right: 0, top: TRACK_HEIGHT * 2, height: TRACK_HEIGHT }} id="audio-track-slot" />
+            {/* Video track */}
+            <div style={{ position: 'absolute', left: LABEL_WIDTH, right: 0, top: TRACK_HEIGHT, height: TRACK_HEIGHT }}>
+              <VideoTrack />
+            </div>
+
+            {/* Audio track */}
+            <div style={{ position: 'absolute', left: LABEL_WIDTH, right: 0, top: TRACK_HEIGHT * 2, height: TRACK_HEIGHT }}>
+              <AudioTrack />
+            </div>
           </div>
         </div>
       </div>
