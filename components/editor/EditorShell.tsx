@@ -4,6 +4,7 @@ import Toolbar from './Toolbar'
 import VideoPreview from './VideoPreview'
 import Timeline from './Timeline/Timeline'
 import MediaPanel from './Panels/MediaPanel'
+import AudioPanel from './Panels/AudioPanel'
 
 const PANEL_TABS = ['Media', 'Audio', 'Text', 'Filters'] as const
 type PanelTab = typeof PANEL_TABS[number]
@@ -42,7 +43,7 @@ export default function EditorShell() {
           </div>
           <div style={{ flex: 1, overflow: 'hidden auto' }}>
             {activeTab === 'Media' && <MediaPanel />}
-            {activeTab === 'Audio' && <div style={{ padding: 16, color: '#666', fontSize: 12 }}>Audio panel — coming in Task 13</div>}
+            {activeTab === 'Audio' && <AudioPanel />}
             {activeTab === 'Text' && <div style={{ padding: 16, color: '#666', fontSize: 12 }}>Text overlays — coming soon</div>}
             {activeTab === 'Filters' && <div style={{ padding: 16, color: '#666', fontSize: 12 }}>Filters — coming soon</div>}
           </div>
