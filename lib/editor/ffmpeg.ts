@@ -1,0 +1,88 @@
+import { FFmpeg } from '@ffmpeg/ffmpeg'
+import { fetchFile, toBlobURL } from '@ffmpeg/util'
+import type { VideoClip, AudioTrack } from './types'
+import { clipEffectiveDuration } from './timeline-utils'
+
+let instance: FFmpeg | null = null
+
+async function getFFmpeg(): Promise<FFmpeg> {
+  if (instance) return instance
+  const ffmpeg = new FFmpeg()
+  const base = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd'
+  await ffmpeg.load({
+    coreURL: await toBlobURL(`${base}/ffmpeg-core.js`, 'text/javascript'),
+    wasmURL: await toBlobURL(`${base}/ffmpeg-core.wasm`, 'application/wasm'),
+  })
+  instance = ffmpeg
+  return ffmpeg
+}
+
+export async function exportToMp4(
+  clips: VideoClip[],
+  audioTracks: AudioTrack[],
+  onProgress: (pct: number) => void
+): Promise<Blob> {
+  const ffmpeg = await getFFmpeg()
+  onProgress(5)
+
+  const sorted = [...clips].sort((a, b) => a.startOnTimeline - b.startOnTimeline)
+
+  const trimmedNames: string[] = []
+  for (let i = 0; i < sorted.length; i++) {
+    const clip = sorted[i]
+    const inputName = `in_${i}.mp4`
+    const outName = `trimmed_${i}.mp4`
+
+    const resp = await fetch(clip.src)
+    const blob = await resp.blob()
+    await ffmpeg.writeFile(inputName, await fetchFile(blob))
+
+    const dur = clipEffectiveDuration(clip)
+    await ffmpeg.exec([
+      '-ss', String(clip.trimStart),
+      '-i', inputName,
+      '-t', String(dur),
+      '-c:v', 'libx264', '-preset', 'ultrafast', '-crf', '23',
+      '-c:a', 'aac',
+      outName,
+    ])
+    trimmedNames.push(outName)
+    onProgress(5 + (i + 1) / sorted.length * 40)
+  }
+
+  const concatList = trimmedNames.map(n => `file '${n}'`).join('\n')
+  await ffmpeg.writeFile('list.txt', concatList)
+  await ffmpeg.exec(['-f', 'concat', '-safe', '0', '-i', 'list.txt', '-c', 'copy', 'merged.mp4'])
+  onProgress(55)
+
+  if (audioTracks.length > 0) {
+    const audioNames: string[] = []
+    for (let i = 0; i < audioTracks.length; i++) {
+      const track = audioTracks[i]
+      const aName = `audio_${i}.mp3`
+      const resp = await fetch(track.src)
+      const blob = await resp.blob()
+      await ffmpeg.writeFile(aName, await fetchFile(blob))
+      audioNames.push(aName)
+    }
+    onProgress(70)
+
+    const inputs = ['-i', 'merged.mp4', ...audioNames.flatMap(a => ['-i', a])]
+    const n = audioNames.length + 1
+    const filterStr = Array.from({ length: n }, (_, i) => `[${i}:a]`).join('') + `amix=inputs=${n}:duration=first`
+
+    await ffmpeg.exec([
+      ...inputs,
+      '-filter_complex', filterStr,
+      '-c:v', 'copy',
+      'output.mp4',
+    ])
+  } else {
+    await ffmpeg.exec(['-i', 'merged.mp4', '-c', 'copy', 'output.mp4'])
+  }
+
+  onProgress(95)
+  const data = await ffmpeg.readFile('output.mp4') as Uint8Array
+  onProgress(100)
+  return new Blob([data.buffer as ArrayBuffer], { type: 'video/mp4' })
+}

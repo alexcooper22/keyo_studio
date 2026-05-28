@@ -5,6 +5,7 @@ import VideoPreview from './VideoPreview'
 import Timeline from './Timeline/Timeline'
 import MediaPanel from './Panels/MediaPanel'
 import AudioPanel from './Panels/AudioPanel'
+import ExportModal from './ExportModal'
 
 const PANEL_TABS = ['Media', 'Audio', 'Text', 'Filters'] as const
 type PanelTab = typeof PANEL_TABS[number]
@@ -53,14 +54,7 @@ export default function EditorShell() {
 
       <Timeline />
 
-      {showExport && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
-          <div style={{ background: '#1e1e1e', borderRadius: 12, padding: 24, border: '1px solid rgba(255,255,255,0.1)', color: 'white' }}>
-            <p style={{ marginBottom: 12 }}>Export modal — coming in Task 14</p>
-            <button onClick={() => setShowExport(false)} style={{ padding: '6px 14px', background: '#c8ed4d', color: '#0e1004', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 600 }}>Close</button>
-          </div>
-        </div>
-      )}
+      {showExport && <ExportModal onClose={() => setShowExport(false)} />}
     </div>
   )
 }
