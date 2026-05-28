@@ -139,3 +139,6 @@ body {
   .font-dm { font-family: var(--font-dm), sans-serif; }
   .font-clash { font-family: var(--font-clash); }
 }
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
