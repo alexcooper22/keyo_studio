@@ -52,7 +52,9 @@ export default function Timeline() {
         <div style={{ width: totalWidth, position: 'relative' }}>
           <TimelineRuler totalWidth={totalWidth} />
           <div style={{ position: 'relative', height: tracksHeight }}>
-            <Playhead height={tracksHeight + RULER_HEIGHT} />
+            <div style={{ position: 'absolute', top: -RULER_HEIGHT, left: 0, right: 0, pointerEvents: 'none' }}>
+              <Playhead height={tracksHeight + RULER_HEIGHT} />
+            </div>
 
             {[0, TRACK_HEIGHT, TRACK_HEIGHT * 2].map(top => (
               <div key={top} style={{ position: 'absolute', left: 0, right: 0, top, height: 1, background: 'rgba(255,255,255,0.04)' }} />

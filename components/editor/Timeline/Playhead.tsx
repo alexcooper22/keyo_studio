@@ -2,9 +2,11 @@
 import { useEditor } from '../../../lib/editor/EditorContext'
 import { secondsToPixels } from '../../../lib/editor/timeline-utils'
 
+const LABEL_WIDTH = 40
+
 export default function Playhead({ height }: { height: number }) {
   const { state } = useEditor()
-  const x = secondsToPixels(state.playhead, state.zoom)
+  const x = LABEL_WIDTH + secondsToPixels(state.playhead, state.zoom)
 
   return (
     <div

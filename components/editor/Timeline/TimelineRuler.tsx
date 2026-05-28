@@ -4,6 +4,7 @@ import { useEditor } from '../../../lib/editor/EditorContext'
 import { secondsToPixels, pixelsToSeconds, formatTimecode } from '../../../lib/editor/timeline-utils'
 
 const RULER_HEIGHT = 24
+const LABEL_WIDTH = 40
 
 export default function TimelineRuler({ totalWidth }: { totalWidth: number }) {
   const { state, dispatch } = useEditor()
@@ -18,7 +19,8 @@ export default function TimelineRuler({ totalWidth }: { totalWidth: number }) {
   const handleClick = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
     const rect = e.currentTarget.getBoundingClientRect()
     const x = e.clientX - rect.left
-    dispatch({ type: 'SET_PLAYHEAD', time: pixelsToSeconds(x, zoom) })
+    const time = pixelsToSeconds(Math.max(0, x - LABEL_WIDTH), zoom)
+    dispatch({ type: 'SET_PLAYHEAD', time })
   }, [zoom, dispatch])
 
   return (
@@ -29,8 +31,10 @@ export default function TimelineRuler({ totalWidth }: { totalWidth: number }) {
       onClick={handleClick}
     >
       <rect width={totalWidth} height={RULER_HEIGHT} fill="#1e1e1e" />
+      {/* Label gutter background */}
+      <rect width={LABEL_WIDTH} height={RULER_HEIGHT} fill="#1a1a1a" />
       {ticks.map(({ s, major }) => {
-        const x = secondsToPixels(s, zoom)
+        const x = LABEL_WIDTH + secondsToPixels(s, zoom)
         return (
           <g key={s}>
             <line x1={x} y1={major ? 10 : 16} x2={x} y2={RULER_HEIGHT} stroke="rgba(255,255,255,0.15)" strokeWidth={major ? 1 : 0.5} />
