@@ -19,7 +19,7 @@ const initialState: EditorState = {
   clips: [],
   audioTracks: [],
   playhead: 0,
-  duration: 30,
+  duration: 5,
   zoom: 40,
   selectedId: null,
   playing: false,
@@ -59,13 +59,10 @@ function reducer(state: EditorState, action: EditorAction): EditorState {
       const clips = state.clips.map(c => {
         if (c.id !== action.id) return c
         const minDur = 0.2
-        const maxTrimStart = c.originalDuration - c.trimEnd - minDur
-        const maxTrimEnd = c.originalDuration - action.trimStart - minDur
-        return {
-          ...c,
-          trimStart: Math.max(0, Math.min(action.trimStart, maxTrimStart)),
-          trimEnd: Math.max(0, Math.min(action.trimEnd, maxTrimEnd)),
-        }
+        // Clamp trimStart first, then trimEnd against the already-clamped trimStart
+        const trimStart = Math.max(0, Math.min(action.trimStart, c.originalDuration - c.trimEnd - minDur))
+        const trimEnd = Math.max(0, Math.min(action.trimEnd, c.originalDuration - trimStart - minDur))
+        return { ...c, trimStart, trimEnd }
       })
       return { ...state, clips, duration: calcDuration(clips, state.audioTracks), past: pushPast(state.past, snapshot(state)) }
     }
