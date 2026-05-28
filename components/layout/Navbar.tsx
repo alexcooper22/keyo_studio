@@ -84,6 +84,7 @@ export default function Navbar() {
     { name: 'Image', href: '/image' },
     { name: 'Video', href: '/video' },
     { name: 'Audio', href: '/audio' },
+    { name: 'Editor', href: '/editor' },
   ];
 
   const avatarLetter = (
@@ -459,6 +460,16 @@ export default function Navbar() {
               <circle cx="18" cy="16" r="3"/>
             </svg>
             <span className="font-dm text-[10px] font-[500]">Audio</span>
+          </Link>
+
+          {/* Editor */}
+          <Link href="/editor" className="flex flex-col items-center gap-[3px] flex-1 py-2 transition-colors duration-150"
+            style={{ color: pathname === '/editor' ? 'rgba(170,140,255,0.95)' : 'rgba(255,255,255,0.3)' }}>
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="2" y="6" width="20" height="12" rx="2"/>
+              <path d="M12 2v4M8 10h8M8 14h5"/>
+            </svg>
+            <span className="font-dm text-[10px] font-[500]">Edit</span>
           </Link>
 
         </div>
