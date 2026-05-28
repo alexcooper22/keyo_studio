@@ -1,5 +1,5 @@
 'use client'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useEditor } from '../../lib/editor/EditorContext'
 import { exportToMp4 } from '../../lib/editor/ffmpeg'
 
@@ -16,6 +16,13 @@ export default function ExportModal({ onClose }: ExportModalProps) {
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
+  // Revoke the blob URL when it changes or the component unmounts
+  useEffect(() => {
+    return () => {
+      if (downloadUrl) URL.revokeObjectURL(downloadUrl)
+    }
+  }, [downloadUrl])
+
   const startExport = useCallback(async () => {
     setStatus('loading')
     setProgress(0)
@@ -23,8 +30,8 @@ export default function ExportModal({ onClose }: ExportModalProps) {
     setDownloadUrl(null)
 
     try {
-      setStatus('exporting')
       const blob = await exportToMp4(state.clips, state.audioTracks, (pct) => {
+        setStatus('exporting')
         setProgress(Math.round(pct))
       })
       const url = URL.createObjectURL(blob)
@@ -101,7 +108,7 @@ export default function ExportModal({ onClose }: ExportModalProps) {
                 ⬇ Download MP4
               </a>
               <button
-                onClick={() => { setStatus('idle'); setProgress(0) }}
+                onClick={() => { if (downloadUrl) URL.revokeObjectURL(downloadUrl); setDownloadUrl(null); setStatus('idle'); setProgress(0) }}
                 style={{ height: 36, padding: '0 14px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'rgba(255,255,255,0.5)', fontSize: 13, cursor: 'pointer' }}
               >
                 Re-export
