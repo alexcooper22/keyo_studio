@@ -117,14 +117,17 @@ export default function ClipBlock({ clip, trackHeight }: ClipBlockProps) {
         width,
         height: trackHeight - 6,
         background: selected
-          ? 'linear-gradient(180deg, rgba(200,237,77,0.25), rgba(200,237,77,0.15))'
-          : 'linear-gradient(180deg, rgba(120,80,255,0.5), rgba(83,47,207,0.35))',
-        border: selected ? '1.5px solid #c8ed4d' : '1.5px solid rgba(120,80,255,0.6)',
+          ? 'linear-gradient(180deg, rgba(120,80,255,0.35), rgba(83,47,207,0.22))'
+          : 'linear-gradient(180deg, rgba(83,47,207,0.4), rgba(60,30,180,0.28))',
+        border: selected
+          ? '1px solid rgba(155,126,255,0.7)'
+          : '0.5px solid rgba(120,80,255,0.45)',
         borderRadius: 5,
         cursor: 'grab',
         userSelect: 'none',
         overflow: 'hidden',
         boxSizing: 'border-box',
+        boxShadow: selected ? '0 0 10px rgba(120,80,255,0.25)' : 'none',
       }}
       onMouseDown={e => startDrag(e, 'move')}
     >
@@ -133,24 +136,25 @@ export default function ClipBlock({ clip, trackHeight }: ClipBlockProps) {
         style={{
           position: 'absolute', left: 0, top: 0, bottom: 0, width: HANDLE_WIDTH,
           cursor: 'ew-resize',
-          background: selected ? 'rgba(200,237,77,0.5)' : 'rgba(255,255,255,0.2)',
+          background: selected ? 'rgba(155,126,255,0.4)' : 'rgba(120,80,255,0.25)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2,
           zIndex: 2,
         }}
         onMouseDown={e => startDrag(e, 'trimLeft')}
       >
-        <div style={{ width: 1.5, height: 12, background: 'rgba(255,255,255,0.7)', borderRadius: 1 }} />
-        <div style={{ width: 1.5, height: 8, background: 'rgba(255,255,255,0.4)', borderRadius: 1 }} />
+        <div style={{ width: 1.5, height: 12, background: 'rgba(200,170,255,0.8)', borderRadius: 1 }} />
+        <div style={{ width: 1.5, height: 8, background: 'rgba(200,170,255,0.4)', borderRadius: 1 }} />
       </div>
 
       {/* Filename label */}
       <div style={{
         position: 'absolute', left: HANDLE_WIDTH + 4, right: HANDLE_WIDTH + 4,
         top: '50%', transform: 'translateY(-50%)',
-        fontSize: 10, color: 'rgba(255,255,255,0.8)',
+        fontSize: 9, color: 'rgba(200,170,255,0.9)',
         whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
         pointerEvents: 'none',
-        fontFamily: 'ui-monospace, monospace',
+        fontFamily: 'var(--font-dm), DM Sans, sans-serif',
+        letterSpacing: '0.01em',
       }}>
         {clip.filename}
       </div>
@@ -160,14 +164,14 @@ export default function ClipBlock({ clip, trackHeight }: ClipBlockProps) {
         style={{
           position: 'absolute', right: 0, top: 0, bottom: 0, width: HANDLE_WIDTH,
           cursor: 'ew-resize',
-          background: selected ? 'rgba(200,237,77,0.5)' : 'rgba(255,255,255,0.2)',
+          background: selected ? 'rgba(155,126,255,0.4)' : 'rgba(120,80,255,0.25)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2,
           zIndex: 2,
         }}
         onMouseDown={e => startDrag(e, 'trimRight')}
       >
-        <div style={{ width: 1.5, height: 8, background: 'rgba(255,255,255,0.4)', borderRadius: 1 }} />
-        <div style={{ width: 1.5, height: 12, background: 'rgba(255,255,255,0.7)', borderRadius: 1 }} />
+        <div style={{ width: 1.5, height: 8, background: 'rgba(200,170,255,0.4)', borderRadius: 1 }} />
+        <div style={{ width: 1.5, height: 12, background: 'rgba(200,170,255,0.8)', borderRadius: 1 }} />
       </div>
     </div>
   )

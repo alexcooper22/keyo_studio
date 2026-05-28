@@ -48,7 +48,12 @@ export default function Timeline() {
   }, [state.selectedId, state.clips, dispatch])
 
   return (
-    <div style={{ height: TIMELINE_HEIGHT, background: '#161616', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexDirection: 'column' }}>
+    <div style={{
+      height: TIMELINE_HEIGHT,
+      background: '#0a0a0a',
+      borderTop: '0.5px solid rgba(120,80,255,0.12)',
+      display: 'flex', flexDirection: 'column',
+    }}>
       <div ref={scrollRef} style={{ flex: 1, overflowX: 'auto', overflowY: 'hidden', position: 'relative' }}
         className="no-scrollbar">
         <div style={{ width: totalWidth, position: 'relative' }}>
@@ -59,12 +64,19 @@ export default function Timeline() {
             </div>
 
             {[0, TRACK_HEIGHT, TRACK_HEIGHT * 2].map(top => (
-              <div key={top} style={{ position: 'absolute', left: 0, right: 0, top, height: 1, background: 'rgba(255,255,255,0.04)' }} />
+              <div key={top} style={{ position: 'absolute', left: 0, right: 0, top, height: 1, background: 'rgba(120,80,255,0.06)' }} />
             ))}
 
             {(['TEXT', 'VIDEO', 'AUDIO'] as const).map((label, i) => (
               <div key={label} style={{ position: 'absolute', left: 0, top: TRACK_HEIGHT * i, width: LABEL_WIDTH, height: TRACK_HEIGHT, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)', writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>{label}</span>
+                <span style={{
+                  fontSize: 8, color: 'rgba(120,80,255,0.3)',
+                  writingMode: 'vertical-rl', transform: 'rotate(180deg)',
+                  fontFamily: 'var(--font-dm), DM Sans, sans-serif',
+                  fontWeight: 600, letterSpacing: '0.08em',
+                }}>
+                  {label}
+                </span>
               </div>
             ))}
 
@@ -81,12 +93,22 @@ export default function Timeline() {
         </div>
       </div>
 
-      <div style={{ height: 24, borderTop: '1px solid rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', padding: '0 12px', gap: 12 }}>
-        <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', fontVariantNumeric: 'tabular-nums', fontFamily: 'ui-monospace, monospace' }}>
+      <div style={{
+        height: 24, borderTop: '0.5px solid rgba(255,255,255,0.04)',
+        display: 'flex', alignItems: 'center', padding: '0 14px', gap: 14,
+      }}>
+        <span style={{
+          fontSize: 9, color: 'rgba(255,255,255,0.2)',
+          fontVariantNumeric: 'tabular-nums',
+          fontFamily: 'var(--font-dm), DM Sans, sans-serif',
+        }}>
           {state.clips.length} clip{state.clips.length !== 1 ? 's' : ''}
         </span>
-        <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.15)' }}>
-          zoom {Math.round(state.zoom / 40 * 100)}%
+        <span style={{
+          fontSize: 9, color: 'rgba(120,80,255,0.3)',
+          fontFamily: 'ui-monospace, monospace',
+        }}>
+          {Math.round(state.zoom / 40 * 100)}%
         </span>
       </div>
     </div>

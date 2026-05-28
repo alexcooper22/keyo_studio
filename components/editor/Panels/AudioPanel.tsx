@@ -56,7 +56,7 @@ export default function AudioPanel() {
   }, [addFiles])
 
   return (
-    <div style={{ padding: 12, display: 'flex', flexDirection: 'column', gap: 10 }}>
+    <div style={{ padding: 12, display: 'flex', flexDirection: 'column', gap: 10, fontFamily: 'var(--font-dm), DM Sans, sans-serif' }}>
       {/* Drop zone */}
       <div
         onDragOver={e => { e.preventDefault(); setDragging(true) }}
@@ -64,18 +64,26 @@ export default function AudioPanel() {
         onDrop={onDrop}
         onClick={() => fileInputRef.current?.click()}
         style={{
-          border: `1.5px dashed ${dragging ? '#ec4899' : 'rgba(255,255,255,0.12)'}`,
-          borderRadius: 8, padding: '20px 12px', textAlign: 'center', cursor: 'pointer',
-          background: dragging ? 'rgba(236,72,153,0.05)' : 'rgba(255,255,255,0.02)',
+          border: dragging ? '1px solid rgba(99,102,241,0.6)' : '0.5px dashed rgba(99,102,241,0.22)',
+          borderRadius: 10, padding: '18px 12px', textAlign: 'center', cursor: 'pointer',
+          background: dragging ? 'rgba(99,102,241,0.08)' : 'rgba(99,102,241,0.04)',
           transition: 'all 0.15s',
         }}
       >
-        <div style={{ fontSize: 22, marginBottom: 6 }}>🎵</div>
-        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.4 }}>
-          {loading ? 'Loading...' : (
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 8 }}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+            stroke={dragging ? 'rgba(129,140,248,0.8)' : 'rgba(99,102,241,0.5)'}
+            strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+        </div>
+        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>
+          {loading ? (
+            <span style={{ color: 'rgba(129,140,248,0.7)' }}>Loading…</span>
+          ) : (
             <>
               Drop audio files here<br />
-              <span style={{ color: 'rgba(255,255,255,0.25)', fontSize: 11 }}>MP3, WAV, M4A</span>
+              <span style={{ color: 'rgba(99,102,241,0.5)', fontSize: 10 }}>MP3, WAV, M4A</span>
             </>
           )}
         </div>
@@ -93,30 +101,36 @@ export default function AudioPanel() {
       {/* Track list */}
       {state.audioTracks.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>
-            Audio tracks
+          <div style={{
+            fontSize: 9, color: 'rgba(99,102,241,0.55)',
+            textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4,
+            fontWeight: 600,
+          }}>
+            ✦ Audio tracks
           </div>
           {state.audioTracks.map(track => (
             <div
               key={track.id}
               onClick={() => dispatch({ type: 'SELECT', id: track.id })}
               style={{
-                padding: '8px', borderRadius: 6, cursor: 'pointer',
-                background: state.selectedId === track.id ? 'rgba(236,72,153,0.08)' : 'rgba(255,255,255,0.03)',
-                border: state.selectedId === track.id ? '1px solid rgba(236,72,153,0.2)' : '1px solid transparent',
+                padding: '8px', borderRadius: 8, cursor: 'pointer',
+                background: state.selectedId === track.id ? 'rgba(99,102,241,0.1)' : 'rgba(255,255,255,0.025)',
+                border: state.selectedId === track.id
+                  ? '0.5px solid rgba(129,140,248,0.35)'
+                  : '0.5px solid rgba(255,255,255,0.04)',
                 transition: 'all 0.15s',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 180 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.65)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 170 }}>
                   {track.name}
                 </span>
                 <button
                   onClick={e => { e.stopPropagation(); dispatch({ type: 'REMOVE_AUDIO', id: track.id }) }}
-                  style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.2)', cursor: 'pointer', padding: 2, fontSize: 14, lineHeight: 1 }}
+                  style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.18)', cursor: 'pointer', padding: '2px 4px', fontSize: 14, lineHeight: 1 }}
                 >×</button>
               </div>
-              <Waveform seed={track.id} color="rgba(236,72,153,0.6)" height={18} />
+              <Waveform seed={track.id} color="rgba(129,140,248,0.65)" height={18} />
             </div>
           ))}
         </div>

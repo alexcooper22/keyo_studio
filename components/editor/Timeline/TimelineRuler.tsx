@@ -30,16 +30,22 @@ export default function TimelineRuler({ totalWidth }: { totalWidth: number }) {
       style={{ display: 'block', flexShrink: 0, cursor: 'pointer' }}
       onClick={handleClick}
     >
-      <rect width={totalWidth} height={RULER_HEIGHT} fill="#1e1e1e" />
+      <rect width={totalWidth} height={RULER_HEIGHT} fill="#0d0d0d" />
       {/* Label gutter background */}
-      <rect width={LABEL_WIDTH} height={RULER_HEIGHT} fill="#1a1a1a" />
+      <rect width={LABEL_WIDTH} height={RULER_HEIGHT} fill="#0a0a0a" />
+      {/* Bottom border line */}
+      <line x1={0} y1={RULER_HEIGHT - 0.5} x2={totalWidth} y2={RULER_HEIGHT - 0.5} stroke="rgba(120,80,255,0.1)" strokeWidth={0.5} />
       {ticks.map(({ s, major }) => {
         const x = LABEL_WIDTH + secondsToPixels(s, zoom)
         return (
           <g key={s}>
-            <line x1={x} y1={major ? 10 : 16} x2={x} y2={RULER_HEIGHT} stroke="rgba(255,255,255,0.15)" strokeWidth={major ? 1 : 0.5} />
+            <line
+              x1={x} y1={major ? 8 : 16} x2={x} y2={RULER_HEIGHT}
+              stroke={major ? 'rgba(120,80,255,0.2)' : 'rgba(120,80,255,0.1)'}
+              strokeWidth={major ? 0.5 : 0.5}
+            />
             {major && (
-              <text x={x + 3} y={10} fill="rgba(255,255,255,0.35)" fontSize={9} fontFamily="ui-monospace, monospace">
+              <text x={x + 3} y={9} fill="rgba(155,126,255,0.45)" fontSize={8} fontFamily="ui-monospace, monospace" letterSpacing="0.03em">
                 {formatTimecode(s)}
               </text>
             )}

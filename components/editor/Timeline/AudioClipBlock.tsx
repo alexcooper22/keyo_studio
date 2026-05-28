@@ -103,14 +103,17 @@ export default function AudioClipBlock({ track, trackHeight }: AudioClipBlockPro
         width,
         height: trackHeight - 6,
         background: selected
-          ? 'linear-gradient(180deg, rgba(236,72,153,0.4), rgba(236,72,153,0.25))'
-          : 'linear-gradient(180deg, rgba(236,72,153,0.3), rgba(236,72,153,0.15))',
-        border: selected ? '1.5px solid #ec4899' : '1.5px solid rgba(236,72,153,0.5)',
+          ? 'linear-gradient(180deg, rgba(99,102,241,0.4), rgba(79,82,221,0.28))'
+          : 'linear-gradient(180deg, rgba(99,102,241,0.28), rgba(79,82,221,0.18))',
+        border: selected
+          ? '1px solid rgba(129,140,248,0.7)'
+          : '0.5px solid rgba(99,102,241,0.45)',
         borderRadius: 5,
         cursor: 'grab',
         userSelect: 'none',
         overflow: 'hidden',
         boxSizing: 'border-box',
+        boxShadow: selected ? '0 0 10px rgba(99,102,241,0.25)' : 'none',
       }}
       onMouseDown={e => startDrag(e, 'move')}
     >
@@ -119,24 +122,25 @@ export default function AudioClipBlock({ track, trackHeight }: AudioClipBlockPro
         style={{
           position: 'absolute', left: 0, top: 0, bottom: 0, width: HANDLE_WIDTH,
           cursor: 'ew-resize',
-          background: selected ? 'rgba(236,72,153,0.6)' : 'rgba(255,255,255,0.2)',
+          background: selected ? 'rgba(129,140,248,0.45)' : 'rgba(99,102,241,0.3)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2,
           zIndex: 2, flexShrink: 0,
         }}
         onMouseDown={e => startDrag(e, 'trimLeft')}
       >
-        <div style={{ width: 1.5, height: 12, background: 'rgba(255,255,255,0.7)', borderRadius: 1 }} />
-        <div style={{ width: 1.5, height: 8, background: 'rgba(255,255,255,0.4)', borderRadius: 1 }} />
+        <div style={{ width: 1.5, height: 12, background: 'rgba(196,198,255,0.8)', borderRadius: 1 }} />
+        <div style={{ width: 1.5, height: 8, background: 'rgba(196,198,255,0.4)', borderRadius: 1 }} />
       </div>
 
       {/* Track name */}
       <div style={{
         position: 'absolute', left: HANDLE_WIDTH + 4, right: HANDLE_WIDTH + 4,
         top: '50%', transform: 'translateY(-50%)',
-        fontSize: 10, color: 'rgba(255,255,255,0.75)',
+        fontSize: 9, color: 'rgba(196,198,255,0.9)',
         whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
         pointerEvents: 'none',
-        fontFamily: 'ui-monospace, monospace',
+        fontFamily: 'var(--font-dm), DM Sans, sans-serif',
+        letterSpacing: '0.01em',
       }}>
         ♪ {track.name}
       </div>
@@ -146,14 +150,14 @@ export default function AudioClipBlock({ track, trackHeight }: AudioClipBlockPro
         style={{
           position: 'absolute', right: 0, top: 0, bottom: 0, width: HANDLE_WIDTH,
           cursor: 'ew-resize',
-          background: selected ? 'rgba(236,72,153,0.6)' : 'rgba(255,255,255,0.2)',
+          background: selected ? 'rgba(129,140,248,0.45)' : 'rgba(99,102,241,0.3)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2,
           zIndex: 2, flexShrink: 0,
         }}
         onMouseDown={e => startDrag(e, 'trimRight')}
       >
-        <div style={{ width: 1.5, height: 8, background: 'rgba(255,255,255,0.4)', borderRadius: 1 }} />
-        <div style={{ width: 1.5, height: 12, background: 'rgba(255,255,255,0.7)', borderRadius: 1 }} />
+        <div style={{ width: 1.5, height: 8, background: 'rgba(196,198,255,0.4)', borderRadius: 1 }} />
+        <div style={{ width: 1.5, height: 12, background: 'rgba(196,198,255,0.8)', borderRadius: 1 }} />
       </div>
     </div>
   )

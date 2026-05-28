@@ -37,20 +37,21 @@ export default function Playhead({ height }: { height: number }) {
     <div
       style={{
         position: 'absolute', top: 0, left: x, width: 1,
-        height, background: '#c8ed4d',
+        height, background: 'rgba(155,126,255,0.8)',
         pointerEvents: 'none', zIndex: 10,
-        boxShadow: '0 0 6px rgba(200,237,77,0.5)',
+        boxShadow: '0 0 8px rgba(120,80,255,0.6)',
       }}
     >
       {/* Diamond head — draggable */}
       <div
         style={{
-          position: 'absolute', top: -1, left: -8,
-          width: 16, height: 16,
-          background: '#c8ed4d',
+          position: 'absolute', top: -1, left: -7,
+          width: 14, height: 14,
+          background: 'linear-gradient(135deg, #9b7eff 0%, #7b5ef8 100%)',
           clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)',
           cursor: 'ew-resize',
           pointerEvents: 'auto',
+          boxShadow: '0 0 8px rgba(120,80,255,0.8)',
         }}
         onMouseDown={startDrag}
       />

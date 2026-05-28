@@ -206,50 +206,95 @@ export default function VideoPreview() {
 
   return (
     <div style={{
-      flex: 1, background: '#0e0e0e',
+      flex: 1,
+      background: '#080808',
       display: 'flex', flexDirection: 'column',
-      alignItems: 'center', justifyContent: 'center', gap: 12,
-      padding: 16, overflow: 'hidden',
+      alignItems: 'center', justifyContent: 'center', gap: 14,
+      padding: 20, overflow: 'hidden',
+      position: 'relative',
     }}>
-      <div style={{ position: 'relative' }}>
+      {/* Dot grid background */}
+      <div aria-hidden="true" style={{
+        position: 'absolute', inset: 0, pointerEvents: 'none',
+        backgroundImage: 'radial-gradient(rgba(120,80,255,0.1) 1px, transparent 1px)',
+        backgroundSize: '36px 36px',
+        maskImage: 'radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%)',
+        WebkitMaskImage: 'radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%)',
+      }} />
+
+      {/* Ambient purple glow */}
+      <div aria-hidden="true" style={{
+        position: 'absolute', top: '10%', left: '50%',
+        width: '500px', height: '400px',
+        transform: 'translateX(-50%)',
+        background: 'radial-gradient(ellipse at center, rgba(83,47,207,0.12) 0%, rgba(60,30,180,0.06) 40%, transparent 70%)',
+        borderRadius: '50%', pointerEvents: 'none',
+      }} />
+
+      {/* Canvas */}
+      <div style={{ position: 'relative', zIndex: 1 }}>
         <canvas
           ref={canvasRef}
           width={CANVAS_W}
           height={CANVAS_H}
           style={{
-            maxHeight: 'calc(100vh - 48px - 180px - 80px)',
+            maxHeight: 'calc(100vh - 60px - 180px - 80px)',
             maxWidth: '100%',
             aspectRatio: '9/16',
             display: 'block',
-            background: '#141414',
-            borderRadius: 4,
+            background: '#0f0f0f',
+            borderRadius: 10,
+            border: '0.5px solid rgba(120,80,255,0.2)',
+            boxShadow: '0 0 40px rgba(83,47,207,0.15), 0 8px 32px rgba(0,0,0,0.6)',
           }}
         />
         {state.clips.length === 0 && (
           <div style={{
             position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column',
-            alignItems: 'center', justifyContent: 'center',
-            color: 'rgba(255,255,255,0.2)', fontSize: 12, gap: 8,
+            alignItems: 'center', justifyContent: 'center', gap: 10,
           }}>
-            <div style={{ fontSize: 32 }}>🎬</div>
-            <span>Add video clips to get started</span>
+            {/* Film icon */}
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(120,80,255,0.4)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="2" y="7" width="20" height="15" rx="1.5"/>
+              <polyline points="17 2 22 7 2 7 7 2 17 2"/>
+              <line x1="7" y1="2" x2="7" y2="7"/>
+              <line x1="12" y1="2" x2="12" y2="7"/>
+              <line x1="17" y1="2" x2="17" y2="7"/>
+            </svg>
+            <span style={{
+              fontSize: 11, color: 'rgba(255,255,255,0.25)',
+              fontFamily: 'var(--font-dm), DM Sans, sans-serif',
+            }}>
+              Add video clips to get started
+            </span>
           </div>
         )}
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+      {/* Playback controls */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, zIndex: 1 }}>
         <button
           onClick={() => { dispatch({ type: 'SET_PLAYING', playing: false }); dispatch({ type: 'SET_PLAYHEAD', time: 0 }) }}
-          style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', padding: 4, fontSize: 16, lineHeight: 1 }}
+          style={{
+            background: 'rgba(255,255,255,0.04)',
+            border: '0.5px solid rgba(255,255,255,0.08)',
+            borderRadius: 6, color: 'rgba(255,255,255,0.4)',
+            cursor: 'pointer', width: 28, height: 28, fontSize: 13,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            transition: 'all 0.15s',
+          }}
           title="Rewind"
         >⏮</button>
 
         <button
           onClick={togglePlay}
           style={{
-            width: 40, height: 40, borderRadius: '50%', border: 'none', cursor: 'pointer',
-            background: '#c8ed4d', color: '#0e1004', fontSize: 16,
+            width: 38, height: 38, borderRadius: '50%', border: 'none', cursor: 'pointer',
+            background: 'linear-gradient(135deg, #532fcf 0%, #7b5ef8 100%)',
+            color: '#fff', fontSize: 14,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 0 18px rgba(83,47,207,0.5)',
+            transition: 'all 0.15s',
           }}
           title={state.playing ? 'Pause' : 'Play'}
         >
@@ -257,8 +302,9 @@ export default function VideoPreview() {
         </button>
 
         <span style={{
-          fontSize: 11, color: 'rgba(255,255,255,0.4)',
-          fontVariantNumeric: 'tabular-nums', fontFamily: 'ui-monospace, monospace', minWidth: 70,
+          fontSize: 10, color: 'rgba(255,255,255,0.35)',
+          fontVariantNumeric: 'tabular-nums', fontFamily: 'ui-monospace, monospace', minWidth: 72,
+          letterSpacing: '0.03em',
         }}>
           {formatTimecode(state.playhead)} / {formatTimecode(state.duration)}
         </span>

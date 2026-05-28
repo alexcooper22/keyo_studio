@@ -18,23 +18,32 @@ export default function EditorShell() {
     <div style={{
       position: 'fixed', inset: 0,
       display: 'flex', flexDirection: 'column',
-      background: '#141414',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+      background: '#080808',
+      fontFamily: 'var(--font-dm), DM Sans, -apple-system, sans-serif',
     }}>
       <Toolbar onExport={() => setShowExport(true)} />
 
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
-        <div style={{ width: 280, display: 'flex', flexDirection: 'column', background: '#181818', borderRight: '1px solid rgba(255,255,255,0.06)' }}>
-          <div style={{ display: 'flex', borderBottom: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
+        {/* Left panel */}
+        <div style={{
+          width: 272, display: 'flex', flexDirection: 'column',
+          background: '#0d0d0d',
+          borderRight: '0.5px solid rgba(255,255,255,0.06)',
+        }}>
+          {/* Tabs */}
+          <div style={{ display: 'flex', borderBottom: '0.5px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
             {PANEL_TABS.map(tab => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 style={{
-                  flex: 1, height: 36, border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 500,
-                  background: activeTab === tab ? 'rgba(200,237,77,0.08)' : 'transparent',
-                  color: activeTab === tab ? '#c8ed4d' : 'rgba(255,255,255,0.35)',
-                  borderBottom: activeTab === tab ? '1.5px solid #c8ed4d' : '1.5px solid transparent',
+                  flex: 1, height: 36, border: 'none', cursor: 'pointer',
+                  fontSize: 10, fontWeight: 600, letterSpacing: '0.04em',
+                  fontFamily: 'var(--font-dm), DM Sans, sans-serif',
+                  background: activeTab === tab ? 'rgba(83,47,207,0.08)' : 'transparent',
+                  color: activeTab === tab ? 'rgba(155,126,255,0.9)' : 'rgba(255,255,255,0.28)',
+                  borderBottom: activeTab === tab ? '1.5px solid rgba(120,80,255,0.7)' : '1.5px solid transparent',
+                  textTransform: 'uppercase',
                   transition: 'all 0.15s',
                 }}
               >
@@ -45,10 +54,19 @@ export default function EditorShell() {
           <div style={{ flex: 1, overflow: 'hidden auto' }}>
             {activeTab === 'Media' && <MediaPanel />}
             {activeTab === 'Audio' && <AudioPanel />}
-            {activeTab === 'Text' && <div style={{ padding: 16, color: '#666', fontSize: 12 }}>Text overlays — coming soon</div>}
-            {activeTab === 'Filters' && <div style={{ padding: 16, color: '#666', fontSize: 12 }}>Filters — coming soon</div>}
+            {activeTab === 'Text' && (
+              <div style={{ padding: 16, color: 'rgba(255,255,255,0.2)', fontSize: 11, fontFamily: 'var(--font-dm), sans-serif' }}>
+                Text overlays — coming soon
+              </div>
+            )}
+            {activeTab === 'Filters' && (
+              <div style={{ padding: 16, color: 'rgba(255,255,255,0.2)', fontSize: 11, fontFamily: 'var(--font-dm), sans-serif' }}>
+                Filters — coming soon
+              </div>
+            )}
           </div>
         </div>
+
         <VideoPreview />
       </div>
 

@@ -53,42 +53,96 @@ export default function ExportModal({ onClose }: ExportModalProps) {
 
   return (
     <div
-      style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}
+      style={{
+        position: 'fixed', inset: 0,
+        background: 'rgba(0,0,0,0.75)',
+        backdropFilter: 'blur(6px)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50,
+      }}
       onClick={e => { if (e.target === e.currentTarget) onClose() }}
     >
       <div style={{
-        background: '#1e1e1e', borderRadius: 12, padding: 24, width: 360,
-        border: '1px solid rgba(255,255,255,0.1)',
-        boxShadow: '0 20px 60px rgba(0,0,0,0.6)',
+        background: '#0f0f0f',
+        borderRadius: 14,
+        padding: 24,
+        width: 360,
+        border: '0.5px solid rgba(120,80,255,0.2)',
+        boxShadow: '0 0 60px rgba(83,47,207,0.2), 0 24px 60px rgba(0,0,0,0.7)',
+        fontFamily: 'var(--font-dm), DM Sans, sans-serif',
+        position: 'relative',
+        overflow: 'hidden',
       }}>
+        {/* Subtle top shimmer */}
+        <div aria-hidden="true" style={{
+          position: 'absolute', top: 0, left: '10%', right: '10%', height: '1px',
+          background: 'linear-gradient(90deg, transparent, rgba(120,80,255,0.4), transparent)',
+        }} />
+
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-          <h2 style={{ color: 'white', fontSize: 15, fontWeight: 600, margin: 0 }}>Export MP4</h2>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', fontSize: 18, lineHeight: 1 }}>×</button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 5,
+              background: 'rgba(83,47,207,0.1)', border: '0.5px solid rgba(83,47,207,0.3)',
+              borderRadius: 20, padding: '3px 10px',
+            }}>
+              <span style={{ color: 'rgba(120,80,255,0.8)', fontSize: 8 }}>✦</span>
+              <span style={{
+                fontFamily: 'var(--font-clash), Clash Display, sans-serif',
+                fontSize: 11, fontWeight: 600, letterSpacing: '0.5px',
+                background: 'linear-gradient(135deg, #c4b0ff 0%, #9b7eff 50%, #7b5ef8 100%)',
+                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+              }}>
+                Export MP4
+              </span>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            style={{
+              background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.08)',
+              borderRadius: 6, color: 'rgba(255,255,255,0.4)', cursor: 'pointer',
+              width: 24, height: 24, fontSize: 14, lineHeight: 1,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'all 0.15s',
+            }}
+          >×</button>
         </div>
 
-        <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 8, padding: '10px 12px', marginBottom: 16, fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>
+        <div style={{
+          background: 'rgba(83,47,207,0.06)',
+          border: '0.5px solid rgba(120,80,255,0.15)',
+          borderRadius: 8, padding: '10px 12px', marginBottom: 16,
+          fontSize: 11, color: 'rgba(255,255,255,0.45)',
+        }}>
           {state.clips.length} video clip{state.clips.length !== 1 ? 's' : ''}
           {state.audioTracks.length > 0 && ` · ${state.audioTracks.length} audio track${state.audioTracks.length !== 1 ? 's' : ''}`}
           {' · '}{state.duration.toFixed(1)}s total
         </div>
 
-        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', marginBottom: 12 }}>
+        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginBottom: 14, letterSpacing: '0.01em' }}>
           {statusMessages[status]}
         </div>
 
         {(status === 'loading' || status === 'exporting') && (
-          <div style={{ height: 4, background: 'rgba(255,255,255,0.1)', borderRadius: 2, marginBottom: 16, overflow: 'hidden' }}>
+          <div style={{ height: 3, background: 'rgba(120,80,255,0.12)', borderRadius: 2, marginBottom: 16, overflow: 'hidden' }}>
             <div style={{
-              height: '100%', background: '#c8ed4d', borderRadius: 2,
+              height: '100%',
+              background: 'linear-gradient(90deg, #532fcf, #9b7eff)',
+              borderRadius: 2,
               width: status === 'loading' ? '30%' : `${progress}%`,
               transition: 'width 0.3s',
-              animation: status === 'loading' ? 'pulse 1.5s ease-in-out infinite' : 'none',
+              animation: status === 'loading' ? 'kpulse 1.5s ease-in-out infinite' : 'none',
+              boxShadow: '0 0 8px rgba(120,80,255,0.6)',
             }} />
           </div>
         )}
 
         {status === 'error' && error && (
-          <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 6, padding: '8px 10px', marginBottom: 12, fontSize: 11, color: 'rgba(239,68,68,0.9)', wordBreak: 'break-all' }}>
+          <div style={{
+            background: 'rgba(239,68,68,0.08)', border: '0.5px solid rgba(239,68,68,0.25)',
+            borderRadius: 8, padding: '8px 10px', marginBottom: 14,
+            fontSize: 10, color: 'rgba(239,68,68,0.85)', wordBreak: 'break-all',
+          }}>
             {error}
           </div>
         )}
@@ -101,15 +155,25 @@ export default function ExportModal({ onClose }: ExportModalProps) {
                 download="keyo-export.mp4"
                 style={{
                   flex: 1, height: 36, borderRadius: 8, border: 'none', cursor: 'pointer',
-                  background: '#c8ed4d', color: '#0e1004', fontSize: 13, fontWeight: 600,
+                  background: 'linear-gradient(135deg, #532fcf 0%, #7b5ef8 100%)',
+                  color: '#fff', fontSize: 12, fontWeight: 600,
                   display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none',
+                  gap: 6, letterSpacing: '0.02em',
+                  boxShadow: '0 0 20px rgba(83,47,207,0.4)',
+                  fontFamily: 'var(--font-dm), DM Sans, sans-serif',
                 }}
               >
                 ⬇ Download MP4
               </a>
               <button
                 onClick={() => { if (downloadUrl) URL.revokeObjectURL(downloadUrl); setDownloadUrl(null); setStatus('idle'); setProgress(0) }}
-                style={{ height: 36, padding: '0 14px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'rgba(255,255,255,0.5)', fontSize: 13, cursor: 'pointer' }}
+                style={{
+                  height: 36, padding: '0 14px', borderRadius: 8,
+                  border: '0.5px solid rgba(255,255,255,0.08)',
+                  background: 'rgba(255,255,255,0.03)',
+                  color: 'rgba(255,255,255,0.4)', fontSize: 11, cursor: 'pointer',
+                  fontFamily: 'var(--font-dm), DM Sans, sans-serif',
+                }}
               >
                 Re-export
               </button>
@@ -121,8 +185,15 @@ export default function ExportModal({ onClose }: ExportModalProps) {
               style={{
                 flex: 1, height: 36, borderRadius: 8, border: 'none',
                 cursor: (status === 'loading' || status === 'exporting') ? 'not-allowed' : 'pointer',
-                background: (status === 'loading' || status === 'exporting') ? 'rgba(200,237,77,0.3)' : '#c8ed4d',
-                color: '#0e1004', fontSize: 13, fontWeight: 600,
+                background: (status === 'loading' || status === 'exporting')
+                  ? 'rgba(83,47,207,0.2)'
+                  : 'linear-gradient(135deg, #532fcf 0%, #7b5ef8 100%)',
+                color: (status === 'loading' || status === 'exporting') ? 'rgba(155,126,255,0.4)' : '#fff',
+                fontSize: 12, fontWeight: 600,
+                letterSpacing: '0.02em',
+                fontFamily: 'var(--font-dm), DM Sans, sans-serif',
+                boxShadow: (status === 'loading' || status === 'exporting') ? 'none' : '0 0 20px rgba(83,47,207,0.4)',
+                transition: 'all 0.15s',
               }}
             >
               {status === 'idle' || status === 'error' ? 'Start Export' : 'Exporting…'}
@@ -130,7 +201,7 @@ export default function ExportModal({ onClose }: ExportModalProps) {
           )}
         </div>
 
-        <style>{`@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }`}</style>
+        <style>{`@keyframes kpulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }`}</style>
       </div>
     </div>
   )
