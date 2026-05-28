@@ -6,7 +6,7 @@ export default function Page() {
       <SignUp 
         routing="path"
         path="/sign-up"
-        afterSignUpUrl="/"
+        fallbackRedirectUrl="/"
         signInUrl="/sign-in"
         appearance={{
           variables: {

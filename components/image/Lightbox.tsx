@@ -1,6 +1,6 @@
 'use client';
 import { useEffect } from 'react';
-import type { UserResource } from '@clerk/types';
+import type { UserResource } from '@clerk/shared/types';
 
 export interface ImageDetails {
   url: string;

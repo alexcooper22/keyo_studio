@@ -365,15 +365,15 @@ export default function Navbar() {
                         <div className="keyo-auth-modal relative" style={{ padding: '0 8px 4px' }}>
                           {authMode === 'login' ? (
                             <SignIn
-                              routing="virtual"
-                              afterSignInUrl="/"
+                              routing="hash"
+                              fallbackRedirectUrl="/"
                               signUpUrl="/sign-up"
                               appearance={clerkAppearance}
                             />
                           ) : (
                             <SignUp
-                              routing="virtual"
-                              afterSignUpUrl="/"
+                              routing="hash"
+                              fallbackRedirectUrl="/"
                               signInUrl="/sign-in"
                               appearance={clerkAppearance}
                             />

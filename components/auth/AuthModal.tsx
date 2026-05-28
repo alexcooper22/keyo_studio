@@ -88,9 +88,9 @@ export default function AuthModal({ onClose }: AuthModalProps) {
         {/* Clerk component */}
         <div className="w-full">
           {mode === 'signin' ? (
-            <SignIn routing="hash" afterSignInUrl="/" appearance={clerkAppearance} />
+            <SignIn routing="hash" fallbackRedirectUrl="/" appearance={clerkAppearance} />
           ) : (
-            <SignUp routing="hash" afterSignUpUrl="/" appearance={clerkAppearance} />
+            <SignUp routing="hash" fallbackRedirectUrl="/" appearance={clerkAppearance} />
           )}
         </div>
       </div>
