@@ -1,5 +1,5 @@
 import { FFmpeg } from '@ffmpeg/ffmpeg'
-import { fetchFile, toBlobURL } from '@ffmpeg/util'
+import { fetchFile } from '@ffmpeg/util'
 import type { VideoClip, AudioTrack } from './types'
 import { clipEffectiveDuration } from './timeline-utils'
 
@@ -7,9 +7,9 @@ let instance: FFmpeg | null = null
 let loadingPromise: Promise<FFmpeg> | null = null
 let exportInFlight = false
 
-const recentLogs: string[] = []
+const ffmpegLogs: string[] = []
 
-async function getFFmpeg(onProgress?: (pct: number) => void): Promise<FFmpeg> {
+async function getFFmpeg(): Promise<FFmpeg> {
   if (instance) return instance
   if (loadingPromise) return loadingPromise
 
@@ -17,20 +17,17 @@ async function getFFmpeg(onProgress?: (pct: number) => void): Promise<FFmpeg> {
     const ffmpeg = new FFmpeg()
 
     ffmpeg.on('log', ({ message }) => {
-      recentLogs.push(message)
-      if (recentLogs.length > 60) recentLogs.shift()
+      ffmpegLogs.push(message)
+      if (ffmpegLogs.length > 80) ffmpegLogs.shift()
+      if (message.includes('Error') || message.includes('error')) {
+        console.warn('[ffmpeg]', message)
+      }
     })
 
-    if (onProgress) {
-      ffmpeg.on('progress', ({ progress }) => {
-        if (progress > 0) onProgress(Math.round(progress * 100))
-      })
-    }
-
-    const base = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd'
+    // Load from our own domain — faster, no CDN dependency, no CORS issues
     await ffmpeg.load({
-      coreURL: await toBlobURL(`${base}/ffmpeg-core.js`, 'text/javascript'),
-      wasmURL: await toBlobURL(`${base}/ffmpeg-core.wasm`, 'application/wasm'),
+      coreURL: '/ffmpeg/ffmpeg-core.js',
+      wasmURL: '/ffmpeg/ffmpeg-core.wasm',
     })
 
     instance = ffmpeg
@@ -41,18 +38,40 @@ async function getFFmpeg(onProgress?: (pct: number) => void): Promise<FFmpeg> {
   return loadingPromise
 }
 
-// Run an ffmpeg command and throw a readable error if it fails.
+// Run an ffmpeg command. Returns exit code.
+// Throws with last FFmpeg log lines on non-zero exit.
 async function run(ffmpeg: FFmpeg, args: string[]): Promise<void> {
   const ret = await ffmpeg.exec(args)
   if (ret !== 0) {
-    const context = recentLogs.slice(-15).join('\n')
-    throw new Error(`FFmpeg error (code ${ret}):\n${context}`)
+    const ctx = ffmpegLogs.slice(-20).join('\n')
+    throw new Error(`FFmpeg failed (code ${ret}):\n${ctx}`)
   }
 }
 
+// Generate a silent stereo PCM WAV of the given duration.
+// Used as a fallback audio source for video-only clips.
+function makeSilentWav(durationSeconds: number): Uint8Array {
+  const sampleRate = 44100
+  const numChannels = 2
+  const bitsPerSample = 16
+  const numSamples = Math.ceil(durationSeconds * sampleRate)
+  const dataSize = numSamples * numChannels * (bitsPerSample / 8)
+  const buf = new ArrayBuffer(44 + dataSize)
+  const v = new DataView(buf)
+  const str = (off: number, s: string) => { for (let i = 0; i < s.length; i++) v.setUint8(off + i, s.charCodeAt(i)) }
+  str(0, 'RIFF'); v.setUint32(4, 36 + dataSize, true); str(8, 'WAVE')
+  str(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true)
+  v.setUint16(22, numChannels, true); v.setUint32(24, sampleRate, true)
+  v.setUint32(28, sampleRate * numChannels * bitsPerSample / 8, true)
+  v.setUint16(32, numChannels * bitsPerSample / 8, true); v.setUint16(34, bitsPerSample, true)
+  str(36, 'data'); v.setUint32(40, dataSize, true)
+  return new Uint8Array(buf)  // data section is all zeros = silence
+}
+
 // Trim one clip to a normalized H.264/AAC file.
-// If the source has no audio stream, adds a silent audio track so all
-// trimmed clips have identical stream layout (required for concat).
+// Fast path: stream copy (no re-encoding).
+// Slow path: re-encode if copy fails (different codec, HEVC, etc.).
+// Audio fallback: if clip has no audio, adds a silent WAV track.
 async function trimClip(
   ffmpeg: FFmpeg,
   inputName: string,
@@ -61,51 +80,69 @@ async function trimClip(
   dur: number,
   volume: number,
 ): Promise<void> {
-  const vf = 'scale=trunc(iw/2)*2:trunc(ih/2)*2'  // Ensure even dimensions for H.264
-  const volumeFilter = volume !== 1 ? ['-af', `volume=${volume}`] : []
+  const clampedDur = Math.max(0.1, dur)
+  const ss = ['-ss', String(trimStart), '-i', inputName, '-t', String(clampedDur)]
 
-  // First attempt: encode with audio (most videos have audio)
-  const withAudio = await ffmpeg.exec([
-    '-ss', String(trimStart),
-    '-i', inputName,
-    '-t', String(Math.max(0.1, dur)),
-    '-vf', vf,
-    '-c:v', 'libx264', '-preset', 'ultrafast', '-crf', '23',
-    '-map', '0:v:0',
-    '-map', '0:a:0',
+  // ── Fast path: stream copy ───────────────────────────────────────────────
+  // Works for most H.264/AAC MP4 files. Nearly instant (no re-encoding).
+  const copyCode = await ffmpeg.exec([
+    ...ss,
+    '-map', '0:v:0', '-map', '0:a:0',
+    '-c', 'copy',
+    '-avoid_negative_ts', 'make_zero',
+    '-y', outName,
+  ])
+
+  if (copyCode === 0) {
+    // Apply volume if needed (requires audio re-encode, fast because AAC→AAC)
+    if (volume !== 1) {
+      const tempName = `${outName}_vol.mp4`
+      await run(ffmpeg, [
+        '-i', outName,
+        '-af', `volume=${volume}`,
+        '-c:v', 'copy', '-c:a', 'aac',
+        '-y', tempName,
+      ])
+      await ffmpeg.deleteFile(outName)
+      await ffmpeg.rename(tempName, outName)
+    }
+    return
+  }
+
+  // ── Slow path: re-encode ──────────────────────────────────────────────────
+  // Used when: HEVC input, different codec, AVI, WebM, etc.
+  const volFilter = volume !== 1 ? ['-af', `volume=${volume}`] : []
+
+  const encCode = await ffmpeg.exec([
+    ...ss,
+    '-map', '0:v:0', '-map', '0:a:0',
+    '-c:v', 'libx264', '-preset', 'ultrafast', '-crf', '26',
     '-c:a', 'aac', '-ac', '2', '-ar', '44100',
-    ...volumeFilter,
-    '-avoid_negative_ts', 'make_zero',
-    '-y',
-    outName,
+    ...volFilter,
+    '-y', outName,
   ])
 
-  if (withAudio === 0) return
+  if (encCode === 0) return
 
-  // Second attempt: video has no audio stream — add silent audio track
+  // ── Fallback: video has no audio stream ───────────────────────────────────
+  // Write silent WAV, then mux with video-only stream.
+  const silName = `${outName}_sil.wav`
+  await ffmpeg.writeFile(silName, makeSilentWav(clampedDur + 1))
+
   const videoOnly = `${outName}_v.mp4`
-
   await run(ffmpeg, [
-    '-ss', String(trimStart),
-    '-i', inputName,
-    '-t', String(Math.max(0.1, dur)),
-    '-vf', vf,
-    '-c:v', 'libx264', '-preset', 'ultrafast', '-crf', '23',
-    '-an',
-    '-avoid_negative_ts', 'make_zero',
-    '-y',
-    videoOnly,
+    ...ss,
+    '-c:v', 'libx264', '-preset', 'ultrafast', '-crf', '26',
+    '-an', '-y', videoOnly,
   ])
 
-  // Add silent audio track matching the video duration
   await run(ffmpeg, [
     '-i', videoOnly,
-    '-f', 'lavfi', '-i', `anullsrc=r=44100:cl=stereo`,
-    '-c:v', 'copy',
-    '-c:a', 'aac', '-ac', '2', '-ar', '44100',
+    '-i', silName,
+    '-map', '0:v:0', '-map', '1:a:0',
+    '-c:v', 'copy', '-c:a', 'aac', '-ac', '2', '-ar', '44100',
     '-shortest',
-    '-y',
-    outName,
+    '-y', outName,
   ])
 }
 
@@ -114,103 +151,128 @@ export async function exportToMp4(
   audioTracks: AudioTrack[],
   onProgress: (pct: number) => void
 ): Promise<Blob> {
-  if (exportInFlight) throw new Error('An export is already in progress. Please wait for it to finish.')
+  if (exportInFlight) throw new Error('An export is already in progress.')
   exportInFlight = true
-  recentLogs.length = 0
+  ffmpegLogs.length = 0
 
   try {
+    onProgress(2)
     const ffmpeg = await getFFmpeg()
-    onProgress(5)
+    onProgress(8)
 
     const sorted = [...clips].sort((a, b) => a.startOnTimeline - b.startOnTimeline)
     if (sorted.length === 0) throw new Error('No clips to export.')
 
     // ── Step 1: Trim + normalize each clip ──────────────────────────────────
     const trimmedNames: string[] = []
+
     for (let i = 0; i < sorted.length; i++) {
       const clip = sorted[i]
+      const dur = clipEffectiveDuration(clip)
+      if (dur <= 0) continue
+
       const inputName = `in_${i}.mp4`
       const outName = `trimmed_${i}.mp4`
 
       const resp = await fetch(clip.src)
-      if (!resp.ok) throw new Error(`Failed to read clip "${clip.filename}".`)
+      if (!resp.ok) throw new Error(`Could not read clip "${clip.filename}" from memory.`)
       await ffmpeg.writeFile(inputName, await fetchFile(await resp.blob()))
-
-      const dur = clipEffectiveDuration(clip)
-      if (dur <= 0) continue  // Skip zero-duration clips
 
       await trimClip(ffmpeg, inputName, outName, clip.trimStart, dur, clip.volume)
       trimmedNames.push(outName)
-      onProgress(5 + (i + 1) / sorted.length * 35)
+      onProgress(8 + (i + 1) / sorted.length * 40)
     }
 
     if (trimmedNames.length === 0) throw new Error('All clips have zero duration after trimming.')
 
     // ── Step 2: Concatenate clips ────────────────────────────────────────────
-    // Re-encode during concat to handle any remaining parameter differences.
-    const concatList = trimmedNames.map(n => `file '${n}'`).join('\n')
-    await ffmpeg.writeFile('list.txt', concatList)
+    let mergedFile = 'merged.mp4'
 
-    await run(ffmpeg, [
-      '-f', 'concat', '-safe', '0', '-i', 'list.txt',
-      '-c:v', 'libx264', '-preset', 'ultrafast', '-crf', '23',
-      '-c:a', 'aac', '-ac', '2', '-ar', '44100',
-      '-y', 'merged.mp4',
-    ])
-    onProgress(55)
-
-    // ── Step 3: Mix audio tracks ─────────────────────────────────────────────
-    if (audioTracks.length === 0) {
-      // No music — just copy merged as output
-      await run(ffmpeg, ['-i', 'merged.mp4', '-c', 'copy', '-y', 'output.mp4'])
+    if (trimmedNames.length === 1) {
+      // Single clip — skip concat
+      mergedFile = trimmedNames[0]
     } else {
-      // Write + trim each audio track
-      const audioNames: string[] = []
+      const listContent = trimmedNames.map(n => `file '${n}'`).join('\n')
+      await ffmpeg.writeFile('list.txt', listContent)
+
+      // Try fast path: stream copy (works when all clips have same codec params)
+      const concatCopyCode = await ffmpeg.exec([
+        '-f', 'concat', '-safe', '0', '-i', 'list.txt',
+        '-c', 'copy',
+        '-y', mergedFile,
+      ])
+
+      if (concatCopyCode !== 0) {
+        // Slow path: re-encode concat (handles different resolutions/framerates)
+        await run(ffmpeg, [
+          '-f', 'concat', '-safe', '0', '-i', 'list.txt',
+          '-c:v', 'libx264', '-preset', 'ultrafast', '-crf', '26',
+          '-c:a', 'aac', '-ac', '2', '-ar', '44100',
+          '-y', mergedFile,
+        ])
+      }
+    }
+    onProgress(60)
+
+    // ── Step 3: Mix music tracks ─────────────────────────────────────────────
+    const outFile = 'output.mp4'
+
+    if (audioTracks.length === 0) {
+      if (mergedFile !== outFile) {
+        await run(ffmpeg, ['-i', mergedFile, '-c', 'copy', '-y', outFile])
+      } else {
+        await ffmpeg.rename(mergedFile, outFile)
+      }
+    } else {
+      // Write + trim each music track
+      const audioFileNames: string[] = []
       for (let i = 0; i < audioTracks.length; i++) {
         const track = audioTracks[i]
-        const rawName = `audio_raw_${i}.mp3`
-        const aName = `audio_${i}.mp3`
+        const rawName = `mus_raw_${i}.mp3`
+        const aName = `mus_${i}.mp3`
 
         const resp = await fetch(track.src)
-        if (!resp.ok) throw new Error(`Failed to read audio track "${track.name}".`)
+        if (!resp.ok) throw new Error(`Could not read audio track "${track.name}".`)
         await ffmpeg.writeFile(rawName, await fetchFile(await resp.blob()))
 
-        const trimStart = track.trimStart ?? 0
-        const effectiveDur = track.duration - trimStart - (track.trimEnd ?? 0)
+        const ts = track.trimStart ?? 0
+        const ed = track.duration - ts - (track.trimEnd ?? 0)
 
-        if (trimStart > 0 || (track.trimEnd ?? 0) > 0) {
-          await run(ffmpeg, ['-ss', String(trimStart), '-i', rawName, '-t', String(effectiveDur), '-c', 'copy', '-y', aName])
+        if (ts > 0 || (track.trimEnd ?? 0) > 0) {
+          await run(ffmpeg, ['-ss', String(ts), '-i', rawName, '-t', String(ed), '-c', 'copy', '-y', aName])
         } else {
           await run(ffmpeg, ['-i', rawName, '-c', 'copy', '-y', aName])
         }
-        audioNames.push(aName)
+        audioFileNames.push(aName)
       }
-      onProgress(72)
+      onProgress(78)
 
-      // Build amix filter: apply per-track volume then mix with video audio
-      const inputs = ['-i', 'merged.mp4', ...audioNames.flatMap(a => ['-i', a])]
-      const n = audioNames.length + 1
-      const volFilters = audioNames
-        .map((_, i) => `[${i + 1}:a]volume=${audioTracks[i].volume}[a${i}]`)
+      // Build amix filter: per-track volume + mix with original video audio
+      const n = audioFileNames.length + 1
+      const volFilters = audioFileNames
+        .map((_, i) => `[${i + 1}:a]volume=${audioTracks[i].volume}[ma${i}]`)
         .join(';')
-      const mixInputs = '[0:a]' + audioNames.map((_, i) => `[a${i}]`).join('')
-      const filterStr = `${volFilters};${mixInputs}amix=inputs=${n}:duration=first[aout]`
+      const mixInputs = '[0:a]' + audioFileNames.map((_, i) => `[ma${i}]`).join('')
+      const filterStr = `${volFilters};${mixInputs}amix=inputs=${n}:duration=first:normalize=0[aout]`
 
       await run(ffmpeg, [
-        ...inputs,
+        '-i', mergedFile,
+        ...audioFileNames.flatMap(a => ['-i', a]),
         '-filter_complex', filterStr,
         '-map', '0:v',
         '-map', '[aout]',
         '-c:v', 'copy',
         '-c:a', 'aac', '-ac', '2', '-ar', '44100',
-        '-y', 'output.mp4',
+        '-y', outFile,
       ])
     }
 
-    // ── Step 4: Read + return ────────────────────────────────────────────────
-    onProgress(95)
-    const data = await ffmpeg.readFile('output.mp4') as Uint8Array
-    if (!data || data.length === 0) throw new Error('Export produced an empty file. Check browser console for FFmpeg logs.')
+    // ── Step 4: Read result ──────────────────────────────────────────────────
+    onProgress(96)
+    const data = await ffmpeg.readFile(outFile) as Uint8Array
+    if (!data || data.length < 100) {
+      throw new Error(`Export produced an invalid file. Check browser console (F12) for FFmpeg errors.`)
+    }
     onProgress(100)
     return new Blob([data.buffer as ArrayBuffer], { type: 'video/mp4' })
 

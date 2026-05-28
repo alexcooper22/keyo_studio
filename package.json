@@ -7,11 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "node scripts/patch-clerk.js"
+    "postinstall": "node scripts/patch-clerk.js && node scripts/copy-ffmpeg-core.js"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.4.2",
     "@fal-ai/client": "^1.9.5",
+    "@ffmpeg/core": "^0.12.6",
     "@ffmpeg/ffmpeg": "^0.12.10",
     "@ffmpeg/util": "^0.12.2",
     "@google/genai": "^2.0.0",
