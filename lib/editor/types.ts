@@ -22,7 +22,7 @@ export type EditorAction =
   | { type: 'ADD_CLIP'; clip: VideoClip }
   | { type: 'REMOVE_CLIP'; id: string }
   | { type: 'MOVE_CLIP'; id: string; startOnTimeline: number }
-  | { type: 'TRIM_CLIP'; id: string; trimStart: number; trimEnd: number }
+  | { type: 'TRIM_CLIP'; id: string; trimStart: number; trimEnd: number; startOnTimeline?: number }
   | { type: 'ADD_AUDIO'; track: AudioTrack }
   | { type: 'REMOVE_AUDIO'; id: string }
   | { type: 'MOVE_AUDIO'; id: string; startOnTimeline: number }

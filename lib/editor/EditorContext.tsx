@@ -59,10 +59,12 @@ function reducer(state: EditorState, action: EditorAction): EditorState {
       const clips = state.clips.map(c => {
         if (c.id !== action.id) return c
         const minDur = 0.2
-        // Clamp trimStart first, then trimEnd against the already-clamped trimStart
         const trimStart = Math.max(0, Math.min(action.trimStart, c.originalDuration - c.trimEnd - minDur))
         const trimEnd = Math.max(0, Math.min(action.trimEnd, c.originalDuration - trimStart - minDur))
-        return { ...c, trimStart, trimEnd }
+        const startOnTimeline = action.startOnTimeline !== undefined
+          ? Math.max(0, action.startOnTimeline)
+          : c.startOnTimeline
+        return { ...c, trimStart, trimEnd, startOnTimeline }
       })
       return { ...state, clips, duration: calcDuration(clips, state.audioTracks), past: pushPast(state.past, snapshot(state)) }
     }
