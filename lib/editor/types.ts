@@ -14,8 +14,8 @@ export interface AudioTrack {
   src: string               // blob URL from File
   name: string
   startOnTimeline: number
-  duration: number
-  volume: number
+  duration: number          // full source file duration in seconds (no trim for audio in v1)
+  volume: number            // 0–1
 }
 
 export type EditorAction =
@@ -31,6 +31,8 @@ export type EditorAction =
   | { type: 'SELECT'; id: string | null }
   | { type: 'SET_PLAYING'; playing: boolean }
   | { type: 'UNDO' }
+  | { type: 'SET_CLIP_VOLUME'; id: string; volume: number }
+  | { type: 'SET_AUDIO_VOLUME'; id: string; volume: number }
 
 export interface HistorySnapshot {
   clips: VideoClip[]
