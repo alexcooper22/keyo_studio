@@ -20,14 +20,15 @@ const nextConfig = {
     const csp = [
       "default-src 'self'",
       // Next.js needs 'unsafe-inline' + 'unsafe-eval' for dev; in prod consider nonce-based CSP
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://clerk.com https://*.clerk.accounts.dev https://*.clerk.com https://js.stripe.com",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://clerk.com https://*.clerk.accounts.dev https://*.clerk.com https://js.stripe.com",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: blob: https:",
       "media-src 'self' blob: https:",
-      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://clerk.com https://*.clerk.accounts.dev https://*.clerk.com https://api.klingai.com https://generativelanguage.googleapis.com",
+      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://clerk.com https://*.clerk.accounts.dev https://*.clerk.com https://api.klingai.com https://generativelanguage.googleapis.com https://unpkg.com https://cdn.jsdelivr.net",
       "frame-src https://clerk.com https://*.clerk.accounts.dev https://*.clerk.com https://js.stripe.com",
       "object-src 'none'",
+      "worker-src 'self' blob:",
       "base-uri 'self'",
       "form-action 'self'",
       "frame-ancestors 'none'",
@@ -53,6 +54,13 @@ const nextConfig = {
       {
         source: '/api/stripe/webhook',
         headers: [{ key: 'x-middleware-skip', value: '1' }],
+      },
+      {
+        source: '/editor',
+        headers: [
+          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
+          { key: 'Cross-Origin-Embedder-Policy', value: 'require-corp' },
+        ],
       },
     ];
   },
