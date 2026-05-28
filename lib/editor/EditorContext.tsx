@@ -9,7 +9,7 @@ function calcDuration(clips: VideoClip[], audioTracks: AudioTrack[]): number {
     if (end > max) max = end
   }
   for (const a of audioTracks) {
-    const end = a.startOnTimeline + a.duration
+    const end = a.startOnTimeline + (a.duration - (a.trimStart ?? 0) - (a.trimEnd ?? 0))
     if (end > max) max = end
   }
   return max
@@ -85,6 +85,19 @@ function reducer(state: EditorState, action: EditorAction): EditorState {
       const audioTracks = state.audioTracks.map(a =>
         a.id === action.id ? { ...a, startOnTimeline: Math.max(0, action.startOnTimeline) } : a
       )
+      return { ...state, audioTracks, duration: calcDuration(state.clips, audioTracks), past: pushPast(state.past, snapshot(state)) }
+    }
+    case 'TRIM_AUDIO': {
+      const audioTracks = state.audioTracks.map(a => {
+        if (a.id !== action.id) return a
+        const minDur = 0.2
+        const trimStart = Math.max(0, Math.min(action.trimStart, a.duration - (a.trimEnd ?? 0) - minDur))
+        const trimEnd = Math.max(0, Math.min(action.trimEnd, a.duration - trimStart - minDur))
+        const startOnTimeline = action.startOnTimeline !== undefined
+          ? Math.max(0, action.startOnTimeline)
+          : a.startOnTimeline
+        return { ...a, trimStart, trimEnd, startOnTimeline }
+      })
       return { ...state, audioTracks, duration: calcDuration(state.clips, audioTracks), past: pushPast(state.past, snapshot(state)) }
     }
     case 'SET_CLIP_VOLUME': {

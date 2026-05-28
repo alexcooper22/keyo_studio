@@ -1,4 +1,8 @@
-import type { VideoClip } from './types'
+import type { VideoClip, AudioTrack } from './types'
+
+export function audioEffectiveDuration(track: AudioTrack): number {
+  return Math.max(0, track.duration - (track.trimStart ?? 0) - (track.trimEnd ?? 0))
+}
 
 export function clipEffectiveDuration(clip: VideoClip): number {
   return Math.max(0, clip.originalDuration - clip.trimStart - clip.trimEnd)

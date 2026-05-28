@@ -72,10 +72,19 @@ export async function exportToMp4(
       const audioNames: string[] = []
       for (let i = 0; i < audioTracks.length; i++) {
         const track = audioTracks[i]
+        const rawName = `audio_raw_${i}.mp3`
         const aName = `audio_${i}.mp3`
         const resp = await fetch(track.src)
         const blob = await resp.blob()
-        await ffmpeg.writeFile(aName, await fetchFile(blob))
+        await ffmpeg.writeFile(rawName, await fetchFile(blob))
+
+        const trimStart = track.trimStart ?? 0
+        const effectiveDur = track.duration - trimStart - (track.trimEnd ?? 0)
+        if (trimStart > 0 || (track.trimEnd ?? 0) > 0) {
+          await ffmpeg.exec(['-ss', String(trimStart), '-i', rawName, '-t', String(effectiveDur), '-c', 'copy', aName])
+        } else {
+          await ffmpeg.exec(['-i', rawName, '-c', 'copy', aName])
+        }
         audioNames.push(aName)
       }
       onProgress(70)
