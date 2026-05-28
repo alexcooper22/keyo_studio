@@ -49,12 +49,14 @@ export async function exportToMp4(
       await ffmpeg.writeFile(inputName, await fetchFile(blob))
 
       const dur = clipEffectiveDuration(clip)
+      const audioFilter = clip.volume !== 1 ? ['-filter:a', `volume=${clip.volume}`] : []
       await ffmpeg.exec([
         '-ss', String(clip.trimStart),
         '-i', inputName,
         '-t', String(dur),
         '-c:v', 'libx264', '-preset', 'ultrafast', '-crf', '23',
         '-c:a', 'aac',
+        ...audioFilter,
         outName,
       ])
       trimmedNames.push(outName)
@@ -80,11 +82,16 @@ export async function exportToMp4(
 
       const inputs = ['-i', 'merged.mp4', ...audioNames.flatMap(a => ['-i', a])]
       const n = audioNames.length + 1
-      const filterStr = Array.from({ length: n }, (_, i) => `[${i}:a]`).join('') + `amix=inputs=${n}:duration=first`
+      // Apply per-track volume to each audio input, then amix with video audio
+      const volFilters = audioNames.map((_, i) => `[${i + 1}:a]volume=${audioTracks[i].volume}[a${i}]`).join(';')
+      const mixInputs = '[0:a]' + audioNames.map((_, i) => `[a${i}]`).join('')
+      const filterStr = `${volFilters};${mixInputs}amix=inputs=${n}:duration=first[aout]`
 
       await ffmpeg.exec([
         ...inputs,
         '-filter_complex', filterStr,
+        '-map', '0:v',
+        '-map', '[aout]',
         '-c:v', 'copy',
         'output.mp4',
       ])

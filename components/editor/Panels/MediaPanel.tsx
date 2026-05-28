@@ -9,7 +9,7 @@ function readVideoDuration(src: string): Promise<number> {
     const video = document.createElement('video')
     video.preload = 'metadata'
     video.onloadedmetadata = () => resolve(video.duration)
-    video.onerror = reject
+    video.onerror = () => reject(new Error(`Failed to read video metadata: ${src}`))
     video.src = src
   })
 }

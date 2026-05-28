@@ -9,7 +9,7 @@ function readAudioDuration(src: string): Promise<number> {
     const audio = document.createElement('audio')
     audio.preload = 'metadata'
     audio.onloadedmetadata = () => resolve(audio.duration)
-    audio.onerror = reject
+    audio.onerror = () => reject(new Error(`Failed to read audio metadata: ${src}`))
     audio.src = src
   })
 }

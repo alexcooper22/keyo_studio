@@ -21,7 +21,7 @@ export default function Timeline() {
   useEffect(() => {
     const el = scrollRef.current
     if (!el) return
-    const playX = secondsToPixels(state.playhead, state.zoom)
+    const playX = LABEL_WIDTH + secondsToPixels(state.playhead, state.zoom)
     const { scrollLeft, clientWidth } = el
     if (playX < scrollLeft + 20 || playX > scrollLeft + clientWidth - 60) {
       el.scrollTo({ left: Math.max(0, playX - clientWidth * 0.3), behavior: 'smooth' })
