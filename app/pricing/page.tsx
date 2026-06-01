@@ -167,13 +167,13 @@ export default function PricingPage() {
               {/* Plan name */}
               <div style={{ marginBottom: '20px' }}>
                 <div className="font-clash" style={{ color: '#fff', fontSize: '17px', fontWeight: 600, marginBottom: '5px' }}>{plan.name}</div>
-                <div style={{ color: 'rgba(255,255,255,0.32)', fontSize: '12px', lineHeight: 1.5 }}>{plan.desc}</div>
+                <div style={{ color: 'rgba(255,255,255,0.32)', fontSize: '12px', lineHeight: 1.5 }}>{plan.description}</div>
               </div>
 
               {/* Price */}
               <div style={{ display: 'flex', alignItems: 'baseline', gap: '3px', marginBottom: '18px' }}>
                 <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: '16px', fontWeight: 500 }}>$</span>
-                <span className="font-clash" style={{ color: '#fff', fontSize: '44px', fontWeight: 700, letterSpacing: '-2px' }}>{plan.price}</span>
+                <span className="font-clash" style={{ color: '#fff', fontSize: '44px', fontWeight: 700, letterSpacing: '-2px' }}>{plan.price_usd}</span>
                 <span style={{ color: 'rgba(255,255,255,0.32)', fontSize: '13px', marginLeft: '2px' }}>/mo</span>
               </div>
 
@@ -235,14 +235,14 @@ export default function PricingPage() {
                   marginTop: 'auto',
                   transition: 'opacity 0.2s, filter 0.2s',
                   opacity: loadingPlan !== null ? 0.6 : 1,
-                  border: plan.ctaStyle === 'primary' ? 'none' : '0.5px solid rgba(255,255,255,0.1)',
-                  background: plan.ctaStyle === 'primary'
+                  border: plan.cta_style === 'primary' ? 'none' : '0.5px solid rgba(255,255,255,0.1)',
+                  background: plan.cta_style === 'primary'
                     ? 'linear-gradient(135deg, #532fcf, #7c5cf0)'
                     : 'rgba(255,255,255,0.04)',
-                  color: plan.ctaStyle === 'primary' ? '#fff' : 'rgba(255,255,255,0.5)',
+                  color: plan.cta_style === 'primary' ? '#fff' : 'rgba(255,255,255,0.5)',
                 }}
               >
-                {loadingPlan === plan.id ? 'Loading...' : plan.cta}
+                {loadingPlan === plan.id ? 'Loading...' : plan.cta_text}
               </button>
             </div>
           ))}
