@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { GoogleGenAI } from "@google/genai";
+import OpenAI from 'openai'
 import { supabaseAdmin } from "../../../lib/supabase";
 import { rateLimit, isAllowedImageUrl } from "../../../lib/rateLimit";
 import { getModelById, getCreditCost, resolveApiKey } from '../../../lib/models'
@@ -96,6 +97,56 @@ export async function POST(request: NextRequest) {
       ({ apiKey } = resolveApiKey(aiModel));
     } catch (err: any) {
       throw new Error(err.message);
+    }
+
+    if (aiModel.provider === 'openai') {
+      const openai = new OpenAI({ apiKey })
+      const size = resolution === '4K' ? '1536x1024' : '1024x1024'
+
+      const response = await openai.images.generate({
+        model: aiModel.model_id,
+        prompt,
+        n: 1,
+        size,
+        response_format: 'b64_json',
+      })
+
+      const b64 = response.data[0]?.b64_json
+      if (!b64) throw new Error('No image data from OpenAI')
+
+      const imageBuffer = Buffer.from(b64, 'base64')
+      const fileName = `${userId}/${Date.now()}.png`
+      const bucketName = 'user-images'
+
+      const { error: uploadError } = await supabaseAdmin.storage
+        .from(bucketName)
+        .upload(fileName, imageBuffer, { contentType: 'image/png', upsert: true })
+
+      if (uploadError) throw new Error(`Supabase upload failed: ${uploadError.message}`)
+
+      const { data: { publicUrl } } = supabaseAdmin.storage.from(bucketName).getPublicUrl(fileName)
+
+      await supabaseAdmin.from('generated_images').insert({
+        clerk_id: userId,
+        prompt,
+        image_url: publicUrl,
+        model: aiModel.name,
+        resolution: resolution || '1K',
+      })
+
+      const { data: updatedSub, error: updateError } = await supabaseAdmin
+        .from('user_subscriptions')
+        .update({ credits_remaining: currentCredits - creditCost, updated_at: new Date().toISOString() })
+        .eq('clerk_id', userId)
+        .eq('status', 'active')
+        .gte('credits_remaining', creditCost)
+        .select('credits_remaining')
+        .maybeSingle()
+
+      if (updateError) throw updateError
+      if (!updatedSub) return NextResponse.json({ error: 'Insufficient credits' }, { status: 403 })
+
+      return NextResponse.json({ images: [{ url: publicUrl }], prompt, remainingCredits: updatedSub.credits_remaining })
     }
 
     if (aiModel.provider !== 'google') {
