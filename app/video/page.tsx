@@ -255,6 +255,7 @@ export default function VideoDashboard() {
 
   const handleGenerate = async () => {
     if (!prompt.trim() || isGenerating) return;
+    if (!selectedVideoModelId) return;
     setIsGenerating(true);
     setError(null);
     setStatus('Submitting...');
@@ -412,20 +413,22 @@ export default function VideoDashboard() {
                   <div style={{ fontSize: '9px', color: 'var(--text-secondary)' }}>Model</div>
                   <div style={{ fontSize: '12px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '5px', marginTop: '2px' }}>
                     <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: 'var(--accent)' }}></div>
-                    Kling 3.0
+                    {videoModels.find(m => m.id === selectedVideoModelId)?.name ?? 'Loading...'}
                   </div>
                 </div>
                 <span style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>›</span>
               </div>
               {showModelMenu && (
                 <div data-menu="true" style={{ position: 'absolute', bottom: '110%', left: 0, right: 0, background: 'var(--bg-navbar)', border: 'var(--border)', borderRadius: 'var(--radius-btn)', overflow: 'hidden', zIndex: 100 }}>
-                  <div style={{ padding: '8px 12px', fontSize: '12px', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: 'var(--accent)' }}></div>
-                      Kling 3.0
-                    </div>
-                    <span style={{ color: 'var(--accent)' }}>✓</span>
-                  </div>
+                  {videoModels.map(m => (
+                    <button
+                      key={m.id}
+                      onClick={() => { setSelectedVideoModelId(m.id); setShowModelMenu(false); }}
+                      style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 12px', background: selectedVideoModelId === m.id ? 'rgba(255,255,255,0.1)' : 'transparent', color: 'white', border: 'none', cursor: 'pointer', borderRadius: '6px' }}
+                    >
+                      {m.name}
+                    </button>
+                  ))}
                 </div>
               )}
             </div>
@@ -484,7 +487,7 @@ export default function VideoDashboard() {
             </div>
             <button
               onClick={handleGenerate}
-              disabled={isGenerating || !prompt.trim() || (creditCount !== null && creditCount < videoCreditCost)}
+              disabled={isGenerating || !prompt.trim() || !selectedVideoModelId || (creditCount !== null && creditCount < videoCreditCost)}
               style={{
                 background: (creditCount !== null && creditCount <= 0)
                   ? 'rgba(255,255,255,0.04)'
