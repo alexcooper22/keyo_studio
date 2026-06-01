@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
-import { isAdmin } from '../../../lib/admin'
+import { isAdmin } from '../../../../lib/admin'
 
 export const dynamic = 'force-dynamic'
 
