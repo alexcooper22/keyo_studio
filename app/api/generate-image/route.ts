@@ -101,14 +101,13 @@ export async function POST(request: NextRequest) {
 
     if (aiModel.provider === 'openai') {
       const openai = new OpenAI({ apiKey })
-      const size = resolution === '4K' ? '1536x1024' : '1024x1024'
+      const size = resolution === '4K' ? '1536x1024' : resolution === '2K' ? '1024x1536' : '1024x1024'
 
       const response = await openai.images.generate({
         model: aiModel.model_id,
         prompt,
         n: 1,
         size,
-        response_format: 'b64_json',
       })
 
       const b64 = response.data[0]?.b64_json
