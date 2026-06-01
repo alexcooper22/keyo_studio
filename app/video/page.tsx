@@ -53,6 +53,8 @@ export default function VideoDashboard() {
 
     const savedEnd = localStorage.getItem('video_end_frame');
     if (savedEnd && !savedEnd.startsWith('blob:')) setEndFrame(savedEnd);
+
+    fetchVideoModels();
   }, []);
 
   // Save to localStorage on every change
@@ -85,6 +87,8 @@ export default function VideoDashboard() {
     if (endFrame && !endFrame.startsWith('blob:')) localStorage.setItem('video_end_frame', endFrame);
     else if (!endFrame) localStorage.removeItem('video_end_frame');
   }, [endFrame]);
+  const [videoModels, setVideoModels] = useState<Array<{ id: string; name: string; pricing: Array<{ quality: string; credits: number }> }>>([]);
+  const [selectedVideoModelId, setSelectedVideoModelId] = useState('');
   const [likedVideos, setLikedVideos] = useState<Set<string>>(new Set());
   const [creditCount, setCreditCount] = useState<number | null>(null);
 
@@ -131,6 +135,19 @@ export default function VideoDashboard() {
       console.error('Upload failed', err);
     }
   };
+  const fetchVideoModels = async () => {
+    try {
+      const res = await fetch('/api/models?category=video');
+      const data = await res.json();
+      if (data.models?.length) {
+        setVideoModels(data.models);
+        setSelectedVideoModelId(data.models[0].id);
+      }
+    } catch (err) {
+      console.error('Failed to fetch video models', err);
+    }
+  };
+
   const pollRef = useRef<NodeJS.Timeout | null>(null);
   const feedRef = useRef<HTMLDivElement>(null);
 
@@ -245,7 +262,7 @@ export default function VideoDashboard() {
       const res = await fetch('/api/generate-video', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, duration, aspectRatio, mode: 'std', quality, audio: audioEnabled, startFrame, endFrame }),
+        body: JSON.stringify({ prompt, duration, aspectRatio, mode: 'std', quality, audio: audioEnabled, startFrame, endFrame, modelId: selectedVideoModelId }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed');
@@ -301,6 +318,10 @@ export default function VideoDashboard() {
       setStatus('');
     }
   };
+
+  const selectedVideoModel = videoModels.find(m => m.id === selectedVideoModelId);
+  const perSecond = selectedVideoModel?.pricing.find(p => p.quality === quality)?.credits ?? (quality === '1080p' ? 4 : 3);
+  const videoCreditCost = (perSecond + (audioEnabled ? 1 : 0)) * duration;
 
   return (
     <div className="video-root" style={{ paddingTop: '94px', background: 'var(--bg)', minHeight: '100vh' }}>
@@ -463,7 +484,7 @@ export default function VideoDashboard() {
             </div>
             <button
               onClick={handleGenerate}
-              disabled={isGenerating || !prompt.trim() || (creditCount !== null && creditCount < ((quality === '1080p' ? 4 : 3) + (audioEnabled ? 1 : 0)) * duration)}
+              disabled={isGenerating || !prompt.trim() || (creditCount !== null && creditCount < videoCreditCost)}
               style={{
                 background: (creditCount !== null && creditCount <= 0)
                   ? 'rgba(255,255,255,0.04)'
@@ -507,7 +528,7 @@ export default function VideoDashboard() {
                 <>
                   <span style={{ fontSize: '10px', color: 'rgba(200,170,255,0.9)' }}>✦</span>
                   Generate
-                  <span style={{ color: 'rgba(200,170,255,0.7)', fontSize: '11px', fontWeight: 500 }}>· {((quality === '1080p' ? 4 : 3) + (audioEnabled ? 1 : 0)) * duration}</span>
+                  <span style={{ color: 'rgba(200,170,255,0.7)', fontSize: '11px', fontWeight: 500 }}>· {videoCreditCost}</span>
                 </>
               )}
             </button>
