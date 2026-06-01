@@ -44,21 +44,21 @@ export default function ImageDashboard() {
   const [uploadedImages, setUploadedImages] = useState<Array<{ url: string; uploading?: boolean; tempId?: string }>>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [creditCount, setCreditCount] = useState<number | null>(null);
-  const [selectedModel, setSelectedModel] = useState('google/nano-banana-2/text-to-image');
+  const [imageModels, setImageModels] = useState<Array<{ id: string; name: string; pricing: Array<{ quality: string; credits: number; unit: string; cost_usd: number }> }>>([]);
+  const [selectedModelId, setSelectedModelId] = useState('');
   const [error, setError] = useState('');
   const [aspectRatio, setAspectRatio] = useState('4:3');
   const [quality, setQuality] = useState('1K');
   const [likedImages, setLikedImages] = useState<Set<string>>(new Set());
   const [selectedFullImage, setSelectedFullImage] = useState<ImageDetails | null>(null);
 
-  const creditCost = quality === '4K' ? 4 : quality === '2K' ? 3 : 2;
+  const selectedModelData = imageModels.find(m => m.id === selectedModelId);
+  const creditCost = selectedModelData?.pricing.find(p => p.quality === quality)?.credits ?? 2;
 
   // Restore settings from localStorage on mount
   useEffect(() => {
     const savedPrompt = localStorage.getItem('image_prompt_draft');
     if (savedPrompt) setPrompt(savedPrompt);
-    const savedModel = localStorage.getItem('image_model_draft');
-    if (savedModel) setSelectedModel(savedModel);
     const savedAspect = localStorage.getItem('image_aspect_draft');
     if (savedAspect) setAspectRatio(savedAspect);
     const savedQuality = localStorage.getItem('image_quality_draft');
@@ -73,7 +73,9 @@ export default function ImageDashboard() {
   }, []);
 
   useEffect(() => { localStorage.setItem('image_prompt_draft', prompt); }, [prompt]);
-  useEffect(() => { localStorage.setItem('image_model_draft', selectedModel); }, [selectedModel]);
+  useEffect(() => {
+    if (selectedModelId) localStorage.setItem('image_model_draft', selectedModelId);
+  }, [selectedModelId]);
   useEffect(() => { localStorage.setItem('image_aspect_draft', aspectRatio); }, [aspectRatio]);
   useEffect(() => { localStorage.setItem('image_quality_draft', quality); }, [quality]);
   useEffect(() => {
@@ -89,6 +91,7 @@ export default function ImageDashboard() {
     if (isLoaded && isSignedIn) {
       fetchCredits();
       fetchImages();
+      fetchModels();
       const pendingGeneration = localStorage.getItem('image_generation_pending');
       if (pendingGeneration) {
         const pending = JSON.parse(pendingGeneration);
@@ -165,6 +168,21 @@ export default function ImageDashboard() {
     }
   };
 
+  const fetchModels = async () => {
+    try {
+      const res = await fetch('/api/models?category=image');
+      const data = await res.json();
+      if (data.models?.length) {
+        setImageModels(data.models);
+        const saved = localStorage.getItem('image_model_draft');
+        const validSaved = data.models.find((m: any) => m.id === saved);
+        setSelectedModelId(validSaved ? saved : data.models[0].id);
+      }
+    } catch (err) {
+      console.error('Failed to fetch image models', err);
+    }
+  };
+
   async function handleGenerate() {
     if (!isLoaded) return;
     if (!isSignedIn) { setShowModal(true); return; }
@@ -179,7 +197,7 @@ export default function ImageDashboard() {
       const response = await fetch('/api/generate-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, model: selectedModel, imageUrls: uploadedUrls, aspectRatio, resolution: quality }),
+        body: JSON.stringify({ prompt, modelId: selectedModelId, imageUrls: uploadedUrls, aspectRatio, resolution: quality }),
       });
 
       let data;
@@ -350,8 +368,9 @@ export default function ImageDashboard() {
         isSignedIn={isSignedIn}
         creditCount={creditCount}
         creditCost={creditCost}
-        selectedModel={selectedModel}
-        onModelChange={setSelectedModel}
+        models={imageModels}
+        selectedModelId={selectedModelId}
+        onModelChange={setSelectedModelId}
         aspectRatio={aspectRatio}
         onAspectRatioChange={setAspectRatio}
         quality={quality}
