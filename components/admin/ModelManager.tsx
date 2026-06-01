@@ -33,7 +33,7 @@ export default function ModelManager() {
   const [showAddModel, setShowAddModel] = useState(false)
   const [editModel, setEditModel] = useState<AdminModel | null>(null)
   const [addPricingForm, setAddPricingForm] = useState({ quality: '', credits: '', unit: 'per_image', cost_usd: '' })
-  const [addModelForm] = useState({ name: '', provider: 'google', model_id: '', category: 'image', api_key_env: '', api_secret_env: '' })
+  const [addModelForm, setAddModelForm] = useState({ name: '', provider: 'google', model_id: '', category: 'image', api_key_env: '', api_secret_env: '' })
 
   const showNotice = (msg: string) => { setNotice(msg); setTimeout(() => setNotice(''), 3000) }
 
@@ -76,6 +76,7 @@ export default function ModelManager() {
     await fetchModels()
     setShowAddModel(false)
     setEditModel(null)
+    if (!id) setAddModelForm({ name: '', provider: 'google', model_id: '', category: 'image', api_key_env: '', api_secret_env: '' })
     showNotice(id ? 'Model updated' : 'Model added (disabled by default)')
   }
 
