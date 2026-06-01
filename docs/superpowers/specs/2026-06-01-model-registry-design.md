@@ -201,6 +201,24 @@ No code deploy required for steps 1–3. Step 4 is only needed when adding a **n
 
 ---
 
+## Cache Invalidation Endpoint
+
+`POST /api/admin/models/invalidate-cache`
+
+- Protected by a static secret: requires header `Authorization: Bearer <ADMIN_SECRET>` where `ADMIN_SECRET` is an env var
+- Calls `invalidateModelsCache()` exported from `lib/models.ts` — clears all cache keys (`"image"`, `"video"`, `"all"`)
+- Returns `{ ok: true }` — next request to any model-dependent route re-fetches from Supabase
+- Use after: changing prices, adding/disabling models, any `ai_models` or `model_pricing` change that should take effect immediately
+
+```ts
+// lib/models.ts
+export function invalidateModelsCache(): void {
+  cache.clear()
+}
+```
+
+---
+
 ## Error Handling
 
 - `getModelById` throws `ModelNotFoundError` if model doesn't exist or `enabled = false`
