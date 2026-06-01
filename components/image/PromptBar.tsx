@@ -60,10 +60,12 @@ export default function PromptBar({
 }: PromptBarProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const modelButtonRef = useRef<HTMLButtonElement>(null);
   const ratioButtonRef = useRef<HTMLButtonElement>(null);
   const qualityButtonRef = useRef<HTMLButtonElement>(null);
 
   const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
+  const [modelPopupPos, setModelPopupPos] = useState({ bottom: 0, left: 0 });
   const [showRatioDropdown, setShowRatioDropdown] = useState(false);
   const [showQualityModal, setShowQualityModal] = useState(false);
   const [popupPosition, setPopupPosition] = useState({ bottom: 0, left: 0 });
@@ -89,6 +91,14 @@ export default function PromptBar({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const handleOpenModel = () => {
+    if (modelButtonRef.current) {
+      const rect = modelButtonRef.current.getBoundingClientRect();
+      setModelPopupPos({ bottom: window.innerHeight - rect.top + 8, left: rect.left });
+    }
+    setIsModelDropdownOpen(prev => !prev);
+  };
 
   const handleOpenRatio = () => {
     if (ratioButtonRef.current) {
@@ -193,28 +203,35 @@ export default function PromptBar({
         </div>
 
         <div className="px-4 md:px-5 py-2 md:py-3 flex flex-wrap items-center gap-2 md:gap-3">
-          <div className="relative" ref={dropdownRef}>
+          <div ref={dropdownRef}>
             <button
-              onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
+              ref={modelButtonRef}
+              onClick={(e) => { e.stopPropagation(); handleOpenModel(); }}
               className={`px-3 py-1 rounded-full bg-white/[0.06] border font-dm text-[11px] md:text-xs transition-all flex items-center gap-1.5 ${isModelDropdownOpen ? 'border-accent text-white bg-white/10' : 'border-white/10 text-text-secondary hover:text-white hover:bg-white/10'}`}
             >
               {models.find(m => m.id === selectedModelId)?.name ?? 'Loading...'} ▾
             </button>
             {isModelDropdownOpen && (
-              <div className="absolute bottom-full left-0 mb-2 w-[220px] bg-bg-navbar border border-white/[0.08] rounded-xl overflow-hidden shadow-2xl z-[60] backdrop-blur-xl animate-in fade-in slide-in-from-bottom-2 duration-200">
-                {models.map(m => (
-                  <button
-                    key={m.id}
-                    onClick={() => { onModelChange(m.id); setIsModelDropdownOpen(false); }}
-                    className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-colors ${selectedModelId === m.id ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'}`}
-                  >
-                    <div className="font-medium">{m.name}</div>
-                    <div className="text-xs text-white/40 mt-0.5">
-                      {m.pricing.find(p => p.quality === quality)?.credits ?? '?'} credits
-                    </div>
-                  </button>
-                ))}
-              </div>
+              <>
+                <div className="fixed inset-0 z-[40]" onMouseDown={() => setIsModelDropdownOpen(false)} />
+                <div
+                  className="fixed z-[60] w-[220px] bg-bg-navbar border border-white/[0.08] rounded-xl overflow-hidden shadow-2xl backdrop-blur-xl"
+                  style={{ bottom: modelPopupPos.bottom, left: modelPopupPos.left }}
+                >
+                  {models.map(m => (
+                    <button
+                      key={m.id}
+                      onClick={() => { onModelChange(m.id); setIsModelDropdownOpen(false); }}
+                      className={`w-full text-left px-3 py-2 text-sm transition-colors ${selectedModelId === m.id ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'}`}
+                    >
+                      <div className="font-medium">{m.name}</div>
+                      <div className="text-xs text-white/40 mt-0.5">
+                        {m.pricing.find(p => p.quality === quality)?.credits ?? '?'} credits
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </>
             )}
           </div>
 
