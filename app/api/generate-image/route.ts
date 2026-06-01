@@ -3,6 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { GoogleGenAI } from "@google/genai";
 import { supabaseAdmin } from "../../../lib/supabase";
 import { rateLimit, isAllowedImageUrl } from "../../../lib/rateLimit";
+import { getModelById, getCreditCost, resolveApiKey } from '../../../lib/models'
 
 export const maxDuration = 120;
 
@@ -33,8 +34,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { prompt, aspectRatio, imageUrls, resolution } = body;
-    const creditCost = resolution === '4K' ? 4 : resolution === '2K' ? 3 : 2;
+    const { prompt, aspectRatio, imageUrls, resolution, modelId } = body;
+
+    if (!modelId) {
+      return NextResponse.json({ error: 'modelId is required' }, { status: 400 });
+    }
+
+    let aiModel: Awaited<ReturnType<typeof getModelById>>;
+    let creditCost: number;
+    try {
+      aiModel = await getModelById(modelId);
+      creditCost = await getCreditCost(aiModel.id, resolution);
+    } catch (err: any) {
+      return NextResponse.json({ error: err.message }, { status: 400 });
+    }
     console.log("Request body received:", { prompt, aspectRatio, imageUrls, resolution, creditCost });
 
     if (!prompt) {
@@ -78,9 +91,15 @@ export async function POST(request: NextRequest) {
     }
 
     // 3. Prepare Gemini API call
-    const apiKey = process.env.GOOGLE_AI_API_KEY;
-    if (!apiKey) {
-      throw new Error("GOOGLE_AI_API_KEY is not configured");
+    let apiKey: string;
+    try {
+      ({ apiKey } = resolveApiKey(aiModel));
+    } catch (err: any) {
+      throw new Error(err.message);
+    }
+
+    if (aiModel.provider !== 'google') {
+      return NextResponse.json({ error: `Provider "${aiModel.provider}" not yet implemented` }, { status: 501 });
     }
 
     const ai = new GoogleGenAI({ apiKey });
@@ -127,10 +146,10 @@ export async function POST(request: NextRequest) {
       contents = [{ role: "user", parts: [{ text: prompt }] }];
     }
 
-    console.log("Gemini request:", { model: "gemini-3.1-flash-image-preview", isEdit, aspectRatio, resolution });
+    console.log("Gemini request:", { model: aiModel.model_id, isEdit, aspectRatio, resolution });
 
     const geminiResponse = await ai.models.generateContent({
-      model: "gemini-3.1-flash-image-preview",
+      model: aiModel.model_id,
       contents,
       config: {
         responseModalities: isEdit ? ["TEXT", "IMAGE"] : ["IMAGE"],
@@ -191,7 +210,7 @@ export async function POST(request: NextRequest) {
         clerk_id: userId,
         prompt,
         image_url: publicUrl,
-        model: 'gemini-3.1-flash-image-preview',
+        model: aiModel.name,
         resolution: resolution || '1K'
       });
 
