@@ -1,10 +1,11 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Navbar from '../../components/layout/Navbar';
 import { useUser } from '@clerk/nextjs';
+import ModelManager from '../../components/admin/ModelManager';
 
-type Section = 'Personal Profile' | 'Gifts' | 'Referrals' | 'Subscription' | 'Credits Usage' | 'Promo Code';
+type Section = 'Personal Profile' | 'Gifts' | 'Referrals' | 'Subscription' | 'Credits Usage' | 'Promo Code' | 'Models';
 
 const icons: Record<Section, React.ReactNode> = {
   'Personal Profile': <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
@@ -13,6 +14,7 @@ const icons: Record<Section, React.ReactNode> = {
   'Subscription':     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>,
   'Credits Usage':    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>,
   'Promo Code':       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>,
+  'Models': <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>,
 };
 
 const sections: { name: Section; badge?: string; group: string }[] = [
@@ -22,11 +24,20 @@ const sections: { name: Section; badge?: string; group: string }[] = [
   { name: 'Subscription',     group: 'workspace' },
   { name: 'Credits Usage',    group: 'workspace' },
   { name: 'Promo Code',       group: 'workspace' },
+  { name: 'Models', group: 'admin' },
 ];
 
 export default function SettingsPage() {
   const { isLoaded, user } = useUser();
   const [activeSection, setActiveSection] = useState<Section>('Personal Profile');
+  const [isAdminUser, setIsAdminUser] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/admin/me')
+      .then(r => r.json())
+      .then(d => { if (d.isAdmin) setIsAdminUser(true) })
+      .catch(() => {})
+  }, []);
 
   if (!isLoaded) return null;
 
@@ -60,7 +71,7 @@ export default function SettingsPage() {
       <div className="md:hidden fixed top-[60px] left-0 right-0 z-40 overflow-x-auto no-scrollbar"
         style={{ background: 'rgba(8,8,8,0.95)', borderBottom: '0.5px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
         <div className="flex items-center gap-1 px-3 py-2" style={{ minWidth: 'max-content' }}>
-          {sections.map(s => (
+          {sections.filter(s => s.group !== 'admin' || isAdminUser).map(s => (
             <button
               key={s.name}
               onClick={() => setActiveSection(s.name)}
@@ -136,6 +147,25 @@ export default function SettingsPage() {
               </button>
             ))}
           </div>
+
+          {isAdminUser && (
+            <div className="mb-6">
+              <p className="px-3 mb-2 font-dm text-[10px] font-[700] uppercase tracking-[0.6px]" style={{ color: 'rgba(255,255,255,0.25)' }}>Admin</p>
+              {sections.filter(s => s.group === 'admin').map(s => (
+                <button key={s.name} onClick={() => setActiveSection(s.name)}
+                  className="w-full flex items-center justify-between px-3 py-2 rounded-xl font-dm text-[13px] font-[500] transition-all mb-0.5"
+                  style={{
+                    background: activeSection === s.name ? 'rgba(83,47,207,0.1)' : 'transparent',
+                    color: activeSection === s.name ? 'rgba(170,140,255,0.95)' : 'rgba(255,255,255,0.4)',
+                  }}>
+                  <div className="flex items-center gap-2.5">
+                    {icons[s.name]}
+                    {s.name}
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
 
           {/* Discord card */}
           <div className="mt-auto">
@@ -247,6 +277,10 @@ export default function SettingsPage() {
                 </button>
               </div>
             </div>
+          )}
+
+          {activeSection === 'Models' && isAdminUser && (
+            <ModelManager />
           )}
 
           {/* Coming soon */}
