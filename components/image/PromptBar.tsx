@@ -212,11 +212,12 @@ export default function PromptBar({
               {models.find(m => m.id === selectedModelId)?.name ?? 'Loading...'} ▾
             </button>
             {isModelDropdownOpen && (
-              <>
+              <Portal>
                 <div className="fixed inset-0 z-[40]" onMouseDown={() => setIsModelDropdownOpen(false)} />
                 <div
-                  className="fixed z-[60] w-[220px] bg-bg-navbar border border-white/[0.08] rounded-xl overflow-hidden shadow-2xl backdrop-blur-xl"
-                  style={{ bottom: modelPopupPos.bottom, left: modelPopupPos.left }}
+                  className="fixed z-[60] w-[220px] bg-[#141414] border border-white/[0.08] rounded-xl overflow-hidden shadow-2xl"
+                  onMouseDown={e => e.stopPropagation()}
+                  style={{ bottom: `${modelPopupPos.bottom}px`, left: `${modelPopupPos.left}px` }}
                 >
                   {models.map(m => (
                     <button
@@ -231,7 +232,7 @@ export default function PromptBar({
                     </button>
                   ))}
                 </div>
-              </>
+              </Portal>
             )}
           </div>
 
