@@ -3,6 +3,7 @@ import { auth } from '@clerk/nextjs/server';
 import * as jose from 'jose';
 import { supabaseAdmin } from '../../../lib/supabase';
 import { rateLimit } from '../../../lib/rateLimit';
+import { getModelById, getCreditCost } from '../../../lib/models'
 
 export const maxDuration = 60;
 export const dynamic = 'force-dynamic';
@@ -28,13 +29,21 @@ export async function POST(req: NextRequest) {
   const { allowed } = rateLimit(`gen-video:${userId}`, 5, 60_000);
   if (!allowed) return NextResponse.json({ error: 'Too many requests. Please wait a moment.' }, { status: 429 });
 
-  const { prompt, duration = 5, aspectRatio = '9:16', mode = 'std', quality = '720p', audio = false, startFrame = null, endFrame = null } = await req.json();
+  const { prompt, duration = 5, aspectRatio = '9:16', mode = 'std', quality = '720p', audio = false, startFrame = null, endFrame = null, modelId } = await req.json();
   if (!prompt) return NextResponse.json({ error: 'Prompt required' }, { status: 400 });
+  if (!modelId) return NextResponse.json({ error: 'modelId is required' }, { status: 400 });
 
-  // Calculate credit cost
-  const baseCostPerSec = quality === '1080p' ? 4 : 3;
+  let aiModel: Awaited<ReturnType<typeof getModelById>>;
+  let perSecond: number;
+  try {
+    aiModel = await getModelById(modelId);
+    perSecond = await getCreditCost(aiModel.id, quality);
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 400 });
+  }
+
   const audioCostPerSec = audio ? 1 : 0;
-  const creditCost = (baseCostPerSec + audioCostPerSec) * duration;
+  const creditCost = (perSecond + audioCostPerSec) * duration;
 
   // Check subscription and credits
   const { data: subscription, error: subError } = await supabaseAdmin
@@ -56,6 +65,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: `Not enough credits. This video requires ${creditCost} credits.` }, { status: 403 });
   }
 
+  if (aiModel.provider !== 'kling') {
+    return NextResponse.json({ error: `Provider "${aiModel.provider}" not yet implemented for video` }, { status: 501 });
+  }
+
   try {
     const token = await generateKlingToken();
 
@@ -67,7 +80,7 @@ export async function POST(req: NextRequest) {
         'Authorization': `Bearer ${token}`,
       },
       body: JSON.stringify({
-        model_name: 'kling-v3',
+        model_name: aiModel.model_id,
         prompt,
         duration,
         aspect_ratio: aspectRatio,
