@@ -29,8 +29,18 @@ const sections: { name: Section; badge?: string; group: string }[] = [
 
 export default function SettingsPage() {
   const { isLoaded, user } = useUser();
-  const [activeSection, setActiveSection] = useState<Section>('Personal Profile');
+  const [activeSection, setActiveSection] = useState<Section>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('settings_active_section') as Section | null;
+      if (saved && sections.some(s => s.name === saved)) return saved;
+    }
+    return 'Personal Profile';
+  });
   const [isAdminUser, setIsAdminUser] = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem('settings_active_section', activeSection);
+  }, [activeSection]);
 
   useEffect(() => {
     fetch('/api/admin/me')
