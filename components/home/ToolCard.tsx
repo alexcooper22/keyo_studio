@@ -25,9 +25,8 @@ export default function ToolCard({ href, videoSrc }: ToolCardProps) {
         loop
         muted
         playsInline
-        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'bottom', zIndex: 0 }}
+        style={{ display: 'block', width: '100%', height: 'auto', zIndex: 0 }}
       />
-      <div style={{ height: '240px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }} />
     </Link>
   );
 }

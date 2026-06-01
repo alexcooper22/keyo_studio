@@ -136,7 +136,7 @@ export default function Navbar() {
         <div className="h-full px-4 flex items-center justify-between">
 
           {/* ── Logo ── */}
-          <Logo size={19} />
+          <Logo size={23} />
 
           {/* ── Center nav links ── */}
           <div className="hidden md:flex items-center gap-0.5">
@@ -428,17 +428,17 @@ export default function Navbar() {
             <span className="font-dm text-[10px] font-[500]">Image</span>
           </Link>
 
-          {/* Generate — center elevated */}
+          {/* Editor — center elevated */}
           <div className="flex flex-col items-center flex-1 relative" style={{ top: '-14px' }}>
-            <Link href="/image" aria-label="Generate"
+            <Link href="/editor" aria-label="Editor"
               className="w-[52px] h-[52px] flex items-center justify-center rounded-2xl mb-1"
               style={{ background: 'linear-gradient(135deg, #532fcf 0%, #7c5cf0 100%)', boxShadow: '0 4px 24px rgba(83,47,207,0.55), 0 0 0 1px rgba(120,80,255,0.3)' }}>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(220,200,255,1)" strokeWidth="1.5" strokeLinecap="round">
-                <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M19.07 4.93l-2.12 2.12M7.05 16.95l-2.12 2.12"/>
-                <circle cx="12" cy="12" r="2.5"/>
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="rgba(220,200,255,1)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <polygon points="10 8 16 12 10 16 10 8"/>
               </svg>
             </Link>
-            <span className="font-dm text-[10px] font-[500]" style={{ color: 'rgba(255,255,255,0.3)' }}>Generate</span>
+            <span className="font-dm text-[10px] font-[500]" style={{ color: pathname === '/editor' ? 'rgba(170,140,255,0.95)' : 'rgba(255,255,255,0.3)' }}>Editor</span>
           </div>
 
           {/* Video */}
@@ -460,16 +460,6 @@ export default function Navbar() {
               <circle cx="18" cy="16" r="3"/>
             </svg>
             <span className="font-dm text-[10px] font-[500]">Audio</span>
-          </Link>
-
-          {/* Editor */}
-          <Link href="/editor" className="flex flex-col items-center gap-[3px] flex-1 py-2 transition-colors duration-150"
-            style={{ color: pathname === '/editor' ? 'rgba(170,140,255,0.95)' : 'rgba(255,255,255,0.3)' }}>
-            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="2" y="6" width="20" height="12" rx="2"/>
-              <path d="M12 2v4M8 10h8M8 14h5"/>
-            </svg>
-            <span className="font-dm text-[10px] font-[500]">Edit</span>
           </Link>
 
         </div>
