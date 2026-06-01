@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { invalidateModelsCache } from '../../../../../lib/models'
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   const authHeader = request.headers.get('authorization')
   const expected = `Bearer ${process.env.ADMIN_SECRET}`

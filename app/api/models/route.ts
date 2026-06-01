@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getModels, type PublicModel } from '../../../lib/models'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   const category = request.nextUrl.searchParams.get('category')
   if (category !== 'image' && category !== 'video') {
