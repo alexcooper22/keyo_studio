@@ -17,8 +17,9 @@ interface PromptBarProps {
   isSignedIn: boolean | null | undefined;
   creditCount: number | null;
   creditCost: number;
-  selectedModel: string;
-  onModelChange: (model: string) => void;
+  models: Array<{ id: string; name: string; pricing: Array<{ quality: string; credits: number }> }>;
+  selectedModelId: string;
+  onModelChange: (id: string) => void;
   aspectRatio: string;
   onAspectRatioChange: (ratio: string) => void;
   quality: string;
@@ -27,10 +28,6 @@ interface PromptBarProps {
   onImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onRemoveImage: (index: number) => void;
 }
-
-const modelOptions = [
-  { id: 'google/nano-banana-2/text-to-image', name: 'Nano Banana 2', price: '1 credit' },
-];
 
 const ratioOptions = [
   { label: 'Auto', value: 'auto', w: 16, h: 16 },
@@ -56,7 +53,7 @@ export default function PromptBar({
   prompt, onPromptChange, onGenerate,
   isLoading, isLoaded, isSignedIn,
   creditCount, creditCost,
-  selectedModel, onModelChange,
+  models, selectedModelId, onModelChange,
   aspectRatio, onAspectRatioChange,
   quality, onQualityChange,
   uploadedImages, onImageUpload, onRemoveImage,
@@ -201,21 +198,20 @@ export default function PromptBar({
               onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
               className={`px-3 py-1 rounded-full bg-white/[0.06] border font-dm text-[11px] md:text-xs transition-all flex items-center gap-1.5 ${isModelDropdownOpen ? 'border-accent text-white bg-white/10' : 'border-white/10 text-text-secondary hover:text-white hover:bg-white/10'}`}
             >
-              {modelOptions.find(m => m.id === selectedModel)?.name} ▾
+              {models.find(m => m.id === selectedModelId)?.name ?? 'Loading...'} ▾
             </button>
             {isModelDropdownOpen && (
               <div className="absolute bottom-full left-0 mb-2 w-[220px] bg-bg-navbar border border-white/[0.08] rounded-xl overflow-hidden shadow-2xl z-[60] backdrop-blur-xl animate-in fade-in slide-in-from-bottom-2 duration-200">
-                {modelOptions.map((model) => (
+                {models.map(m => (
                   <button
-                    key={model.id}
-                    onClick={() => { onModelChange(model.id); setIsModelDropdownOpen(false); }}
-                    className={`w-full text-left px-4 py-3 hover:bg-white/[0.04] transition-colors flex flex-col gap-0.5 ${selectedModel === model.id ? 'bg-accent/5' : ''}`}
+                    key={m.id}
+                    onClick={() => { onModelChange(m.id); setIsModelDropdownOpen(false); }}
+                    className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-colors ${selectedModelId === m.id ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'}`}
                   >
-                    <div className="flex items-center justify-between">
-                      <span className="font-dm font-[600] text-sm text-text-secondary">{model.name}</span>
-                      {selectedModel === model.id && <div className="w-1 h-1 rounded-full bg-accent" />}
+                    <div className="font-medium">{m.name}</div>
+                    <div className="text-xs text-white/40 mt-0.5">
+                      {m.pricing.find(p => p.quality === quality)?.credits ?? '?'} credits
                     </div>
-                    <span className="font-dm text-[11px] text-text-secondary">{model.price}</span>
                   </button>
                 ))}
               </div>
