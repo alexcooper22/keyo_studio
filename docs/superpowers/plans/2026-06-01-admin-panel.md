@@ -943,7 +943,7 @@ if (aiModel.provider === 'openai') {
 
   const { error: uploadError } = await supabaseAdmin.storage
     .from(bucketName)
-    .upload(fileName, imageBuffer, { contentType: imageMimeType, upsert: true })
+    .upload(fileName, imageBuffer, { contentType: 'image/png', upsert: true })
 
   if (uploadError) throw new Error(`Supabase upload failed: ${uploadError.message}`)
 

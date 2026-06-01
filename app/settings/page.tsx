@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Navbar from '../../components/layout/Navbar';
 import { useUser } from '@clerk/nextjs';
 import ModelManager from '../../components/admin/ModelManager';
+import PlanManager from '../../components/admin/PlanManager';
 
 type Section = 'Personal Profile' | 'Gifts' | 'Referrals' | 'Subscription' | 'Credits Usage' | 'Promo Code' | 'Models';
 
@@ -290,7 +291,10 @@ export default function SettingsPage() {
           )}
 
           {activeSection === 'Models' && isAdminUser && (
-            <ModelManager />
+            <div className="rounded-2xl p-5 md:p-6" style={{ background: 'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.07)' }}>
+              <ModelManager />
+              <PlanManager />
+            </div>
           )}
 
           {/* Coming soon */}

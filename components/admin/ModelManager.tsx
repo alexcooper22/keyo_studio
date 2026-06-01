@@ -32,10 +32,14 @@ export default function ModelManager() {
   const [pricingModel, setPricingModel] = useState<AdminModel | null>(null)
   const [showAddModel, setShowAddModel] = useState(false)
   const [editModel, setEditModel] = useState<AdminModel | null>(null)
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null)
+  const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(null)
   const [addPricingForm, setAddPricingForm] = useState({ quality: '', credits: '', unit: 'per_image', cost_usd: '' })
   const [addModelForm, setAddModelForm] = useState({ name: '', provider: 'google', model_id: '', category: 'image', api_key_env: '', api_secret_env: '' })
 
   const showNotice = (msg: string) => { setNotice(msg); setTimeout(() => setNotice(''), 3000) }
+
+  const closeMenu = () => { setOpenMenuId(null); setMenuPos(null) }
 
   const fetchModels = async () => {
     setLoading(true)
@@ -157,8 +161,126 @@ export default function ModelManager() {
     )
   }
 
+  const backdrop: React.CSSProperties = { position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(6px)' }
+  const modalCard = (width: string): React.CSSProperties => ({ background: '#0c0c12', border: '0.5px solid rgba(255,255,255,0.1)', borderRadius: '16px', padding: '24px', width, maxWidth: '92vw', maxHeight: '85vh', overflowY: 'auto' })
+  const modalHeader: React.CSSProperties = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }
+  const modalTitle: React.CSSProperties = { color: 'rgba(170,140,255,0.9)', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px', margin: 0 }
+  const btnClose: React.CSSProperties = { background: 'rgba(255,255,255,0.05)', border: '0.5px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '5px 12px', color: 'rgba(255,255,255,0.5)', fontSize: '12px', cursor: 'pointer' }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+
+      {/* Context menu */}
+      {openMenuId && menuPos && (
+        <>
+          <div style={{ position: 'fixed', inset: 0, zIndex: 9998 }} onClick={closeMenu} />
+          <div style={{ position: 'fixed', top: menuPos.top, right: menuPos.right, background: 'rgba(18,18,26,0.98)', border: '0.5px solid rgba(255,255,255,0.1)', borderRadius: '10px', padding: '4px', zIndex: 9999, minWidth: '130px', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
+            <button
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%', textAlign: 'left', padding: '8px 10px', background: 'none', border: 'none', color: 'rgba(255,255,255,0.7)', fontSize: '12px', cursor: 'pointer', borderRadius: '7px' }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.06)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'none')}
+              onClick={() => { setEditModel(models.find(m => m.id === openMenuId) ?? null); closeMenu() }}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Edit
+            </button>
+            <button
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%', textAlign: 'left', padding: '8px 10px', background: 'none', border: 'none', color: 'rgba(255,100,100,0.85)', fontSize: '12px', cursor: 'pointer', borderRadius: '7px' }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,60,60,0.08)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'none')}
+              onClick={() => { deleteModel(openMenuId); closeMenu() }}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+              Delete
+            </button>
+          </div>
+        </>
+      )}
+
+      {/* Add model modal */}
+      {showAddModel && (
+        <div style={backdrop} onClick={() => setShowAddModel(false)}>
+          <div style={modalCard('480px')} onClick={e => e.stopPropagation()}>
+            <div style={modalHeader}>
+              <p style={modalTitle}>New Model</p>
+              <button style={btnClose} onClick={() => setShowAddModel(false)}>Close</button>
+            </div>
+            <ModelForm initial={addModelForm} onSave={(f) => saveModel(f)} onCancel={() => setShowAddModel(false)} />
+          </div>
+        </div>
+      )}
+
+      {/* Edit model modal */}
+      {editModel && (
+        <div style={backdrop} onClick={() => setEditModel(null)}>
+          <div style={modalCard('480px')} onClick={e => e.stopPropagation()}>
+            <div style={modalHeader}>
+              <p style={modalTitle}>Edit — {editModel.name}</p>
+              <button style={btnClose} onClick={() => setEditModel(null)}>Close</button>
+            </div>
+            <ModelForm
+              initial={{ name: editModel.name, provider: editModel.provider, model_id: editModel.model_id, category: editModel.category, api_key_env: editModel.api_key_env, api_secret_env: editModel.api_secret_env ?? '' }}
+              onSave={(f) => saveModel(f, editModel.id)}
+              onCancel={() => setEditModel(null)}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Pricing modal */}
+      {pricingModel && (
+        <div style={backdrop} onClick={() => setPricingModel(null)}>
+          <div style={modalCard('600px')} onClick={e => e.stopPropagation()}>
+            <div style={modalHeader}>
+              <p style={modalTitle}>Pricing — {pricingModel.name}</p>
+              <button style={btnClose} onClick={() => setPricingModel(null)}>Close</button>
+            </div>
+            {pricingModel.model_pricing?.length > 0 ? (
+              <div style={{ marginBottom: '16px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '80px 70px 100px 90px 48px', gap: '8px', padding: '0 10px 6px', borderBottom: '0.5px solid rgba(255,255,255,0.06)', marginBottom: '4px' }}>
+                  {['Quality', 'Credits', 'Unit', 'Cost USD', ''].map(h => (
+                    <span key={h} style={{ color: 'rgba(255,255,255,0.25)', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{h}</span>
+                  ))}
+                </div>
+                {pricingModel.model_pricing.map(p => (
+                  <div key={p.id} style={{ display: 'grid', gridTemplateColumns: '80px 70px 100px 90px 48px', gap: '8px', alignItems: 'center', padding: '8px 10px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)' }}>
+                    <span style={{ color: 'white', fontSize: '13px', fontWeight: 500 }}>{p.quality}</span>
+                    <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px' }}>{p.credits} cr</span>
+                    <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px' }}>{p.unit}</span>
+                    <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '12px' }}>${p.cost_usd}</span>
+                    <button style={btnDanger} onClick={() => deletePricing(p.id)}>✕</button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p style={{ color: 'rgba(255,255,255,0.25)', fontSize: '12px', marginBottom: '16px' }}>No pricing rows yet.</p>
+            )}
+            <div style={{ display: 'grid', gridTemplateColumns: '80px 70px 1fr 90px auto', gap: '8px', alignItems: 'flex-end', borderTop: '0.5px solid rgba(255,255,255,0.06)', paddingTop: '16px' }}>
+              {[
+                { label: 'Quality', key: 'quality', placeholder: '1K' },
+                { label: 'Credits', key: 'credits', placeholder: '2' },
+              ].map(({ label, key, placeholder }) => (
+                <div key={key}>
+                  <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '10px', marginBottom: '4px' }}>{label}</p>
+                  <input style={{ ...inputStyle, padding: '6px 8px' }} placeholder={placeholder} value={(addPricingForm as Record<string, string>)[key]} onChange={e => setAddPricingForm(f => ({ ...f, [key]: e.target.value }))} />
+                </div>
+              ))}
+              <div>
+                <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '10px', marginBottom: '4px' }}>Unit</p>
+                <select style={{ ...selectStyle, padding: '6px 8px' }} value={addPricingForm.unit} onChange={e => setAddPricingForm(f => ({ ...f, unit: e.target.value }))}>
+                  {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
+                </select>
+              </div>
+              <div>
+                <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '10px', marginBottom: '4px' }}>Cost USD</p>
+                <input style={{ ...inputStyle, padding: '6px 8px' }} placeholder="0.067" value={addPricingForm.cost_usd} onChange={e => setAddPricingForm(f => ({ ...f, cost_usd: e.target.value }))} />
+              </div>
+              <button style={{ ...btnPrimary, padding: '7px 16px' }} onClick={addPricing}>Add</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {notice && (
         <div style={{ padding: '10px 14px', borderRadius: '10px', background: 'rgba(83,47,207,0.12)', border: '0.5px solid rgba(120,80,255,0.3)', color: 'rgba(170,140,255,0.9)', fontSize: '12px' }}>
           ✓ {notice}
@@ -170,35 +292,17 @@ export default function ModelManager() {
         <button style={btnPrimary} onClick={() => setShowAddModel(true)}>+ Add Model</button>
       </div>
 
-      {showAddModel && (
-        <div style={{ padding: '16px', borderRadius: '12px', background: 'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.08)' }}>
-          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>New Model</p>
-          <ModelForm initial={addModelForm} onSave={(f) => saveModel(f)} onCancel={() => setShowAddModel(false)} />
-        </div>
-      )}
-
-      {editModel && (
-        <div style={{ padding: '16px', borderRadius: '12px', background: 'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.08)' }}>
-          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Edit: {editModel.name}</p>
-          <ModelForm
-            initial={{ name: editModel.name, provider: editModel.provider, model_id: editModel.model_id, category: editModel.category, api_key_env: editModel.api_key_env, api_secret_env: editModel.api_secret_env ?? '' }}
-            onSave={(f) => saveModel(f, editModel.id)}
-            onCancel={() => setEditModel(null)}
-          />
-        </div>
-      )}
-
       {loading ? (
         <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: '13px', padding: '20px 0', textAlign: 'center' }}>Loading...</div>
       ) : (
         <div style={{ borderRadius: '12px', background: 'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.07)', overflow: 'hidden' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 80px 80px 120px 160px', padding: '8px 16px', borderBottom: '0.5px solid rgba(255,255,255,0.05)' }}>
-            {['Name / Provider', 'Category', 'Status', 'Pricing', 'Actions'].map(h => (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 80px 80px 120px 56px', padding: '8px 16px', borderBottom: '0.5px solid rgba(255,255,255,0.05)' }}>
+            {['Name / Provider', 'Category', 'Status', 'Pricing', ''].map(h => (
               <span key={h} style={{ color: 'rgba(255,255,255,0.25)', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{h}</span>
             ))}
           </div>
           {models.map(model => (
-            <div key={model.id} style={{ display: 'grid', gridTemplateColumns: '1fr 80px 80px 120px 160px', padding: '12px 16px', borderBottom: '0.5px solid rgba(255,255,255,0.04)', alignItems: 'center' }}>
+            <div key={model.id} style={{ display: 'grid', gridTemplateColumns: '1fr 80px 80px 120px 56px', padding: '12px 16px', borderBottom: '0.5px solid rgba(255,255,255,0.04)', alignItems: 'center' }}>
               <div>
                 <p style={{ color: 'white', fontSize: '13px', fontWeight: 500, margin: 0 }}>{model.name}</p>
                 <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '11px', margin: '2px 0 0' }}>{model.provider} · {model.model_id}</p>
@@ -213,63 +317,24 @@ export default function ModelManager() {
               <button style={btnSecondary} onClick={() => setPricingModel(model)}>
                 {model.model_pricing?.length ?? 0} rows →
               </button>
-              <div style={{ display: 'flex', gap: '6px' }}>
-                <button style={btnSecondary} onClick={() => setEditModel(model)}>Edit</button>
-                <button style={btnDanger} onClick={() => deleteModel(model.id)}>Delete</button>
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <button
+                  style={{ background: 'rgba(255,255,255,0.06)', border: '0.5px solid rgba(255,255,255,0.12)', borderRadius: '8px', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'rgba(255,255,255,0.7)', fontSize: '18px', lineHeight: 1, letterSpacing: '-2px' }}
+                  onClick={e => {
+                    if (openMenuId === model.id) { closeMenu(); return }
+                    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+                    setMenuPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right })
+                    setOpenMenuId(model.id)
+                  }}
+                >
+                  ⋯
+                </button>
               </div>
             </div>
           ))}
           {models.length === 0 && (
             <div style={{ padding: '32px', textAlign: 'center', color: 'rgba(255,255,255,0.2)', fontSize: '13px' }}>No models yet</div>
           )}
-        </div>
-      )}
-
-      {pricingModel && (
-        <div style={{ padding: '16px', borderRadius: '12px', background: 'rgba(255,255,255,0.02)', border: '0.5px solid rgba(83,47,207,0.2)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-            <p style={{ color: 'rgba(170,140,255,0.9)', fontSize: '12px', fontWeight: 700, margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              Pricing — {pricingModel.name}
-            </p>
-            <button style={btnSecondary} onClick={() => setPricingModel(null)}>Close</button>
-          </div>
-          {pricingModel.model_pricing?.length > 0 ? (
-            <div style={{ marginBottom: '12px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              {pricingModel.model_pricing.map(p => (
-                <div key={p.id} style={{ display: 'grid', gridTemplateColumns: '80px 70px 100px 90px 60px', gap: '8px', alignItems: 'center', padding: '6px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.02)' }}>
-                  <span style={{ color: 'white', fontSize: '12px', fontWeight: 500 }}>{p.quality}</span>
-                  <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px' }}>{p.credits} cr</span>
-                  <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px' }}>{p.unit}</span>
-                  <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '11px' }}>${p.cost_usd}</span>
-                  <button style={btnDanger} onClick={() => deletePricing(p.id)}>✕</button>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p style={{ color: 'rgba(255,255,255,0.25)', fontSize: '12px', marginBottom: '12px' }}>No pricing rows yet.</p>
-          )}
-          <div style={{ display: 'grid', gridTemplateColumns: '80px 70px 110px 90px auto', gap: '8px', alignItems: 'flex-end' }}>
-            {[
-              { label: 'Quality', key: 'quality', placeholder: '1K' },
-              { label: 'Credits', key: 'credits', placeholder: '2' },
-            ].map(({ label, key, placeholder }) => (
-              <div key={key}>
-                <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '10px', marginBottom: '4px' }}>{label}</p>
-                <input style={{ ...inputStyle, padding: '5px 8px' }} placeholder={placeholder} value={(addPricingForm as Record<string, string>)[key]} onChange={e => setAddPricingForm(f => ({ ...f, [key]: e.target.value }))} />
-              </div>
-            ))}
-            <div>
-              <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '10px', marginBottom: '4px' }}>Unit</p>
-              <select style={{ ...selectStyle, padding: '5px 8px' }} value={addPricingForm.unit} onChange={e => setAddPricingForm(f => ({ ...f, unit: e.target.value }))}>
-                {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
-              </select>
-            </div>
-            <div>
-              <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '10px', marginBottom: '4px' }}>Cost USD</p>
-              <input style={{ ...inputStyle, padding: '5px 8px' }} placeholder="0.067" value={addPricingForm.cost_usd} onChange={e => setAddPricingForm(f => ({ ...f, cost_usd: e.target.value }))} />
-            </div>
-            <button style={btnPrimary} onClick={addPricing}>Add</button>
-          </div>
         </div>
       )}
     </div>

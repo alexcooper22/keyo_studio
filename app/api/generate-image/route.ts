@@ -148,6 +148,68 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ images: [{ url: publicUrl }], prompt, remainingCredits: updatedSub.credits_remaining })
     }
 
+    if (aiModel.provider === 'alibaba') {
+      const openai = new OpenAI({
+        apiKey,
+        baseURL: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+      })
+
+      const sizeMap: Record<string, string> = { '1K': '1024x1024', '2K': '1280x1024', '4K': '1280x1024' }
+      const size = (sizeMap[resolution] ?? '1024x1024') as any
+
+      const response = await openai.images.generate({ model: aiModel.model_id, prompt, n: 1, size })
+
+      const imageData = response.data[0]
+      let imageBuffer: Buffer
+      let ext = 'png'
+
+      if (imageData?.b64_json) {
+        imageBuffer = Buffer.from(imageData.b64_json, 'base64')
+      } else if (imageData?.url) {
+        // DashScope returns a temporary CDN URL — fetch and re-upload to Supabase
+        const imgRes = await fetch(imageData.url, { redirect: 'error', signal: AbortSignal.timeout(30_000) })
+        if (!imgRes.ok) throw new Error('Failed to fetch generated image from DashScope')
+        const ct = imgRes.headers.get('content-type') || 'image/png'
+        ext = ct.includes('jpeg') || ct.includes('jpg') ? 'jpg' : 'png'
+        imageBuffer = Buffer.from(await imgRes.arrayBuffer())
+      } else {
+        throw new Error('No image data from Alibaba DashScope')
+      }
+
+      const fileName = `${userId}/${Date.now()}.${ext}`
+      const bucketName = 'user-images'
+
+      const { error: uploadError } = await supabaseAdmin.storage
+        .from(bucketName)
+        .upload(fileName, imageBuffer, { contentType: `image/${ext}`, upsert: true })
+
+      if (uploadError) throw new Error(`Supabase upload failed: ${uploadError.message}`)
+
+      const { data: { publicUrl } } = supabaseAdmin.storage.from(bucketName).getPublicUrl(fileName)
+
+      await supabaseAdmin.from('generated_images').insert({
+        clerk_id: userId,
+        prompt,
+        image_url: publicUrl,
+        model: aiModel.name,
+        resolution: resolution || '1K',
+      })
+
+      const { data: updatedSub, error: updateError } = await supabaseAdmin
+        .from('user_subscriptions')
+        .update({ credits_remaining: currentCredits - creditCost, updated_at: new Date().toISOString() })
+        .eq('clerk_id', userId)
+        .eq('status', 'active')
+        .gte('credits_remaining', creditCost)
+        .select('credits_remaining')
+        .maybeSingle()
+
+      if (updateError) throw updateError
+      if (!updatedSub) return NextResponse.json({ error: 'Insufficient credits' }, { status: 403 })
+
+      return NextResponse.json({ images: [{ url: publicUrl }], prompt, remainingCredits: updatedSub.credits_remaining })
+    }
+
     if (aiModel.provider !== 'google') {
       return NextResponse.json({ error: `Provider "${aiModel.provider}" not yet implemented` }, { status: 501 });
     }

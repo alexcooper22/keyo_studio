@@ -1,38 +1,27 @@
 'use client';
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { useAuth } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
+import type { SubscriptionPlan } from '@/lib/plans';
 
-const plans = [
+const FALLBACK_PLANS: SubscriptionPlan[] = [
   {
-    id: "starter",
-    name: "Starter",
-    desc: "For first-time AI content creators",
-    price: 19,
-    credits: 200,
-    featured: false,
+    id: "starter", name: "Starter", description: "For first-time AI content creators",
+    price_usd: 19, credits: 200, featured: false, cta_text: "Get started", cta_style: "outline", sort_order: 1,
     breakdown: [
       { icon: "image", main: "100 image generations", sub: "Nano Banana Pro · 2 credits each" },
       { icon: "video", main: "~23 video clips", sub: "Kling 3.0 · ~8.7 credits each" },
     ],
-    cta: "Get started",
-    ctaStyle: "outline",
   },
   {
-    id: "plus",
-    name: "Plus",
-    desc: "For consistent and easy AI content creation",
-    price: 49,
-    credits: 1000,
-    featured: true,
+    id: "plus", name: "Plus", description: "For consistent and easy AI content creation",
+    price_usd: 49, credits: 1000, featured: true, cta_text: "Get Plus", cta_style: "primary", sort_order: 2,
     breakdown: [
       { icon: "image", main: "500 image generations", sub: "Nano Banana Pro · 2 credits each" },
       { icon: "video", main: "~114 video clips", sub: "Kling 3.0 · ~8.7 credits each" },
     ],
-    cta: "Get Plus",
-    ctaStyle: "primary",
   },
 ];
 
@@ -40,6 +29,14 @@ export default function PricingPage() {
   const { isSignedIn } = useAuth();
   const router = useRouter();
   const [loadingPlan, setLoadingPlan] = useState<'starter' | 'plus' | null>(null);
+  const [plans, setPlans] = useState<SubscriptionPlan[]>(FALLBACK_PLANS);
+
+  useEffect(() => {
+    fetch('/api/plans')
+      .then(r => r.json())
+      .then(d => { if (d.plans?.length) setPlans(d.plans) })
+      .catch(() => {});
+  }, []);
 
   const handleCheckout = async (plan: 'starter' | 'plus') => {
     if (!isSignedIn) { router.push('/sign-in'); return; }

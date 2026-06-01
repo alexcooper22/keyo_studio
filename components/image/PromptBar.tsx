@@ -71,6 +71,16 @@ export default function PromptBar({
   const [popupPosition, setPopupPosition] = useState({ bottom: 0, left: 0 });
   const [qualityPopupPos, setQualityPopupPos] = useState({ bottom: 0, left: 0 });
 
+  const selectedModel = models.find(m => m.id === selectedModelId);
+  const availableQualities = new Set(selectedModel?.pricing.map(p => p.quality) ?? qualityOptions.map(q => q.value));
+
+  useEffect(() => {
+    if (!availableQualities.has(quality)) {
+      const fallback = qualityOptions.find(q => availableQualities.has(q.value));
+      if (fallback) onQualityChange(fallback.value);
+    }
+  }, [selectedModelId]);
+
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (ratioButtonRef.current?.contains(e.target as Node)) return;
@@ -290,16 +300,20 @@ export default function PromptBar({
                 >
                   <p className="text-[11px] text-text-secondary mb-3 uppercase tracking-wider">Select quality</p>
                   <div className="flex flex-col gap-1">
-                    {qualityOptions.map(q => (
-                      <button
-                        key={q.value}
-                        onClick={() => { onQualityChange(q.value); setShowQualityModal(false); }}
-                        className={`flex items-center justify-between px-3 py-2 rounded-lg text-[13px] w-full text-left transition-colors ${quality === q.value ? 'text-white bg-white/[0.08]' : 'text-text-secondary hover:text-white'}`}
-                      >
-                        {q.label}
-                        {quality === q.value && <span>✓</span>}
-                      </button>
-                    ))}
+                    {qualityOptions.map(q => {
+                      const available = availableQualities.has(q.value);
+                      return (
+                        <button
+                          key={q.value}
+                          disabled={!available}
+                          onClick={() => { onQualityChange(q.value); setShowQualityModal(false); }}
+                          className={`flex items-center justify-between px-3 py-2 rounded-lg text-[13px] w-full text-left transition-colors ${!available ? 'opacity-30 cursor-not-allowed' : quality === q.value ? 'text-white bg-white/[0.08]' : 'text-text-secondary hover:text-white'}`}
+                        >
+                          {q.label}
+                          {quality === q.value && available && <span>✓</span>}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               </Portal>
