@@ -42,7 +42,7 @@ export default function PricingPage() {
     if (!isSignedIn) { router.push('/sign-in'); return; }
     setLoadingPlan(plan);
     try {
-      const res = await fetch('/api/stripe/create-checkout', {
+      const res = await fetch('/api/liqpay/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ plan }),

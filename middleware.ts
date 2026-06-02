@@ -10,7 +10,7 @@ const isPublicRoute = createRouteMatcher([
   '/pricing',
   '/privacy',
   '/terms',
-  '/api/stripe/webhook(.*)',
+  '/api/liqpay/webhook(.*)',
   '/api/community-gallery(.*)',
 ])
 
