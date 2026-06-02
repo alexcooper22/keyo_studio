@@ -85,8 +85,6 @@ export default function Navbar() {
     { name: 'Explore', href: '/' },
     { name: 'Image', href: '/image' },
     { name: 'Video', href: '/video' },
-    { name: 'Audio', href: '/audio' },
-    { name: 'Editor', href: '/editor' },
   ];
 
   const avatarLetter = (
@@ -373,33 +371,31 @@ export default function Navbar() {
 
       {/* ── Mobile bottom nav ── */}
       <nav
-        className="md:hidden fixed bottom-0 left-0 right-0 z-[100] flex"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-[100]"
         aria-label="Mobile navigation"
         style={{
-          height: '65px',
+          height: 'calc(65px + env(safe-area-inset-bottom, 0px))',
           background: 'rgba(6,6,6,0.96)',
           backdropFilter: 'blur(28px) saturate(180%)',
           WebkitBackdropFilter: 'blur(28px) saturate(180%)',
           borderTop: '0.5px solid rgba(255,255,255,0.07)',
-          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
           boxShadow: '0 -8px 40px rgba(0,0,0,0.6)',
+          WebkitTapHighlightColor: 'transparent',
         }}
       >
-        <div className="flex items-center justify-around w-full h-full px-2" style={{ overflow: 'visible' }}>
-
-          {/* Home */}
-          <Link href="/" className="flex flex-col items-center gap-[3px] flex-1 py-2 transition-colors duration-150"
-            style={{ color: pathname === '/' ? 'rgba(170,140,255,0.95)' : 'rgba(255,255,255,0.3)' }}>
-            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-              <polyline points="9 22 9 12 15 12 15 22"/>
-            </svg>
-            <span className="font-dm text-[10px] font-[500]">Home</span>
-          </Link>
+        <div style={{
+          display: 'grid', gridTemplateColumns: '1fr 1fr 1fr',
+          height: '65px', overflow: 'visible',
+        }}>
 
           {/* Image */}
-          <Link href="/image" className="flex flex-col items-center gap-[3px] flex-1 py-2 transition-colors duration-150"
-            style={{ color: pathname === '/image' ? 'rgba(170,140,255,0.95)' : 'rgba(255,255,255,0.3)' }}>
+          <Link href="/image"
+            className="flex flex-col items-center justify-center gap-[3px] active:opacity-60 transition-opacity"
+            style={{
+              color: pathname === '/image' ? 'rgba(170,140,255,0.95)' : 'rgba(255,255,255,0.3)',
+              touchAction: 'manipulation', minHeight: '44px',
+              WebkitTapHighlightColor: 'transparent',
+            }}>
             <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
               <rect x="3" y="3" width="18" height="18" rx="2"/>
               <circle cx="8.5" cy="8.5" r="1.5"/>
@@ -408,38 +404,37 @@ export default function Navbar() {
             <span className="font-dm text-[10px] font-[500]">Image</span>
           </Link>
 
-          {/* Editor — center elevated */}
-          <div className="flex flex-col items-center flex-1 relative" style={{ top: '-14px' }}>
-            <Link href="/editor" aria-label="Editor"
-              className="w-[52px] h-[52px] flex items-center justify-center rounded-2xl mb-1"
-              style={{ background: 'linear-gradient(135deg, #532fcf 0%, #7c5cf0 100%)', boxShadow: '0 4px 24px rgba(83,47,207,0.55), 0 0 0 1px rgba(120,80,255,0.3)' }}>
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="rgba(220,200,255,1)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <polygon points="10 8 16 12 10 16 10 8"/>
+          {/* Home — center elevated */}
+          <div className="flex flex-col items-center justify-center relative" style={{ top: '-14px', WebkitTapHighlightColor: 'transparent' }}>
+            <Link href="/" aria-label="Home"
+              className="w-[52px] h-[52px] flex items-center justify-center rounded-2xl mb-1 active:opacity-75 transition-opacity"
+              style={{
+                background: pathname === '/' ? 'linear-gradient(135deg, #532fcf 0%, #7c5cf0 100%)' : 'linear-gradient(135deg, #3d2299 0%, #5a3fd4 100%)',
+                boxShadow: '0 4px 24px rgba(83,47,207,0.55), 0 0 0 1px rgba(120,80,255,0.3)',
+                touchAction: 'manipulation',
+                WebkitTapHighlightColor: 'transparent',
+              }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(220,200,255,1)" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
               </svg>
             </Link>
-            <span className="font-dm text-[10px] font-[500]" style={{ color: pathname === '/editor' ? 'rgba(170,140,255,0.95)' : 'rgba(255,255,255,0.3)' }}>Editor</span>
+            <span className="font-dm text-[10px] font-[500]" style={{ color: pathname === '/' ? 'rgba(170,140,255,0.95)' : 'rgba(255,255,255,0.3)' }}>Home</span>
           </div>
 
           {/* Video */}
-          <Link href="/video" className="flex flex-col items-center gap-[3px] flex-1 py-2 transition-colors duration-150"
-            style={{ color: pathname === '/video' ? 'rgba(170,140,255,0.95)' : 'rgba(255,255,255,0.3)' }}>
+          <Link href="/video"
+            className="flex flex-col items-center justify-center gap-[3px] active:opacity-60 transition-opacity"
+            style={{
+              color: pathname === '/video' ? 'rgba(170,140,255,0.95)' : 'rgba(255,255,255,0.3)',
+              touchAction: 'manipulation', minHeight: '44px',
+              WebkitTapHighlightColor: 'transparent',
+            }}>
             <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
               <polygon points="23 7 16 12 23 17 23 7"/>
               <rect x="1" y="5" width="15" height="14" rx="2"/>
             </svg>
             <span className="font-dm text-[10px] font-[500]">Video</span>
-          </Link>
-
-          {/* Audio */}
-          <Link href="/audio" className="flex flex-col items-center gap-[3px] flex-1 py-2 transition-colors duration-150"
-            style={{ color: pathname === '/audio' ? 'rgba(170,140,255,0.95)' : 'rgba(255,255,255,0.3)' }}>
-            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M9 18V5l12-2v13"/>
-              <circle cx="6" cy="18" r="3"/>
-              <circle cx="18" cy="16" r="3"/>
-            </svg>
-            <span className="font-dm text-[10px] font-[500]">Audio</span>
           </Link>
 
         </div>

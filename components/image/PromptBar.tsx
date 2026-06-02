@@ -191,8 +191,8 @@ export default function PromptBar({
           </div>
         )}
 
-        {/* Textarea + embedded generate button */}
-        <div className="relative px-4 pt-4 pb-2">
+        {/* Textarea */}
+        <div className="px-4 pt-4 pb-2">
           <textarea
             ref={textareaRef}
             value={prompt}
@@ -216,45 +216,12 @@ export default function PromptBar({
               overflowY: 'auto',
               scrollbarWidth: 'none',
               color: 'rgba(255,255,255,0.9)',
-              paddingRight: '110px',
             }}
           />
-
-          {/* Generate button — embedded top-right of textarea */}
-          <div className="absolute right-3 top-3">
-            <button
-              onClick={onGenerate}
-              disabled={isLoaded && !!isSignedIn && (isLoading || !prompt.trim() || noCredits)}
-              className={[
-                'flex items-center gap-1.5 font-dm font-[500]',
-                noCredits ? 'generate-btn-empty' : isLoading ? 'generate-btn generate-btn-loading' : 'generate-btn',
-              ].join(' ')}
-              style={{
-                height: '32px',
-                padding: '0 14px',
-                borderRadius: '50px',
-                fontSize: '12px',
-                letterSpacing: '0.01em',
-                background: noCredits ? 'rgba(255,255,255,0.05)' : undefined,
-                border: noCredits ? '0.5px solid rgba(255,255,255,0.08)' : 'none',
-                color: noCredits ? 'rgba(255,255,255,0.25)' : '#fff',
-                cursor: (isLoaded && !!isSignedIn && (isLoading || !prompt.trim() || noCredits)) ? 'not-allowed' : 'pointer',
-              }}
-            >
-              {isLoading ? (
-                <div className="w-3 h-3 border-[1.5px] border-white/60 border-t-white rounded-full animate-spin" />
-              ) : noCredits ? (
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg>
-              ) : (
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg>
-              )}
-              {isLoading ? 'Generating…' : noCredits ? 'No credits' : `Generate · ${creditCost}`}
-            </button>
-          </div>
         </div>
 
         {/* Bottom toolbar */}
-        <div className="flex items-center px-3 pb-3 gap-3">
+        <div className="flex items-center justify-between px-3 pb-3 gap-3">
 
           {/* Toolbar */}
           <div className="flex items-center gap-1.5 flex-wrap">
@@ -478,6 +445,30 @@ export default function PromptBar({
               )}
             </div>
           </div>
+
+          {/* Generate button — bottom right */}
+          <button
+            onClick={onGenerate}
+            disabled={isLoaded && !!isSignedIn && (isLoading || !prompt.trim() || noCredits)}
+            className={[
+              'flex-shrink-0 flex items-center gap-1.5 font-dm font-[500]',
+              noCredits ? 'generate-btn-empty' : isLoading ? 'generate-btn generate-btn-loading' : 'generate-btn',
+            ].join(' ')}
+            style={{
+              height: '32px', padding: '0 14px', borderRadius: '50px', fontSize: '12px', letterSpacing: '0.01em',
+              background: noCredits ? 'rgba(255,255,255,0.05)' : undefined,
+              border: noCredits ? '0.5px solid rgba(255,255,255,0.08)' : 'none',
+              color: noCredits ? 'rgba(255,255,255,0.25)' : '#fff',
+              cursor: (isLoaded && !!isSignedIn && (isLoading || !prompt.trim() || noCredits)) ? 'not-allowed' : 'pointer',
+            }}
+          >
+            {isLoading ? (
+              <div className="w-3 h-3 border-[1.5px] border-white/60 border-t-white rounded-full animate-spin" />
+            ) : (
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg>
+            )}
+            {isLoading ? 'Generating…' : noCredits ? 'No credits' : `Generate · ${creditCost}`}
+          </button>
         </div>
       </div>{/* end card */}
       </div>{/* end orbit wrapper */}

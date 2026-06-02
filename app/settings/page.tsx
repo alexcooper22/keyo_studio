@@ -1,6 +1,7 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import Navbar from '../../components/layout/Navbar';
 import { useUser } from '@clerk/nextjs';
 import ModelManager from '../../components/admin/ModelManager';
@@ -30,17 +31,24 @@ const sections: { name: Section; badge?: string; group: string }[] = [
 
 export default function SettingsPage() {
   const { isLoaded, user } = useUser();
+  const searchParams = useSearchParams();
   const [activeSection, setActiveSection] = useState<Section>('Personal Profile');
   const [isAdminUser, setIsAdminUser] = useState(false);
   const [subscription, setSubscription] = useState<{ plan: string | null; credits: number; hasSubscription: boolean } | null>(null);
+  const isMounted = useRef(false);
 
-  // Restore saved tab after hydration (must run client-side only)
+  // Restore tab: URL param takes priority, then localStorage
   useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    const fromUrl = tabParam ? sections.find(s => s.name.toLowerCase().replace(/\s+/g, '-') === tabParam || s.name.toLowerCase() === tabParam)?.name : null;
+    if (fromUrl) { setActiveSection(fromUrl as Section); return; }
     const saved = localStorage.getItem('settings_active_section') as Section | null;
-    if (saved && sections.some(s => s.name === saved)) setActiveSection(saved);
+    if (saved && sections.some(s => s.name === saved)) setActiveSection(saved as Section);
   }, []);
 
+  // Save to localStorage, but skip the very first render to avoid overwriting before restore runs
   useEffect(() => {
+    if (!isMounted.current) { isMounted.current = true; return; }
     localStorage.setItem('settings_active_section', activeSection);
   }, [activeSection]);
 

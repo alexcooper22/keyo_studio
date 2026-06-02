@@ -124,7 +124,7 @@ export default function Lightbox({ image, allImages, user, onClose, onNavigate, 
           {/* Prompt section */}
           <div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-              <span style={{ color: 'rgba(255,255,255,0.22)', fontSize: '10px', fontFamily: 'var(--font-syne)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>
+              <span style={{ color: 'rgba(255,255,255,0.22)', fontSize: '10px', fontFamily: 'var(--font-dm)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px' }}>
                 Prompt
               </span>
               <button
@@ -154,7 +154,7 @@ export default function Lightbox({ image, allImages, user, onClose, onNavigate, 
 
           {/* Info section */}
           <div>
-            <span style={{ color: 'rgba(255,255,255,0.22)', fontSize: '10px', fontFamily: 'var(--font-syne)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: '12px' }}>
+            <span style={{ color: 'rgba(255,255,255,0.22)', fontSize: '10px', fontFamily: 'var(--font-dm)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: '12px' }}>
               Information
             </span>
             <div style={{ display: 'flex', flexDirection: 'column' }}>

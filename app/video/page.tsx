@@ -349,23 +349,31 @@ export default function VideoDashboard() {
       <div className="video-layout flex flex-col md:flex-row" style={{ padding: '0 16px 80px', gap: '12px', alignItems: 'stretch' }}>
 
         {/* LEFT PANEL */}
-        <div className="video-panel" style={{ background: 'var(--bg-card)', border: 'var(--border)', borderRadius: 'var(--radius-card)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ display: 'flex', borderBottom: 'var(--border)', padding: '0 12px' }}>
+        <div className="video-panel" style={{ background: '#0a0a0e', border: '0.5px solid rgba(255,255,255,0.08)', borderRadius: '16px', overflow: 'hidden', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+          {/* Top shimmer */}
+          <div aria-hidden style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '1px', background: 'linear-gradient(90deg, transparent 5%, rgba(120,80,255,0.5) 40%, rgba(83,47,207,0.75) 50%, rgba(120,80,255,0.5) 60%, transparent 95%)', pointerEvents: 'none', zIndex: 1 }} />
+
+          {/* Tabs */}
+          <div style={{ display: 'flex', borderBottom: '0.5px solid rgba(255,255,255,0.06)', padding: '0 14px', gap: '2px' }}>
             {['Create Video', 'Edit', 'Motion'].map((t, i) => (
-              <div key={t} style={{ fontSize: '12px', color: i === 0 ? 'var(--text)' : '#555', padding: '10px 0', marginRight: '14px', borderBottom: i === 0 ? '2px solid var(--accent)' : '2px solid transparent', cursor: 'pointer', whiteSpace: 'nowrap' }}>{t}</div>
+              <div key={t} style={{ fontFamily: 'var(--font-dm)', fontSize: '12px', fontWeight: 500, color: i === 0 ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.28)', padding: '11px 6px', marginRight: '8px', borderBottom: i === 0 ? '1.5px solid rgba(120,80,255,0.8)' : '1.5px solid transparent', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'color 0.15s' }}>{t}</div>
             ))}
           </div>
-          <div style={{ padding: '10px', display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, overflowY: 'auto' }}>
+
+          <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, overflowY: 'auto' }}>
+
             {/* Model card */}
-            <div style={{ background: '#0d0d0d', border: '0.5px solid rgba(83,47,207,0.2)', borderRadius: '10px', overflow: 'hidden' }}>
-              <div style={{ height: '75px', background: 'linear-gradient(135deg, rgba(83,47,207,0.25) 0%, rgba(30,15,60,0.8) 100%)', position: 'relative' }}>
-                <div style={{ position: 'absolute', top: '6px', right: '6px', background: '#ffffff10', border: '0.5px solid #ffffff15', borderRadius: '5px', padding: '2px 8px', fontSize: '10px', color: 'var(--text-secondary)', cursor: 'pointer' }}>✎ Change</div>
+            <div style={{ background: '#0c0c14', border: '0.5px solid rgba(83,47,207,0.25)', borderRadius: '12px', overflow: 'hidden' }}>
+              <div style={{ height: '70px', background: 'radial-gradient(ellipse 100% 120% at 50% 0%, rgba(83,47,207,0.35) 0%, rgba(20,10,40,0.9) 100%)', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '1px', background: 'linear-gradient(90deg, transparent, rgba(120,80,255,0.5), transparent)' }} />
+                <button style={{ position: 'absolute', top: '7px', right: '7px', background: 'rgba(255,255,255,0.06)', border: '0.5px solid rgba(255,255,255,0.1)', borderRadius: '6px', padding: '3px 9px', fontSize: '10px', color: 'rgba(255,255,255,0.45)', cursor: 'pointer', fontFamily: 'var(--font-dm)' }}>✎ Change</button>
               </div>
-              <div style={{ padding: '6px 10px' }}>
-                <div style={{ fontSize: '9px', fontWeight: 600, color: 'rgba(120,80,255,0.7)', letterSpacing: '0.8px', textTransform: 'uppercase' }}>✦ General</div>
-                <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.6)', marginTop: '2px' }}>Kling 3.0</div>
+              <div style={{ padding: '8px 12px' }}>
+                <div style={{ fontSize: '9px', fontWeight: 700, color: 'rgba(120,80,255,0.7)', letterSpacing: '0.8px', textTransform: 'uppercase', fontFamily: 'var(--font-dm)' }}>✦ General</div>
+                <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.75)', marginTop: '3px', fontFamily: 'var(--font-dm)', fontWeight: 500 }}>{videoModels.find(m => m.id === selectedVideoModelId)?.name ?? 'Loading...'}</div>
               </div>
             </div>
+
             {/* Frames */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
               {(['start', 'end'] as const).map(type => {
@@ -374,165 +382,112 @@ export default function VideoDashboard() {
                 return (
                   <div key={type} style={{ position: 'relative', aspectRatio: '1' }}>
                     <input ref={ref} type="file" accept="image/*" style={{ display: 'none' }} onChange={e => e.target.files?.[0] && handleFrameUpload(e.target.files[0], type)} />
-                    <div onClick={() => ref.current?.click()} style={{ background: '#0d0d0d', border: `0.5px solid ${frame ? 'var(--accent)' : 'var(--border-color)'}`, borderRadius: 'var(--radius-btn)', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', cursor: 'pointer', overflow: 'hidden', position: 'relative' }}>
+                    <div onClick={() => ref.current?.click()} style={{ background: '#0c0c14', border: `0.5px solid ${frame ? 'rgba(83,47,207,0.5)' : 'rgba(255,255,255,0.07)'}`, borderRadius: '10px', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '5px', cursor: 'pointer', overflow: 'hidden', position: 'relative', transition: 'border-color 0.15s' }}>
                       {frame ? (
-                        <img src={frame} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius-btn)' }} />
+                        <img src={frame} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       ) : (
                         <>
-                          <span style={{ position: 'absolute', top: '5px', right: '6px', fontSize: '8px', color: 'var(--text-secondary)' }}>Optional</span>
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#222" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                          <span style={{ fontSize: '9px', color: 'var(--text-secondary)' }}>{type === 'start' ? 'Start frame' : 'End frame'}</span>
+                          <span style={{ position: 'absolute', top: '6px', right: '8px', fontSize: '8px', color: 'rgba(255,255,255,0.22)', fontFamily: 'var(--font-dm)' }}>Optional</span>
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                          <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.25)', fontFamily: 'var(--font-dm)' }}>{type === 'start' ? 'Start frame' : 'End frame'}</span>
                         </>
                       )}
                     </div>
                     {frame && (
-                      <div onClick={() => type === 'start' ? setStartFrame(null) : setEndFrame(null)} style={{ position: 'absolute', top: '4px', right: '4px', width: '16px', height: '16px', background: '#000000aa', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '10px', color: '#fff', zIndex: 10 }}>×</div>
+                      <div onClick={() => type === 'start' ? setStartFrame(null) : setEndFrame(null)} style={{ position: 'absolute', top: '5px', right: '5px', width: '18px', height: '18px', background: 'rgba(10,10,14,0.85)', border: '0.5px solid rgba(255,255,255,0.15)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '11px', color: 'rgba(255,255,255,0.7)', zIndex: 10 }}>×</div>
                     )}
                   </div>
                 );
               })}
             </div>
+
             {/* Audio toggle */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
-              <span style={{ fontSize: '12px', color: audioEnabled ? 'var(--accent)' : 'var(--text-secondary)', transition: 'color 0.2s', cursor: 'pointer' }} onClick={() => setAudioEnabled(v => !v)}>Audio</span>
-              <div onClick={() => setAudioEnabled(v => !v)} style={{ width: '30px', height: '16px', background: audioEnabled ? 'var(--accent)' : 'var(--border-color)', borderRadius: '20px', position: 'relative', cursor: 'pointer', transition: 'background 0.2s' }}>
-                <div style={{ width: '12px', height: '12px', background: audioEnabled ? 'var(--text)' : '#444', borderRadius: '50%', position: 'absolute', left: audioEnabled ? '16px' : '2px', top: '2px', transition: 'left 0.2s, background 0.2s' }}></div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
+              <span style={{ fontSize: '12px', fontFamily: 'var(--font-dm)', color: audioEnabled ? 'rgba(160,120,255,0.9)' : 'rgba(255,255,255,0.3)', transition: 'color 0.2s', cursor: 'pointer' }} onClick={() => setAudioEnabled(v => !v)}>Audio</span>
+              <div onClick={() => setAudioEnabled(v => !v)} style={{ width: '32px', height: '18px', background: audioEnabled ? 'rgba(83,47,207,0.8)' : 'rgba(255,255,255,0.1)', borderRadius: '20px', position: 'relative', cursor: 'pointer', transition: 'background 0.2s' }}>
+                <div style={{ width: '14px', height: '14px', background: 'white', borderRadius: '50%', position: 'absolute', left: audioEnabled ? '16px' : '2px', top: '2px', transition: 'left 0.2s' }} />
               </div>
             </div>
-            {/* Prompt */}
+
+            {/* Prompt textarea */}
             <textarea
               value={prompt}
               onChange={e => setPrompt(e.target.value)}
               placeholder="Describe your video scene..."
-              style={{ background: '#0d0d0d', border: 'var(--border)', borderRadius: 'var(--radius-btn)', padding: '10px', fontSize: '12px', color: '#ccc', flex: 1, minHeight: '120px', resize: 'none', outline: 'none', width: '100%', fontFamily: 'inherit', boxSizing: 'border-box' }}
+              style={{ background: 'rgba(255,255,255,0.03)', border: '0.5px solid rgba(255,255,255,0.07)', borderRadius: '10px', padding: '10px 12px', fontSize: '13px', color: 'rgba(255,255,255,0.85)', flex: 1, minHeight: '110px', resize: 'none', outline: 'none', width: '100%', fontFamily: 'var(--font-dm)', boxSizing: 'border-box', lineHeight: 1.6 }}
             />
+
             {/* Model select */}
             <div style={{ position: 'relative' }} data-menu="true">
-              <div onClick={e => { e.stopPropagation(); setShowModelMenu(v => !v); setShowQualityMenu(false); setShowAspectMenu(false); setShowDurationMenu(false); }} style={{ background: '#0d0d0d', border: 'var(--border)', borderRadius: 'var(--radius-btn)', padding: '7px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
+              <div onClick={e => { e.stopPropagation(); setShowModelMenu(v => !v); setShowQualityMenu(false); setShowAspectMenu(false); setShowDurationMenu(false); }} style={{ background: showModelMenu ? 'rgba(83,47,207,0.1)' : 'rgba(255,255,255,0.03)', border: showModelMenu ? '0.5px solid rgba(83,47,207,0.4)' : '0.5px solid rgba(255,255,255,0.07)', borderRadius: '10px', padding: '9px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', transition: 'all 0.15s' }}>
                 <div>
-                  <div style={{ fontSize: '9px', color: 'var(--text-secondary)' }}>Model</div>
-                  <div style={{ fontSize: '12px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '5px', marginTop: '2px' }}>
-                    <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: 'var(--accent)' }}></div>
+                  <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.28)', fontFamily: 'var(--font-dm)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '3px' }}>Model</div>
+                  <div style={{ fontSize: '12px', fontFamily: 'var(--font-dm)', fontWeight: 500, color: 'rgba(255,255,255,0.75)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: 'rgba(120,80,255,0.8)', flexShrink: 0 }} />
                     {videoModels.find(m => m.id === selectedVideoModelId)?.name ?? 'Loading...'}
                   </div>
                 </div>
-                <span style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>›</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
               </div>
               {showModelMenu && (
-                <div data-menu="true" style={{ position: 'absolute', bottom: '110%', left: 0, right: 0, background: 'var(--bg-navbar)', border: 'var(--border)', borderRadius: 'var(--radius-btn)', overflow: 'hidden', zIndex: 100 }}>
+                <div data-menu="true" style={{ position: 'absolute', bottom: 'calc(100% + 4px)', left: 0, right: 0, background: 'rgba(12,12,18,0.98)', border: '0.5px solid rgba(255,255,255,0.1)', borderRadius: '10px', overflow: 'hidden', zIndex: 100, boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
                   {videoModels.map(m => (
-                    <button
-                      key={m.id}
-                      onClick={() => { setSelectedVideoModelId(m.id); setShowModelMenu(false); }}
-                      style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 12px', background: selectedVideoModelId === m.id ? 'rgba(255,255,255,0.1)' : 'transparent', color: 'white', border: 'none', cursor: 'pointer', borderRadius: '6px' }}
-                    >
+                    <button key={m.id} onClick={() => { setSelectedVideoModelId(m.id); setShowModelMenu(false); }} style={{ display: 'block', width: '100%', textAlign: 'left', padding: '9px 12px', background: selectedVideoModelId === m.id ? 'rgba(83,47,207,0.12)' : 'none', color: selectedVideoModelId === m.id ? 'rgba(160,120,255,0.9)' : 'rgba(255,255,255,0.65)', border: 'none', cursor: 'pointer', fontSize: '12px', fontFamily: 'var(--font-dm)', fontWeight: 500 }}>
                       {m.name}
                     </button>
                   ))}
                 </div>
               )}
             </div>
-            {error && <div style={{ fontSize: '11px', color: '#ef4444' }}>{error}</div>}
+
+            {error && <div style={{ fontSize: '11px', color: '#ef4444', fontFamily: 'var(--font-dm)' }}>{error}</div>}
           </div>
+
           {/* Footer */}
-          <div style={{ borderTop: 'var(--border)', padding: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <div style={{ display: 'flex', gap: '5px' }}>
-              <div style={{ flex: 1, position: 'relative' }}>
-                <div data-menu="true" onClick={e => { e.stopPropagation(); setShowDurationMenu(v => !v); setShowQualityMenu(false); setShowAspectMenu(false); setShowModelMenu(false); }} style={{ background: '#0d0d0d', border: 'var(--border)', borderRadius: '6px', padding: '7px 3px', textAlign: 'center', fontSize: '10px', color: 'var(--text-secondary)', cursor: 'pointer' }}>◷ {duration}s</div>
-                {showDurationMenu && (
-                  <div data-menu="true" style={{ position: 'absolute', bottom: '110%', left: 0, right: 0, background: 'var(--bg-navbar)', border: 'var(--border)', borderRadius: 'var(--radius-btn)', overflow: 'hidden', zIndex: 100 }}>
-                    {[10, 9, 8, 7, 6, 5, 4, 3].map(d => (
-                      <div key={d} onClick={() => { setDuration(d); setShowDurationMenu(false); }} style={{ padding: '8px 12px', fontSize: '12px', color: 'var(--text-secondary)', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        {d}s
-                        {duration === d && <span style={{ color: 'var(--accent)' }}>✓</span>}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <div style={{ flex: 1, position: 'relative' }}>
-                <div data-menu="true" onClick={e => { e.stopPropagation(); setShowAspectMenu(v => !v); setShowQualityMenu(false); setShowDurationMenu(false); setShowModelMenu(false); }} style={{ background: '#0d0d0d', border: 'var(--border)', borderRadius: '6px', padding: '7px 3px', textAlign: 'center', fontSize: '10px', color: 'var(--text-secondary)', cursor: 'pointer' }}>▭ {aspectRatio}</div>
-                {showAspectMenu && (
-                  <div data-menu="true" style={{ position: 'absolute', bottom: '110%', left: 0, right: 0, background: 'var(--bg-navbar)', border: 'var(--border)', borderRadius: 'var(--radius-btn)', overflow: 'hidden', zIndex: 100 }}>
-                    {(['9:16', '16:9', '1:1'] as const).map(r => (
-                      <div key={r} onClick={() => { setAspectRatio(r); setShowAspectMenu(false); }} style={{ padding: '8px 12px', fontSize: '12px', color: 'var(--text-secondary)', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        {r}
-                        {aspectRatio === r && <span style={{ color: 'var(--accent)' }}>✓</span>}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <div style={{ flex: 1, position: 'relative' }}>
-                <div
-                  data-menu="true"
-                  onClick={e => { e.stopPropagation(); setShowQualityMenu(v => !v); setShowAspectMenu(false); setShowDurationMenu(false); setShowModelMenu(false); }}
-                  style={{ background: '#0d0d0d', border: 'var(--border)', borderRadius: '6px', padding: '7px 3px', textAlign: 'center', fontSize: '10px', color: 'var(--text-secondary)', cursor: 'pointer' }}
-                >◇ {quality}</div>
-                {showQualityMenu && (
-                  <div data-menu="true" style={{ position: 'absolute', bottom: '110%', left: 0, right: 0, background: 'var(--bg-navbar)', border: 'var(--border)', borderRadius: 'var(--radius-btn)', overflow: 'hidden', zIndex: 100 }}>
-                    {(['720p', '1080p'] as const).map(q => (
-                      <div
-                        key={q}
-                        onClick={() => { setQuality(q); setShowQualityMenu(false); }}
-                        style={{ padding: '8px 12px', fontSize: '12px', color: 'var(--text-secondary)', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
-                      >
-                        {q}
-                        {quality === q && <span style={{ color: 'var(--accent)' }}>✓</span>}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+          <div style={{ borderTop: '0.5px solid rgba(255,255,255,0.06)', padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ display: 'flex', gap: '6px' }}>
+              {[
+                { label: `◷ ${duration}s`, show: showDurationMenu, toggle: () => { setShowDurationMenu(v => !v); setShowQualityMenu(false); setShowAspectMenu(false); setShowModelMenu(false); }, items: [10,9,8,7,6,5,4,3].map(d => ({ label: `${d}s`, value: d, active: duration === d, onClick: () => { setDuration(d); setShowDurationMenu(false); } })) },
+                { label: `▭ ${aspectRatio}`, show: showAspectMenu, toggle: () => { setShowAspectMenu(v => !v); setShowQualityMenu(false); setShowDurationMenu(false); setShowModelMenu(false); }, items: (['9:16','16:9','1:1'] as const).map(r => ({ label: r, value: r, active: aspectRatio === r, onClick: () => { setAspectRatio(r); setShowAspectMenu(false); } })) },
+                { label: `◇ ${quality}`, show: showQualityMenu, toggle: () => { setShowQualityMenu(v => !v); setShowAspectMenu(false); setShowDurationMenu(false); setShowModelMenu(false); }, items: (['720p','1080p'] as const).map(q => ({ label: q, value: q, active: quality === q, onClick: () => { setQuality(q); setShowQualityMenu(false); } })) },
+              ].map(({ label, show, toggle, items }) => (
+                <div key={label} style={{ flex: 1, position: 'relative' }} data-menu="true">
+                  <div onClick={e => { e.stopPropagation(); toggle(); }} style={{ background: show ? 'rgba(83,47,207,0.1)' : 'rgba(255,255,255,0.04)', border: show ? '0.5px solid rgba(83,47,207,0.35)' : '0.5px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '7px 4px', textAlign: 'center', fontSize: '11px', color: show ? 'rgba(160,120,255,0.9)' : 'rgba(255,255,255,0.45)', cursor: 'pointer', fontFamily: 'var(--font-dm)', transition: 'all 0.15s' }}>{label}</div>
+                  {show && (
+                    <div data-menu="true" style={{ position: 'absolute', bottom: 'calc(100% + 4px)', left: 0, right: 0, background: 'rgba(12,12,18,0.98)', border: '0.5px solid rgba(255,255,255,0.1)', borderRadius: '10px', overflow: 'hidden', zIndex: 100, boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
+                      {items.map(item => (
+                        <div key={String(item.value)} onClick={item.onClick} style={{ padding: '8px 12px', fontSize: '12px', color: item.active ? 'rgba(160,120,255,0.9)' : 'rgba(255,255,255,0.55)', background: item.active ? 'rgba(83,47,207,0.1)' : 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontFamily: 'var(--font-dm)' }}>
+                          {item.label}
+                          {item.active && <span style={{ fontSize: '10px' }}>✓</span>}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
             <button
               onClick={handleGenerate}
               disabled={isGenerating || !prompt.trim() || !selectedVideoModelId || (creditCount !== null && creditCount < videoCreditCost)}
               style={{
-                background: (creditCount !== null && creditCount <= 0)
-                  ? 'rgba(255,255,255,0.04)'
-                  : isGenerating
-                  ? 'linear-gradient(135deg, #3d2299 0%, #5a3dcf 100%)'
-                  : 'linear-gradient(135deg, #532fcf 0%, #7c5cf0 100%)',
-                border: (creditCount !== null && creditCount <= 0)
-                  ? '0.5px solid rgba(255,255,255,0.07)'
-                  : '0.5px solid rgba(255,255,255,0.12)',
-                borderRadius: '10px',
-                padding: '13px',
-                fontSize: '13px',
-                fontWeight: 700,
-                letterSpacing: '0.02em',
-                fontFamily: 'var(--font-clash)',
+                background: (creditCount !== null && creditCount <= 0) ? 'rgba(255,255,255,0.04)' : isGenerating ? 'rgba(83,47,207,0.5)' : 'linear-gradient(135deg, #7c5cf0 0%, #9b7eff 100%)',
+                border: (creditCount !== null && creditCount <= 0) ? '0.5px solid rgba(255,255,255,0.08)' : 'none',
+                borderRadius: '11px', padding: '13px', fontSize: '13px', fontWeight: 700,
+                fontFamily: 'var(--font-dm)', letterSpacing: '0.1px',
                 color: (creditCount !== null && creditCount <= 0) ? 'rgba(255,255,255,0.25)' : '#fff',
                 cursor: (isGenerating || (creditCount !== null && creditCount <= 0)) ? 'not-allowed' : 'pointer',
-                opacity: isGenerating ? 0.85 : 1,
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '7px',
-                boxShadow: (creditCount !== null && creditCount <= 0) || isGenerating
-                  ? 'none'
-                  : '0 0 20px rgba(83,47,207,0.45), 0 2px 8px rgba(0,0,0,0.4)',
-                transition: 'opacity 0.2s, box-shadow 0.2s',
+                opacity: isGenerating ? 0.85 : 1, width: '100%',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '7px',
+                boxShadow: (creditCount !== null && creditCount <= 0) || isGenerating ? 'none' : '0 4px 20px rgba(83,47,207,0.4), inset 0 1px 0 rgba(255,255,255,0.15)',
+                transition: 'opacity 0.2s',
               }}
             >
               {isGenerating ? (
-                <>
-                  <div style={{ width: '12px', height: '12px', border: '1.5px solid rgba(255,255,255,0.4)', borderTop: '1.5px solid #fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />
-                  {status || 'Generating...'}
-                </>
+                <><div style={{ width: '13px', height: '13px', border: '1.5px solid rgba(255,255,255,0.35)', borderTop: '1.5px solid #fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />{status || 'Generating...'}</>
               ) : (creditCount !== null && creditCount <= 0) ? (
-                <>
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                  No credits
-                </>
+                <><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg>No credits</>
               ) : (
-                <>
-                  <span style={{ fontSize: '10px', color: 'rgba(200,170,255,0.9)' }}>✦</span>
-                  Generate
-                  <span style={{ color: 'rgba(200,170,255,0.7)', fontSize: '11px', fontWeight: 500 }}>· {videoCreditCost}</span>
-                </>
+                <><span style={{ fontSize: '10px', color: 'rgba(220,200,255,0.9)' }}>✦</span>Generate<span style={{ color: 'rgba(200,170,255,0.7)', fontSize: '11px', fontWeight: 500 }}>· {videoCreditCost}</span></>
               )}
             </button>
           </div>

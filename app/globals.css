@@ -143,7 +143,14 @@ body {
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-.nav-active { color: rgba(170,140,255,0.95) !important; background: rgba(120,80,255,0.1); border: 0.5px solid rgba(120,80,255,0.22); border-radius: 20px; }
+.nav-active {
+  color: rgba(200,170,255,0.95) !important;
+  background: linear-gradient(135deg, rgba(83,47,207,0.18) 0%, rgba(120,80,255,0.08) 100%);
+  border: 0.5px solid rgba(120,80,255,0.35);
+  border-radius: 20px;
+  box-shadow: 0 0 12px rgba(83,47,207,0.25), inset 0 1px 0 rgba(160,120,255,0.12);
+  text-shadow: 0 0 12px rgba(140,90,255,0.5);
+}
 
 /* Clerk modal overrides — scoped to keyo-auth-modal */
 .keyo-auth-modal .cl-card { background: #111111 !important; box-shadow: none !important; border: none !important; border-radius: 0 !important; }

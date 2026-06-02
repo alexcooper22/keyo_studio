@@ -74,20 +74,30 @@ export default function Home() {
 
   useEffect(() => {
     let rafId: number;
-    let tx = 0, ty = 0, cx = 0, cy = 0;
+    let tx = 0, ty = 0, cx = 0, cy = 0, t = 0;
     const onMove = (e: MouseEvent) => {
       tx = (e.clientX / window.innerWidth - 0.5) * 2;
       ty = (e.clientY / window.innerHeight - 0.5) * 2;
     };
     const tick = () => {
+      t += 0.008;
       cx += (tx - cx) * 0.04;
       cy += (ty - cy) * 0.04;
+
+      // Autonomous drift — each layer has unique phase & amplitude
+      const fX = Math.sin(t * 1.0) * 12 + Math.cos(t * 0.7) * 6;
+      const fY = Math.cos(t * 0.8) * 10 + Math.sin(t * 1.3) * 5;
+      const mX = Math.sin(t * 1.3 + 1.5) * 14 + Math.cos(t * 0.9) * 7;
+      const mY = Math.cos(t * 1.1 + 0.8) * 11 + Math.sin(t * 0.7) * 6;
+      const nX = Math.sin(t * 0.9 + 3.0) * 10 + Math.cos(t * 1.2) * 5;
+      const nY = Math.cos(t * 1.4 + 2.0) * 12 + Math.sin(t * 0.8) * 4;
+
       if (orb1.current) orb1.current.style.transform = `translate(calc(-50% + ${cx * 40}px), ${cy * 28}px)`;
       if (orb2.current) orb2.current.style.transform = `translate(${cx * -24}px, ${cy * -16}px)`;
       if (orb3.current) orb3.current.style.transform = `translate(${cx * 30}px, ${cy * 22}px)`;
-      if (iconsFar.current) iconsFar.current.style.transform = `translate(${cx * 6}px, ${cy * 4}px)`;
-      if (iconsMid.current) iconsMid.current.style.transform = `translate(${cx * -13}px, ${cy * 9}px)`;
-      if (iconsNear.current) iconsNear.current.style.transform = `translate(${cx * 22}px, ${cy * -15}px)`;
+      if (iconsFar.current)  iconsFar.current.style.transform  = `translate(${cx * 6  + fX}px, ${cy * 4  + fY}px)`;
+      if (iconsMid.current)  iconsMid.current.style.transform  = `translate(${cx * -13 + mX}px, ${cy * 9  + mY}px)`;
+      if (iconsNear.current) iconsNear.current.style.transform = `translate(${cx * 22 + nX}px, ${cy * -15 + nY}px)`;
       rafId = requestAnimationFrame(tick);
     };
     window.addEventListener('mousemove', onMove, { passive: true });
