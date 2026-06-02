@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import Navbar from '../../components/layout/Navbar';
@@ -29,7 +29,7 @@ const sections: { name: Section; badge?: string; group: string }[] = [
   { name: 'Models', group: 'admin' },
 ];
 
-export default function SettingsPage() {
+function SettingsContent() {
   const { isLoaded, user } = useUser();
   const searchParams = useSearchParams();
   const [activeSection, setActiveSection] = useState<Section>('Personal Profile');
@@ -350,5 +350,13 @@ export default function SettingsPage() {
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
     </div>
+  );
+}
+
+export default function SettingsPage() {
+  return (
+    <Suspense>
+      <SettingsContent />
+    </Suspense>
   );
 }

@@ -163,6 +163,19 @@ export default function Footer() {
           </div>
         </div>
 
+        {/* ── Legal entity info ── */}
+        <div className="flex flex-col items-center text-center" style={{ marginTop: '14px', gap: '3px' }}>
+          <p className="font-dm" style={{ fontSize: '10px', color: 'rgba(255,255,255,0.1)', margin: 0, lineHeight: 1.6 }}>
+            ФОП БОНДАР ОЛЕНА СЕРГІЇВНА · РНОКПП / ЄДРПОУ: 3403609226
+          </p>
+          <p className="font-dm" style={{ fontSize: '10px', color: 'rgba(255,255,255,0.1)', margin: 0, lineHeight: 1.6 }}>
+            Україна, м. Київ, вул. І. Франка 42, 02000 · +380965674504 ·{' '}
+            <a href="mailto:info@ellenkeyo.com" className="hover:text-white/30 transition-colors duration-200" style={{ color: 'inherit', textDecoration: 'none' }}>
+              info@ellenkeyo.com
+            </a>
+          </p>
+        </div>
+
       </div>
     </footer>
   );
