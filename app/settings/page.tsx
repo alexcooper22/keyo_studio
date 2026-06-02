@@ -355,7 +355,7 @@ function SettingsContent() {
 
 export default function SettingsPage() {
   return (
-    <Suspense>
+    <Suspense fallback={null}>
       <SettingsContent />
     </Suspense>
   );
