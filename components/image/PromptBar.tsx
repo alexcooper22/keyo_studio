@@ -124,7 +124,10 @@ export default function PromptBar({
   const handleOpenQuality = () => {
     if (qualityButtonRef.current) {
       const rect = qualityButtonRef.current.getBoundingClientRect();
-      setQualityPopupPos({ bottom: window.innerHeight - rect.top + 8, left: rect.left + rect.width / 2 });
+      const popupWidth = 140;
+      const centered = rect.left + rect.width / 2 - popupWidth / 2;
+      const left = Math.max(8, Math.min(centered, window.innerWidth - popupWidth - 8));
+      setQualityPopupPos({ bottom: window.innerHeight - rect.top + 8, left });
     }
     setShowRatioDropdown(false);
     setShowQualityModal(prev => !prev);
@@ -138,7 +141,7 @@ export default function PromptBar({
   const noCredits = isLoaded && isSignedIn && creditCount !== null && creditCount <= 0;
 
   return (
-    <div className="fixed bottom-[65px] md:bottom-0 left-0 md:left-[48px] right-0 z-50 px-3 md:px-8 pb-3 md:pb-6 pointer-events-none">
+    <div className="fixed bottom-[80px] md:bottom-0 left-0 md:left-[48px] right-0 z-50 px-3 md:px-8 pb-3 md:pb-6 pointer-events-none">
       {/* Purple radial glow behind the bar */}
       <div aria-hidden className="w-full max-w-4xl mx-auto pointer-events-none absolute left-1/2 -translate-x-1/2" style={{ bottom: '0', height: '220px', zIndex: -1 }}>
         <div style={{
@@ -224,7 +227,7 @@ export default function PromptBar({
         <div className="flex items-center justify-between px-3 pb-3 gap-3">
 
           {/* Toolbar */}
-          <div className="flex items-center gap-1.5 flex-wrap">
+          <div className="flex items-center gap-1 flex-nowrap overflow-hidden">
 
             {/* Upload */}
             <button
@@ -266,16 +269,17 @@ export default function PromptBar({
               </button>
             )}
 
-            <div style={{ width: '0.5px', height: '18px', background: 'rgba(255,255,255,0.07)', margin: '0 2px' }} />
+            <div className="hidden md:block" style={{ width: '0.5px', height: '18px', background: 'rgba(255,255,255,0.07)', margin: '0 2px' }} />
 
             {/* Model dropdown */}
             <div ref={dropdownRef}>
               <button
                 ref={modelButtonRef}
                 onClick={(e) => { e.stopPropagation(); handleOpenModel(); }}
-                className="flex items-center gap-1.5 font-dm transition-colors"
+                className="flex items-center gap-1.5 font-dm transition-colors min-w-0"
                 style={{
-                  height: '30px', padding: '0 10px', borderRadius: '8px',
+                  height: '30px', padding: '0 8px', borderRadius: '8px',
+                  maxWidth: '110px',
                   background: isModelDropdownOpen ? 'rgba(83,47,207,0.15)' : 'rgba(255,255,255,0.05)',
                   border: isModelDropdownOpen ? '0.5px solid rgba(83,47,207,0.4)' : '0.5px solid rgba(255,255,255,0.08)',
                   color: isModelDropdownOpen ? 'rgba(160,120,255,0.9)' : 'rgba(255,255,255,0.45)',
@@ -284,8 +288,10 @@ export default function PromptBar({
                 onMouseEnter={e => { if (!isModelDropdownOpen) { e.currentTarget.style.color = 'rgba(255,255,255,0.8)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)'; } }}
                 onMouseLeave={e => { if (!isModelDropdownOpen) { e.currentTarget.style.color = 'rgba(255,255,255,0.45)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; } }}
               >
-                {models.find(m => m.id === selectedModelId)?.name ?? 'Loading...'}
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, minWidth: 0 }}>
+                  {models.find(m => m.id === selectedModelId)?.name ?? 'Loading...'}
+                </span>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
                   <polyline points="6 9 12 15 18 9" />
                 </svg>
               </button>
@@ -408,7 +414,7 @@ export default function PromptBar({
                     className="fixed z-[50] p-3 w-[140px]"
                     onMouseDown={(e) => e.stopPropagation()}
                     style={{
-                      bottom: `${qualityPopupPos.bottom}px`, left: `${qualityPopupPos.left}px`, transform: 'translateX(-50%)',
+                      bottom: `${qualityPopupPos.bottom}px`, left: `${qualityPopupPos.left}px`,
                       background: 'rgba(12,12,18,0.98)', border: '0.5px solid rgba(255,255,255,0.1)',
                       borderRadius: '12px', boxShadow: '0 16px 40px rgba(0,0,0,0.5)',
                     }}

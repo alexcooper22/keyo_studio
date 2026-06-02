@@ -151,7 +151,7 @@ export default function PlanManager() {
         <div style={{ borderRadius: '14px', border: '0.5px solid rgba(255,255,255,0.07)', overflow: 'hidden' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '70px 1fr 90px 100px 90px 44px', padding: '10px 18px', background: 'rgba(255,255,255,0.02)', borderBottom: '0.5px solid rgba(255,255,255,0.06)' }}>
             {['ID', 'Plan', 'Price', 'Credits', 'Featured', ''].map(h => (
-              <span key={h} style={{ color: 'rgba(255,255,255,0.2)', fontSize: '10px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.7px' }}>{h}</span>
+              <span key={h} style={{ color: 'rgba(255,255,255,0.2)', fontSize: '10px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.7px', paddingLeft: h === 'Plan' ? '12px' : 0 }}>{h}</span>
             ))}
           </div>
           {plans.map((plan, i) => (
@@ -161,8 +161,8 @@ export default function PlanManager() {
               onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.018)')}
               onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
             >
-              <span style={{ color: 'rgba(255,255,255,0.25)', fontSize: '10px', fontFamily: 'monospace', background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.07)', borderRadius: '5px', padding: '2px 6px', display: 'inline-block' }}>{plan.id}</span>
-              <div>
+              <span style={{ color: 'rgba(160,130,255,0.7)', fontSize: '10px', fontFamily: 'monospace', background: 'rgba(83,47,207,0.1)', borderRadius: '5px', padding: '3px 7px', display: 'inline-block', letterSpacing: '0.3px' }}>{plan.id}</span>
+              <div style={{ paddingLeft: '12px' }}>
                 <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '13px', fontWeight: 600, margin: 0, letterSpacing: '-0.1px' }}>{plan.name}</p>
                 <p style={{ color: 'rgba(255,255,255,0.25)', fontSize: '11px', margin: '3px 0 0' }}>{plan.description}</p>
               </div>

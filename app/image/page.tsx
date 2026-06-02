@@ -112,7 +112,7 @@ export default function ImageDashboard() {
                   setGeneratedImages(data.images.map((img: any) => ({
                     url: img.image_url,
                     prompt: img.prompt || 'Generated with Keyo AI',
-                    model: 'Nano Banana 2',
+                    model: img.model || 'Unknown',
                     aspectRatio: img.aspect_ratio || '4:3',
                     resolution: img.resolution || '1K',
                   })));
@@ -159,7 +159,7 @@ export default function ImageDashboard() {
         setGeneratedImages(data.images.map((img: any) => ({
           url: img.image_url,
           prompt: img.prompt || 'Generated with Keyo AI',
-          model: 'Nano Banana 2',
+          model: img.model || 'Unknown',
           aspectRatio: img.aspect_ratio || '4:3',
           resolution: img.resolution || '1K',
         })));
@@ -210,7 +210,8 @@ export default function ImageDashboard() {
 
       if (data.error) throw new Error(data.error);
 
-      setGeneratedImages((prev) => [{ url: data.images[0].url, prompt, model: 'Nano Banana 2', aspectRatio, resolution: quality }, ...prev]);
+      const selectedModelName = imageModels.find(m => m.id === selectedModelId)?.name || 'Unknown';
+      setGeneratedImages((prev) => [{ url: data.images[0].url, prompt, model: selectedModelName, aspectRatio, resolution: quality }, ...prev]);
       localStorage.removeItem('image_generation_pending');
       if (data.remainingCredits !== undefined) setCreditCount(data.remainingCredits);
       window.dispatchEvent(new Event('credits-updated'));

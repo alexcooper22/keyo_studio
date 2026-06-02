@@ -254,75 +254,123 @@ export default function ModelManager() {
       {/* Pricing modal */}
       {pricingModel && (
         <div style={backdrop} onClick={() => setPricingModel(null)}>
-          <div style={modalCard('540px')} onClick={e => e.stopPropagation()}>
-            <div style={modalHeader}>
-              <p style={modalTitle}>Pricing — {pricingModel.name}</p>
+          <div style={{ ...modalCard('560px'), padding: '28px' }} onClick={e => e.stopPropagation()}>
+
+            {/* Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+              <div>
+                <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '10px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', margin: '0 0 4px' }}>Pricing</p>
+                <p style={{ color: 'white', fontSize: '16px', fontWeight: 700, margin: 0, letterSpacing: '-0.3px' }}>{pricingModel.name}</p>
+              </div>
               <button style={btnClose} onClick={() => setPricingModel(null)}>{closeIcon}</button>
             </div>
+
+            {/* Rows table */}
             {pricingModel.model_pricing?.length > 0 ? (
-              <div style={{ marginBottom: '16px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '80px 70px 110px 90px 80px', gap: '8px', padding: '0 10px 6px', borderBottom: '0.5px solid rgba(255,255,255,0.06)', marginBottom: '4px' }}>
+              <div style={{ marginBottom: '20px' }}>
+                {/* Column headers */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1.6fr 1fr 64px', gap: '8px', padding: '0 14px 8px', marginBottom: '6px' }}>
                   {['Quality', 'Credits', 'Unit', 'Cost USD', ''].map(h => (
-                    <span key={h} style={{ color: 'rgba(255,255,255,0.25)', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{h}</span>
+                    <span key={h} style={{ color: 'rgba(255,255,255,0.2)', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.6px' }}>{h}</span>
                   ))}
                 </div>
-                {pricingModel.model_pricing.map(p => (
-                  <div key={p.id} style={{ display: 'grid', gridTemplateColumns: '80px 70px 110px 90px 80px', gap: '8px', alignItems: 'center', padding: '6px 10px', borderRadius: '8px', background: editPricingId === p.id ? 'rgba(83,47,207,0.08)' : 'rgba(255,255,255,0.03)', border: editPricingId === p.id ? '0.5px solid rgba(83,47,207,0.25)' : '0.5px solid transparent' }}>
-                    {editPricingId === p.id ? (
-                      <>
-                        <input style={{ ...inputStyle, padding: '4px 6px', fontSize: '12px' }} value={editPricingForm.quality} onChange={e => setEditPricingForm(f => ({ ...f, quality: e.target.value }))} />
-                        <input style={{ ...inputStyle, padding: '4px 6px', fontSize: '12px' }} value={editPricingForm.credits} onChange={e => setEditPricingForm(f => ({ ...f, credits: e.target.value }))} />
-                        <select style={{ ...selectStyle, padding: '4px 6px', fontSize: '12px' }} value={editPricingForm.unit} onChange={e => setEditPricingForm(f => ({ ...f, unit: e.target.value }))}>
-                          {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
-                        </select>
-                        <input style={{ ...inputStyle, padding: '4px 6px', fontSize: '12px' }} value={editPricingForm.cost_usd} onChange={e => setEditPricingForm(f => ({ ...f, cost_usd: e.target.value }))} />
-                        <div style={{ display: 'flex', gap: '4px' }}>
-                          <button style={btnPrimary} onClick={savePricing}>✓</button>
-                          <button style={btnSecondary} onClick={() => setEditPricingId(null)}>✕</button>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <span style={{ color: 'white', fontSize: '13px', fontWeight: 500 }}>{p.quality}</span>
-                        <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px' }}>{p.credits} cr</span>
-                        <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px' }}>{p.unit}</span>
-                        <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '12px' }}>${p.cost_usd}</span>
-                        <div style={{ display: 'flex', gap: '4px' }}>
-                          <button style={btnSecondary} onClick={() => { setEditPricingId(p.id); setEditPricingForm({ quality: p.quality, credits: String(p.credits), unit: p.unit, cost_usd: String(p.cost_usd) }) }}>
-                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                          </button>
-                          <button style={btnDanger} onClick={() => deletePricing(p.id)}>✕</button>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                ))}
+
+                {/* Rows */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  {pricingModel.model_pricing.map(p => (
+                    <div key={p.id} style={{
+                      display: 'grid', gridTemplateColumns: '1fr 1fr 1.6fr 1fr 64px', gap: '8px',
+                      alignItems: 'center', padding: '12px 14px', borderRadius: '10px',
+                      background: editPricingId === p.id ? 'rgba(83,47,207,0.1)' : 'rgba(255,255,255,0.03)',
+                      border: editPricingId === p.id ? '0.5px solid rgba(120,80,255,0.35)' : '0.5px solid rgba(255,255,255,0.05)',
+                      transition: 'background 0.15s',
+                    }}>
+                      {editPricingId === p.id ? (
+                        <>
+                          <input style={{ ...inputStyle, padding: '5px 8px', fontSize: '12px' }} value={editPricingForm.quality} onChange={e => setEditPricingForm(f => ({ ...f, quality: e.target.value }))} />
+                          <input style={{ ...inputStyle, padding: '5px 8px', fontSize: '12px' }} value={editPricingForm.credits} onChange={e => setEditPricingForm(f => ({ ...f, credits: e.target.value }))} />
+                          <select style={{ ...selectStyle, padding: '5px 8px', fontSize: '12px' }} value={editPricingForm.unit} onChange={e => setEditPricingForm(f => ({ ...f, unit: e.target.value }))}>
+                            {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
+                          </select>
+                          <input style={{ ...inputStyle, padding: '5px 8px', fontSize: '12px' }} value={editPricingForm.cost_usd} onChange={e => setEditPricingForm(f => ({ ...f, cost_usd: e.target.value }))} />
+                          <div style={{ display: 'flex', gap: '4px' }}>
+                            <button style={{ ...btnPrimary, padding: '5px 10px', fontSize: '12px' }} onClick={savePricing}>✓</button>
+                            <button style={{ ...btnSecondary, padding: '5px 8px' }} onClick={() => setEditPricingId(null)}>✕</button>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          {/* Quality badge */}
+                          <span style={{ display: 'inline-block', background: 'rgba(83,47,207,0.15)', border: '0.5px solid rgba(120,80,255,0.25)', borderRadius: '6px', padding: '3px 10px', color: 'rgba(195,170,255,0.95)', fontSize: '12px', fontWeight: 600, letterSpacing: '0.2px' }}>{p.quality}</span>
+                          {/* Credits */}
+                          <span style={{ fontSize: '13px', fontWeight: 600, color: 'rgba(160,120,255,0.9)' }}>
+                            {p.credits}<span style={{ fontSize: '10px', fontWeight: 400, color: 'rgba(255,255,255,0.3)', marginLeft: '3px' }}>cr</span>
+                          </span>
+                          {/* Unit */}
+                          <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: '11px', fontFamily: 'monospace', background: 'rgba(255,255,255,0.04)', borderRadius: '5px', padding: '2px 7px', display: 'inline-block' }}>{p.unit}</span>
+                          {/* Cost */}
+                          <span style={{ fontSize: '13px', fontWeight: 500, color: 'rgba(255,255,255,0.75)' }}>
+                            <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '11px' }}>$</span>{p.cost_usd}
+                          </span>
+                          {/* Actions */}
+                          <div style={{ display: 'flex', gap: '4px', justifyContent: 'flex-end' }}>
+                            <button
+                              style={{ width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.08)', borderRadius: '7px', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', transition: 'all 0.15s' }}
+                              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(83,47,207,0.15)'; e.currentTarget.style.borderColor = 'rgba(120,80,255,0.3)'; e.currentTarget.style.color = 'rgba(170,140,255,0.9)'; }}
+                              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'rgba(255,255,255,0.4)'; }}
+                              onClick={() => { setEditPricingId(p.id); setEditPricingForm({ quality: p.quality, credits: String(p.credits), unit: p.unit, cost_usd: String(p.cost_usd) }) }}
+                            >
+                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                            </button>
+                            <button
+                              style={{ width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.08)', borderRadius: '7px', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', transition: 'all 0.15s' }}
+                              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,50,50,0.1)'; e.currentTarget.style.borderColor = 'rgba(255,60,60,0.3)'; e.currentTarget.style.color = 'rgba(255,110,110,0.9)'; }}
+                              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'rgba(255,255,255,0.4)'; }}
+                              onClick={() => deletePricing(p.id)}
+                            >
+                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
             ) : (
-              <p style={{ color: 'rgba(255,255,255,0.25)', fontSize: '12px', marginBottom: '16px' }}>No pricing rows yet.</p>
+              <div style={{ textAlign: 'center', padding: '28px 0', color: 'rgba(255,255,255,0.2)', fontSize: '12px', marginBottom: '20px' }}>No pricing rows yet</div>
             )}
-            <div style={{ display: 'grid', gridTemplateColumns: '80px 70px 1fr 90px auto', gap: '8px', alignItems: 'flex-end', borderTop: '0.5px solid rgba(255,255,255,0.06)', paddingTop: '16px' }}>
-              {[
-                { label: 'Quality', key: 'quality', placeholder: '1K' },
-                { label: 'Credits', key: 'credits', placeholder: '2' },
-              ].map(({ label, key, placeholder }) => (
-                <div key={key}>
-                  <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '10px', marginBottom: '4px' }}>{label}</p>
-                  <input style={{ ...inputStyle, padding: '6px 8px' }} placeholder={placeholder} value={(addPricingForm as Record<string, string>)[key]} onChange={e => setAddPricingForm(f => ({ ...f, [key]: e.target.value }))} />
+
+            {/* Add row form */}
+            <div style={{ background: 'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.07)', borderRadius: '12px', padding: '16px' }}>
+              <p style={{ color: 'rgba(255,255,255,0.25)', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px', margin: '0 0 12px' }}>Add pricing row</p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1.6fr 1fr 72px', gap: '8px', alignItems: 'flex-end' }}>
+                {[
+                  { label: 'Quality', key: 'quality', placeholder: '1K' },
+                  { label: 'Credits', key: 'credits', placeholder: '2' },
+                ].map(({ label, key, placeholder }) => (
+                  <div key={key}>
+                    <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '10px', marginBottom: '5px', letterSpacing: '0.3px' }}>{label}</p>
+                    <input style={{ ...inputStyle, padding: '7px 10px' }} placeholder={placeholder} value={(addPricingForm as Record<string, string>)[key]} onChange={e => setAddPricingForm(f => ({ ...f, [key]: e.target.value }))} />
+                  </div>
+                ))}
+                <div>
+                  <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '10px', marginBottom: '5px', letterSpacing: '0.3px' }}>Unit</p>
+                  <select style={{ ...selectStyle, padding: '7px 10px' }} value={addPricingForm.unit} onChange={e => setAddPricingForm(f => ({ ...f, unit: e.target.value }))}>
+                    {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
+                  </select>
                 </div>
-              ))}
-              <div>
-                <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '10px', marginBottom: '4px' }}>Unit</p>
-                <select style={{ ...selectStyle, padding: '6px 8px' }} value={addPricingForm.unit} onChange={e => setAddPricingForm(f => ({ ...f, unit: e.target.value }))}>
-                  {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
-                </select>
+                <div>
+                  <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '10px', marginBottom: '5px', letterSpacing: '0.3px' }}>Cost USD</p>
+                  <input style={{ ...inputStyle, padding: '7px 10px' }} placeholder="0.067" value={addPricingForm.cost_usd} onChange={e => setAddPricingForm(f => ({ ...f, cost_usd: e.target.value }))} />
+                </div>
+                <button
+                  style={{ ...btnPrimary, padding: '8px 0', width: '100%', borderRadius: '8px', fontSize: '13px' }}
+                  onClick={addPricing}
+                >Add</button>
               </div>
-              <div>
-                <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '10px', marginBottom: '4px' }}>Cost USD</p>
-                <input style={{ ...inputStyle, padding: '6px 8px' }} placeholder="0.067" value={addPricingForm.cost_usd} onChange={e => setAddPricingForm(f => ({ ...f, cost_usd: e.target.value }))} />
-              </div>
-              <button style={{ ...btnPrimary, padding: '7px 16px' }} onClick={addPricing}>Add</button>
             </div>
+
           </div>
         </div>
       )}

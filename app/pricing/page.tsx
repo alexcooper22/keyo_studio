@@ -64,35 +64,34 @@ export default function PricingPage() {
     <div className="font-dm" style={{ minHeight: '100vh', background: 'var(--bg)' }}>
       <Navbar />
 
-      <main style={{ paddingTop: '60px' }}>
+      <main style={{ paddingTop: '60px', position: 'relative', overflow: 'hidden' }}>
+
+        {/* ── Background glow — spans hero + cards seamlessly ── */}
+        <div aria-hidden="true" style={{
+          position: 'absolute', top: '-60px', left: '50%', transform: 'translateX(-50%)',
+          width: '1200px', height: '1000px',
+          background: 'radial-gradient(ellipse at 50% 20%, rgba(95,55,220,0.4) 0%, rgba(70,35,190,0.2) 30%, rgba(50,20,150,0.07) 55%, transparent 72%)',
+          pointerEvents: 'none', zIndex: 0,
+        }} />
+
+        {/* ── Dot grid — spans hero + cards, fades naturally ── */}
+        <div aria-hidden="true" style={{
+          position: 'absolute', top: 0, left: 0, right: 0, height: '800px',
+          backgroundImage: 'radial-gradient(rgba(120,80,255,0.14) 1px, transparent 1px)',
+          backgroundSize: '36px 36px',
+          maskImage: 'radial-gradient(ellipse 90% 65% at 50% 8%, black 10%, transparent 75%)',
+          WebkitMaskImage: 'radial-gradient(ellipse 90% 65% at 50% 8%, black 10%, transparent 75%)',
+          pointerEvents: 'none', zIndex: 0,
+        }} />
 
         {/* ── Hero ── */}
-        <div className="relative" style={{ padding: '60px 32px 52px', overflow: 'hidden', textAlign: 'center' }}>
-
-          {/* Dot grid */}
-          <div aria-hidden="true" style={{
-            position: 'absolute', inset: 0,
-            backgroundImage: 'radial-gradient(rgba(120,80,255,0.13) 1px, transparent 1px)',
-            backgroundSize: '36px 36px',
-            maskImage: 'radial-gradient(ellipse 80% 70% at 50% 0%, black 30%, transparent 100%)',
-            WebkitMaskImage: 'radial-gradient(ellipse 80% 70% at 50% 0%, black 30%, transparent 100%)',
-            pointerEvents: 'none', zIndex: 0,
-          }} />
-
-          {/* Glow orb */}
-          <div aria-hidden="true" style={{
-            position: 'absolute', top: '-80px', left: '50%',
-            width: '800px', height: '600px',
-            background: 'radial-gradient(ellipse at center, rgba(83,47,207,0.2) 0%, rgba(60,30,180,0.08) 40%, transparent 68%)',
-            transform: 'translateX(-50%)',
-            borderRadius: '50%', pointerEvents: 'none', zIndex: 0,
-          }} />
+        <div className="relative" style={{ padding: '60px 32px 40px', textAlign: 'center' }}>
 
           {/* Top shimmer */}
           <div aria-hidden="true" style={{
             position: 'absolute', top: 0, left: '10%', right: '10%', height: '1px',
-            background: 'linear-gradient(90deg, transparent, rgba(120,80,255,0.45), transparent)',
-            pointerEvents: 'none', zIndex: 0,
+            background: 'linear-gradient(90deg, transparent, rgba(140,90,255,0.6), transparent)',
+            pointerEvents: 'none',
           }} />
 
           <div className="relative" style={{ zIndex: 1 }}>
@@ -136,7 +135,7 @@ export default function PricingPage() {
         </div>
 
         {/* ── Cards ── */}
-        <div style={{ maxWidth: '760px', margin: '0 auto', padding: '0 32px 60px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+        <div style={{ maxWidth: '760px', margin: '0 auto', padding: '0 32px 60px', marginTop: '-16px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
           {plans.map((plan) => (
             <div
               key={plan.id}
