@@ -112,9 +112,30 @@ export default function PlanManager() {
     )
   }
 
+  const backdrop: React.CSSProperties = { position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(6px)' }
+  const btnClose: React.CSSProperties = { background: 'rgba(255,255,255,0.05)', border: '0.5px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '5px 12px', color: 'rgba(255,255,255,0.5)', fontSize: '12px', cursor: 'pointer' }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '32px', paddingTop: '24px', borderTop: '0.5px solid rgba(255,255,255,0.06)' }}>
       <h3 style={{ color: 'white', fontSize: '15px', fontWeight: 700, margin: 0 }}>Subscription Plans</h3>
+
+      {/* Edit modal */}
+      {editPlan && (
+        <div style={backdrop} onClick={() => setEditPlan(null)}>
+          <div
+            style={{ background: '#0c0c12', border: '0.5px solid rgba(255,255,255,0.1)', borderRadius: '16px', padding: '32px', width: '720px', maxWidth: '94vw', maxHeight: '96vh', overflowY: 'auto' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <p style={{ color: 'rgba(170,140,255,0.9)', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px', margin: 0 }}>
+                Edit — {editPlan.name}
+              </p>
+              <button style={btnClose} onClick={() => setEditPlan(null)}>Close</button>
+            </div>
+            <PlanForm plan={editPlan} onSave={savePlan} onCancel={() => setEditPlan(null)} />
+          </div>
+        </div>
+      )}
 
       {notice && (
         <div style={{ padding: '10px 14px', borderRadius: '10px', background: 'rgba(83,47,207,0.12)', border: '0.5px solid rgba(120,80,255,0.3)', color: 'rgba(170,140,255,0.9)', fontSize: '12px' }}>
@@ -126,31 +147,29 @@ export default function PlanManager() {
         <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: '13px', textAlign: 'center', padding: '20px 0' }}>Loading...</div>
       ) : (
         <div style={{ borderRadius: '12px', background: 'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.07)', overflow: 'hidden' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr 80px 90px 80px 80px', padding: '8px 16px', borderBottom: '0.5px solid rgba(255,255,255,0.05)' }}>
-            {['ID', 'Name / Desc', 'Price', 'Credits', 'Featured', 'Actions'].map(h => (
+          <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr 80px 90px 80px 56px', padding: '8px 16px', borderBottom: '0.5px solid rgba(255,255,255,0.05)' }}>
+            {['ID', 'Name / Desc', 'Price', 'Credits', 'Featured', ''].map(h => (
               <span key={h} style={{ color: 'rgba(255,255,255,0.25)', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{h}</span>
             ))}
           </div>
           {plans.map(plan => (
-            <div key={plan.id}>
-              <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr 80px 90px 80px 80px', padding: '12px 16px', borderBottom: '0.5px solid rgba(255,255,255,0.04)', alignItems: 'center' }}>
-                <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', fontFamily: 'monospace' }}>{plan.id}</span>
-                <div>
-                  <p style={{ color: 'white', fontSize: '13px', fontWeight: 500, margin: 0 }}>{plan.name}</p>
-                  <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '11px', margin: '2px 0 0' }}>{plan.description}</p>
-                </div>
-                <span style={{ color: 'white', fontSize: '13px' }}>${plan.price_usd}</span>
-                <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '12px' }}>{plan.credits.toLocaleString()}</span>
-                <span style={{ fontSize: '12px' }}>{plan.featured ? '⭐' : '—'}</span>
-                <button style={btnSecondary} onClick={() => setEditPlan(editPlan?.id === plan.id ? null : plan)}>
-                  {editPlan?.id === plan.id ? 'Close' : 'Edit'}
+            <div key={plan.id} style={{ display: 'grid', gridTemplateColumns: '80px 1fr 80px 90px 80px 56px', padding: '12px 16px', borderBottom: '0.5px solid rgba(255,255,255,0.04)', alignItems: 'center' }}>
+              <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', fontFamily: 'monospace' }}>{plan.id}</span>
+              <div>
+                <p style={{ color: 'white', fontSize: '13px', fontWeight: 500, margin: 0 }}>{plan.name}</p>
+                <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '11px', margin: '2px 0 0' }}>{plan.description}</p>
+              </div>
+              <span style={{ color: 'white', fontSize: '13px' }}>${plan.price_usd}</span>
+              <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '12px' }}>{plan.credits.toLocaleString()}</span>
+              <span style={{ fontSize: '12px' }}>{plan.featured ? '⭐' : '—'}</span>
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <button
+                  style={{ background: 'rgba(255,255,255,0.06)', border: '0.5px solid rgba(255,255,255,0.12)', borderRadius: '8px', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'rgba(255,255,255,0.7)', fontSize: '18px', letterSpacing: '-2px' }}
+                  onClick={() => setEditPlan(plan)}
+                >
+                  ⋯
                 </button>
               </div>
-              {editPlan?.id === plan.id && (
-                <div style={{ padding: '16px', background: 'rgba(255,255,255,0.01)', borderBottom: '0.5px solid rgba(255,255,255,0.04)' }}>
-                  <PlanForm plan={plan} onSave={savePlan} onCancel={() => setEditPlan(null)} />
-                </div>
-              )}
             </div>
           ))}
         </div>

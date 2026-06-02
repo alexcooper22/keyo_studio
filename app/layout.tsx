@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Syne, DM_Sans } from 'next/font/google';
+import { Syne, Onest } from 'next/font/google';
 import './globals.css';
 import { ClerkProvider } from '@clerk/nextjs';
 import Providers from '../components/layout/Providers';
@@ -13,9 +13,9 @@ const syne = Syne({
   display: 'swap',
 });
 
-const dmSans = DM_Sans({
+const onest = Onest({
   subsets: ['latin'],
-  weight: ['300', '400', '500'],
+  weight: ['300', '400', '500', '600'],
   variable: '--font-dm',
   display: 'swap',
 });
@@ -126,7 +126,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className={`${syne.variable} ${dmSans.variable} font-dm antialiased`}>
+      <body className={`${syne.variable} ${onest.variable} font-dm antialiased`}>
         <ClerkProvider
           appearance={{
             variables: {

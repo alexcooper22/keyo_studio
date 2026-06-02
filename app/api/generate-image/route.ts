@@ -6,6 +6,45 @@ import { supabaseAdmin } from "../../../lib/supabase";
 import { rateLimit, isAllowedImageUrl } from "../../../lib/rateLimit";
 import { getModelById, getCreditCost, resolveApiKey } from '../../../lib/models'
 
+const PRIVATE_HOST = [
+  /^localhost$/i,
+  /^127\./,
+  /^0\./,
+  /^10\./,
+  /^172\.(1[6-9]|2[0-9]|3[01])\./,
+  /^192\.168\./,
+  /^169\.254\./,
+  /^::1$/,
+  /^fc[0-9a-f]{2}:/i,
+  /^fe80:/i,
+  /^metadata\.google\.internal$/i,
+];
+
+function isSafeUrl(raw: string): boolean {
+  try {
+    const { protocol, hostname } = new URL(raw);
+    return protocol === 'https:' && !PRIVATE_HOST.some(p => p.test(hostname));
+  } catch { return false; }
+}
+
+// Fetch a provider-returned URL, following up to 3 redirects while blocking
+// every hop that resolves to a private/internal address (SSRF prevention).
+async function fetchProviderImage(url: string): Promise<Response> {
+  let current = url;
+  for (let hop = 0; hop <= 3; hop++) {
+    if (!isSafeUrl(current)) throw new Error('Unsafe URL destination');
+    const res = await fetch(current, { redirect: 'manual', signal: AbortSignal.timeout(30_000) });
+    if (res.status >= 300 && res.status < 400) {
+      const location = res.headers.get('location');
+      if (!location) throw new Error('Redirect missing Location header');
+      current = new URL(location, current).href;
+      continue;
+    }
+    return res;
+  }
+  throw new Error('Too many redirects');
+}
+
 export const maxDuration = 120;
 
 export async function POST(request: NextRequest) {
@@ -149,32 +188,33 @@ export async function POST(request: NextRequest) {
     }
 
     if (aiModel.provider === 'alibaba') {
-      const openai = new OpenAI({
-        apiKey,
-        baseURL: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+      // qwen-image-2.0-pro on DashScope International (Singapore) — synchronous multimodal endpoint
+      const sizeMap: Record<string, string> = { '1K': '1024*1024', '2K': '1280*1024', '4K': '1280*1024' }
+      const size = sizeMap[resolution] ?? '1024*1024'
+
+      const genRes = await fetch('https://dashscope-intl.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: aiModel.model_id,
+          input: { messages: [{ role: 'user', content: [{ text: prompt }] }] },
+          parameters: { size },
+        }),
+        signal: AbortSignal.timeout(90_000),
       })
 
-      const sizeMap: Record<string, string> = { '1K': '1024x1024', '2K': '1280x1024', '4K': '1280x1024' }
-      const size = (sizeMap[resolution] ?? '1024x1024') as any
+      const genData = await genRes.json()
+      if (!genRes.ok) throw new Error(`DashScope error: ${genData.message ?? genRes.status}`)
 
-      const response = await openai.images.generate({ model: aiModel.model_id, prompt, n: 1, size })
+      const imageUrl: string | null = genData.output?.choices?.[0]?.message?.content?.[0]?.image ?? null
+      if (!imageUrl) throw new Error('DashScope returned no image URL')
 
-      const imageData = response.data[0]
-      let imageBuffer: Buffer
-      let ext = 'png'
-
-      if (imageData?.b64_json) {
-        imageBuffer = Buffer.from(imageData.b64_json, 'base64')
-      } else if (imageData?.url) {
-        // DashScope returns a temporary CDN URL — fetch and re-upload to Supabase
-        const imgRes = await fetch(imageData.url, { redirect: 'error', signal: AbortSignal.timeout(30_000) })
-        if (!imgRes.ok) throw new Error('Failed to fetch generated image from DashScope')
-        const ct = imgRes.headers.get('content-type') || 'image/png'
-        ext = ct.includes('jpeg') || ct.includes('jpg') ? 'jpg' : 'png'
-        imageBuffer = Buffer.from(await imgRes.arrayBuffer())
-      } else {
-        throw new Error('No image data from Alibaba DashScope')
-      }
+      // Fetch and re-upload — presigned OSS URLs expire
+      const imgRes = await fetchProviderImage(imageUrl)
+      if (!imgRes.ok) throw new Error('Failed to fetch generated image from DashScope CDN')
+      const ct = imgRes.headers.get('content-type') || 'image/png'
+      const ext = ct.includes('jpeg') || ct.includes('jpg') ? 'jpg' : 'png'
+      const imageBuffer = Buffer.from(await imgRes.arrayBuffer())
 
       const fileName = `${userId}/${Date.now()}.${ext}`
       const bucketName = 'user-images'

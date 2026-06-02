@@ -136,85 +136,101 @@ export default function PricingPage() {
         </div>
 
         {/* ── Cards ── */}
-        <div style={{ maxWidth: '740px', margin: '0 auto', padding: '0 32px 60px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+        <div style={{ maxWidth: '760px', margin: '0 auto', padding: '0 32px 60px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
           {plans.map((plan) => (
             <div
               key={plan.id}
               className="relative flex flex-col"
               style={{
                 background: plan.featured
-                  ? 'linear-gradient(160deg, rgba(83,47,207,0.12) 0%, var(--bg-card) 60%)'
-                  : 'var(--bg-card)',
-                border: plan.featured ? '0.5px solid rgba(83,47,207,0.45)' : '0.5px solid #1e1e1e',
-                borderRadius: 'var(--radius-card)',
-                padding: '28px',
-                boxShadow: plan.featured ? '0 0 40px rgba(83,47,207,0.12)' : 'none',
+                  ? 'radial-gradient(ellipse 100% 55% at 50% 0%, rgba(83,47,207,0.28) 0%, rgba(83,47,207,0.08) 55%, rgba(83,47,207,0) 100%), #0e0e0e'
+                  : '#0e0e0e',
+                border: plan.featured
+                  ? '0.5px solid rgba(100,65,220,0.55)'
+                  : '0.5px solid rgba(255,255,255,0.07)',
+                borderRadius: '18px',
+                padding: '32px 28px 28px',
+                boxShadow: plan.featured
+                  ? '0 0 0 1px rgba(83,47,207,0.06), 0 24px 60px rgba(83,47,207,0.2), inset 0 1px 0 rgba(140,100,255,0.18)'
+                  : 'inset 0 1px 0 rgba(255,255,255,0.03)',
+                overflow: 'hidden',
               }}
             >
+              {/* Featured top highlight line */}
+              {plan.featured && (
+                <div aria-hidden style={{
+                  position: 'absolute', top: 0, left: 0, right: 0, height: '1px',
+                  background: 'linear-gradient(90deg, transparent 5%, rgba(140,100,255,0.65) 40%, rgba(170,130,255,0.9) 50%, rgba(140,100,255,0.65) 60%, transparent 95%)',
+                }} />
+              )}
+
+              {/* Most popular badge */}
               {plan.featured && (
                 <div style={{
-                  position: 'absolute', top: -11, left: '50%', transform: 'translateX(-50%)',
-                  background: 'linear-gradient(90deg, #532fcf, #7c5cf0)',
-                  color: '#fff', fontSize: '11px', fontWeight: 600,
-                  padding: '4px 16px', borderRadius: '20px',
+                  position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)',
+                  background: 'linear-gradient(135deg, #5c3dd8 0%, #9b7eff 100%)',
+                  color: '#fff', fontSize: '10px', fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase',
+                  padding: '5px 16px', borderRadius: '0 0 10px 10px',
                   whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '5px',
+                  boxShadow: '0 4px 16px rgba(83,47,207,0.45)',
                 }}>
-                  <span style={{ fontSize: '9px' }}>✦</span>
-                  Most popular
+                  <span style={{ fontSize: '8px' }}>✦</span> Most popular
                 </div>
               )}
 
               {/* Plan name */}
-              <div style={{ marginBottom: '20px' }}>
-                <div className="font-clash" style={{ color: '#fff', fontSize: '17px', fontWeight: 600, marginBottom: '5px' }}>{plan.name}</div>
-                <div style={{ color: 'rgba(255,255,255,0.32)', fontSize: '12px', lineHeight: 1.5 }}>{plan.description}</div>
+              <div style={{ marginBottom: '24px', paddingTop: plan.featured ? '12px' : '0' }}>
+                <div className="font-clash" style={{ color: '#fff', fontSize: '22px', fontWeight: 600, letterSpacing: '-0.5px', marginBottom: '6px' }}>{plan.name}</div>
+                <div style={{ color: 'rgba(255,255,255,0.28)', fontSize: '12px', lineHeight: 1.6 }}>{plan.description}</div>
               </div>
 
               {/* Price */}
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: '3px', marginBottom: '18px' }}>
-                <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: '16px', fontWeight: 500 }}>$</span>
-                <span className="font-clash" style={{ color: '#fff', fontSize: '44px', fontWeight: 700, letterSpacing: '-2px' }}>{plan.price_usd}</span>
-                <span style={{ color: 'rgba(255,255,255,0.32)', fontSize: '13px', marginLeft: '2px' }}>/mo</span>
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0', marginBottom: '20px' }}>
+                <span style={{ color: 'rgba(255,255,255,0.28)', fontSize: '18px', fontWeight: 400, marginBottom: '7px', marginRight: '3px' }}>$</span>
+                <span className="font-clash" style={{ color: '#fff', fontSize: '52px', fontWeight: 700, letterSpacing: '-3px', lineHeight: 1 }}>{plan.price_usd}</span>
+                <span style={{ color: 'rgba(255,255,255,0.22)', fontSize: '13px', marginBottom: '8px', marginLeft: '6px' }}>/mo</span>
               </div>
 
-              {/* Credits pill */}
+              {/* Credits pill — full width */}
               <div style={{
-                display: 'inline-flex', alignItems: 'center', gap: '6px',
-                background: 'rgba(83,47,207,0.12)',
-                border: '0.5px solid rgba(83,47,207,0.25)',
-                borderRadius: '8px', padding: '6px 12px', marginBottom: '20px',
+                display: 'flex', alignItems: 'center', gap: '8px',
+                background: plan.featured ? 'rgba(83,47,207,0.16)' : 'rgba(255,255,255,0.04)',
+                border: plan.featured ? '0.5px solid rgba(100,65,220,0.35)' : '0.5px solid rgba(255,255,255,0.08)',
+                borderRadius: '10px', padding: '10px 14px', marginBottom: '24px',
               }}>
-                <span style={{ color: 'rgba(120,80,255,0.8)', fontSize: '8px' }}>✦</span>
-                <span style={{ color: '#9b7eff', fontSize: '14px', fontWeight: 700 }}>{plan.credits.toLocaleString()}</span>
-                <span style={{ color: 'rgba(255,255,255,0.32)', fontSize: '12px' }}>credits / month</span>
+                <span style={{ color: plan.featured ? 'rgba(160,120,255,0.85)' : 'rgba(255,255,255,0.25)', fontSize: '9px' }}>✦</span>
+                <span style={{ color: plan.featured ? '#c4aeff' : 'rgba(255,255,255,0.75)', fontSize: '15px', fontWeight: 700, letterSpacing: '-0.3px' }}>{plan.credits.toLocaleString()}</span>
+                <span style={{ color: 'rgba(255,255,255,0.22)', fontSize: '12px' }}>credits / month</span>
               </div>
-
-              {/* Divider */}
-              <div style={{ height: '0.5px', background: 'rgba(255,255,255,0.06)', marginBottom: '18px' }} />
 
               {/* Breakdown */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '24px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '28px' }}>
                 {plan.breakdown.map((item, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                  <div key={i} style={{
+                    display: 'flex', alignItems: 'center', gap: '12px',
+                    padding: '10px 12px', borderRadius: '10px',
+                    background: 'rgba(255,255,255,0.025)',
+                    border: '0.5px solid rgba(255,255,255,0.04)',
+                  }}>
                     <div style={{
-                      width: '28px', height: '28px', borderRadius: '8px',
-                      background: 'rgba(83,47,207,0.1)',
-                      border: '0.5px solid rgba(83,47,207,0.2)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                      width: '30px', height: '30px', borderRadius: '8px', flexShrink: 0,
+                      background: plan.featured ? 'rgba(83,47,207,0.18)' : 'rgba(255,255,255,0.05)',
+                      border: plan.featured ? '0.5px solid rgba(100,65,220,0.28)' : '0.5px solid rgba(255,255,255,0.07)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
                     }}>
                       {item.icon === 'image' ? (
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9b7eff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                          <rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18M9 21V9" />
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={plan.featured ? '#a87fff' : 'rgba(255,255,255,0.35)'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="m21 15-5-5L5 21" />
                         </svg>
                       ) : (
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9b7eff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={plan.featured ? '#a87fff' : 'rgba(255,255,255,0.35)'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                           <polygon points="5,3 19,12 5,21" />
                         </svg>
                       )}
                     </div>
                     <div>
-                      <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '13px', fontWeight: 500, lineHeight: 1.3 }}>{item.main}</div>
-                      <div style={{ color: 'rgba(255,255,255,0.28)', fontSize: '11px', marginTop: '2px' }}>{item.sub}</div>
+                      <div style={{ color: 'rgba(255,255,255,0.82)', fontSize: '13px', fontWeight: 500, lineHeight: 1.3 }}>{item.main}</div>
+                      <div style={{ color: 'rgba(255,255,255,0.24)', fontSize: '11px', marginTop: '1px' }}>{item.sub}</div>
                     </div>
                   </div>
                 ))}
@@ -227,22 +243,24 @@ export default function PricingPage() {
                 className="font-dm"
                 style={{
                   width: '100%',
-                  borderRadius: '10px',
-                  padding: '12px',
+                  borderRadius: '11px',
+                  padding: '13px',
                   fontSize: '14px',
                   fontWeight: 600,
                   cursor: loadingPlan !== null ? 'not-allowed' : 'pointer',
                   marginTop: 'auto',
-                  transition: 'opacity 0.2s, filter 0.2s',
-                  opacity: loadingPlan !== null ? 0.6 : 1,
+                  transition: 'opacity 0.2s',
+                  opacity: loadingPlan !== null ? 0.5 : 1,
+                  letterSpacing: '0.1px',
                   border: plan.cta_style === 'primary' ? 'none' : '0.5px solid rgba(255,255,255,0.1)',
                   background: plan.cta_style === 'primary'
-                    ? 'linear-gradient(135deg, #532fcf, #7c5cf0)'
-                    : 'rgba(255,255,255,0.04)',
+                    ? 'linear-gradient(135deg, #5c3dd8 0%, #9b7eff 100%)'
+                    : 'rgba(255,255,255,0.05)',
                   color: plan.cta_style === 'primary' ? '#fff' : 'rgba(255,255,255,0.5)',
+                  boxShadow: plan.cta_style === 'primary' ? '0 4px 24px rgba(83,47,207,0.4), inset 0 1px 0 rgba(255,255,255,0.15)' : 'none',
                 }}
               >
-                {loadingPlan === plan.id ? 'Loading...' : plan.cta_text}
+                {loadingPlan === plan.id ? 'Loading…' : plan.cta_text}
               </button>
             </div>
           ))}

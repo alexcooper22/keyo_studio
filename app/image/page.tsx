@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Navbar from '../../components/layout/Navbar';
 import PromptBar from '../../components/image/PromptBar';
+import { fetchModelsWithCache } from '../../lib/modelCache';
 import Lightbox, { type ImageDetails } from '../../components/image/Lightbox';
 import { useAuth } from '../../context/AuthContext';
 import { useUser } from '@clerk/nextjs';
@@ -170,13 +171,12 @@ export default function ImageDashboard() {
 
   const fetchModels = async () => {
     try {
-      const res = await fetch('/api/models?category=image');
-      const data = await res.json();
-      if (data.models?.length) {
-        setImageModels(data.models);
+      const models = await fetchModelsWithCache('image');
+      if (models.length) {
+        setImageModels(models);
         const saved = localStorage.getItem('image_model_draft');
-        const validSaved = data.models.find((m: any) => m.id === saved);
-        setSelectedModelId(validSaved ? saved : data.models[0].id);
+        const validSaved = models.find((m: any) => m.id === saved);
+        setSelectedModelId(validSaved ? saved : models[0].id);
       }
     } catch (err) {
       console.error('Failed to fetch image models', err);

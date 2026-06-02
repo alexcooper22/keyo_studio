@@ -142,3 +142,128 @@ body {
 
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+.nav-active { color: rgba(170,140,255,0.95) !important; background: rgba(120,80,255,0.1); border: 0.5px solid rgba(120,80,255,0.22); border-radius: 20px; }
+
+/* Clerk modal overrides — scoped to keyo-auth-modal */
+.keyo-auth-modal .cl-card { background: #111111 !important; box-shadow: none !important; border: none !important; border-radius: 0 !important; }
+.keyo-auth-modal .cl-header { display: none !important; }
+.keyo-auth-modal .cl-footer,
+.keyo-auth-modal .cl-footer > *,
+.keyo-auth-modal [class*="cl-footer"] { background: #111111 !important; }
+.keyo-auth-modal [class*="cl-internal"] { background: #111111 !important; }
+.keyo-auth-modal .cl-rootBox { width: 100% !important; }
+.keyo-auth-modal [class*="formButtonPrimary"] { background: linear-gradient(135deg, #c4b0ff 0%, #9b7eff 40%, #6b4ef5 100%) !important; background-color: transparent !important; }
+.keyo-auth-modal [class*="formButtonPrimary"] * { background: transparent !important; background-color: transparent !important; }
+
+@keyframes pricing-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(83,47,207,0); border-color: rgba(120,80,255,0.3); background: rgba(120,80,255,0.15); }
+  50%       { box-shadow: 0 0 12px rgba(120,80,255,0.35), 0 0 24px rgba(83,47,207,0.15); border-color: rgba(150,110,255,0.6); background: rgba(120,80,255,0.22); }
+}
+.pricing-pill { animation: pricing-glow 2.8s ease-in-out infinite; }
+
+/* ── Generate button ── */
+@keyframes gen-sweep {
+  0%   { transform: translateX(-120%) skewX(-18deg); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateX(320%) skewX(-18deg); opacity: 0; }
+}
+
+.generate-btn {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #5c35e8 0%, #8060f0 45%, #a882ff 100%);
+  box-shadow: 0 2px 12px rgba(83,47,207,0.4), 0 0 0 1px rgba(160,130,255,0.15) inset;
+  transition: transform 0.14s ease, box-shadow 0.14s ease, opacity 0.14s ease;
+}
+
+.generate-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.18) 50%, transparent 100%);
+  width: 50%;
+  animation: gen-sweep 3.2s ease-in-out infinite;
+  animation-delay: 0.8s;
+  pointer-events: none;
+}
+
+.generate-btn:not(:disabled):hover {
+  transform: translateY(-1px) scale(1.025);
+  box-shadow: 0 6px 22px rgba(83,47,207,0.55), 0 0 0 1px rgba(170,145,255,0.2) inset;
+}
+
+.generate-btn:not(:disabled):active {
+  transform: scale(0.975);
+  box-shadow: 0 2px 8px rgba(83,47,207,0.35);
+}
+
+.generate-btn-loading {
+  background: rgba(83,47,207,0.45) !important;
+  box-shadow: none !important;
+}
+.generate-btn-loading::after { display: none; }
+
+.generate-btn-empty {
+  opacity: 0.45;
+}
+.generate-btn-empty::after { display: none; }
+
+/* ── Prompt bar orbital border ── */
+@property --prompt-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes prompt-orbit {
+  to { --prompt-angle: 360deg; }
+}
+
+@keyframes prompt-outer-glow {
+  0%, 100% { opacity: 0.6; }
+  50%       { opacity: 1; }
+}
+
+.prompt-bar-orbit {
+  padding: 2px;
+  border-radius: 18px;
+  animation: prompt-orbit 7s linear infinite;
+  box-shadow: 0 0 50px rgba(83,47,207,0.25), 0 0 100px rgba(83,47,207,0.1), 0 8px 40px rgba(0,0,0,0.5);
+  background: conic-gradient(
+    from var(--prompt-angle),
+    rgba(83,47,207,0.12) 0%,   rgba(83,47,207,0.12) 60%,
+    rgba(110,65,230,0.75) 70%, rgba(190,155,255,1)   74.5%,
+    rgba(255,245,255,1)   76%, rgba(190,155,255,1)   77.5%,
+    rgba(110,65,230,0.75) 82%, rgba(83,47,207,0.12) 90%,
+    rgba(83,47,207,0.12) 100%
+  );
+  transition: box-shadow 0.5s ease;
+}
+
+.prompt-bar-focused {
+  animation-duration: 3.5s;
+  box-shadow: 0 0 70px rgba(83,47,207,0.4), 0 0 130px rgba(100,60,220,0.18), 0 8px 40px rgba(0,0,0,0.5);
+  background: conic-gradient(
+    from var(--prompt-angle),
+    rgba(83,47,207,0.15) 0%,   rgba(83,47,207,0.15) 56%,
+    rgba(120,70,240,0.9) 68%,  rgba(210,180,255,1)   73.5%,
+    rgba(255,250,255,1)  76%,  rgba(210,180,255,1)   78.5%,
+    rgba(120,70,240,0.9) 84%,  rgba(83,47,207,0.15) 92%,
+    rgba(83,47,207,0.15) 100%
+  );
+}
+
+.prompt-bar-loading {
+  animation-duration: 1.4s;
+  box-shadow: 0 0 90px rgba(83,47,207,0.55), 0 0 160px rgba(100,60,220,0.28), 0 8px 40px rgba(0,0,0,0.5);
+  background: conic-gradient(
+    from var(--prompt-angle),
+    rgba(83,47,207,0.18) 0%,   rgba(83,47,207,0.18) 50%,
+    rgba(130,80,245,0.95) 65%, rgba(215,190,255,1)   71%,
+    rgba(255,252,255,1)   74%, rgba(255,252,255,1)   77%,
+    rgba(215,190,255,1)   80%, rgba(130,80,245,0.95) 86%,
+    rgba(83,47,207,0.18) 93%,  rgba(83,47,207,0.18) 100%
+  );
+}

@@ -32,6 +32,7 @@ export default function SettingsPage() {
   const { isLoaded, user } = useUser();
   const [activeSection, setActiveSection] = useState<Section>('Personal Profile');
   const [isAdminUser, setIsAdminUser] = useState(false);
+  const [subscription, setSubscription] = useState<{ plan: string | null; credits: number; hasSubscription: boolean } | null>(null);
 
   // Restore saved tab after hydration (must run client-side only)
   useEffect(() => {
@@ -47,6 +48,13 @@ export default function SettingsPage() {
     fetch('/api/admin/me')
       .then(r => r.json())
       .then(d => { if (d.isAdmin) setIsAdminUser(true) })
+      .catch(() => {})
+  }, []);
+
+  useEffect(() => {
+    fetch('/api/user-credits')
+      .then(r => r.json())
+      .then(d => setSubscription({ plan: d.plan ?? null, credits: d.credits ?? 0, hasSubscription: d.hasSubscription ?? false }))
       .catch(() => {})
   }, []);
 
@@ -255,15 +263,31 @@ export default function SettingsPage() {
               <p className="font-dm text-[10px] font-[700] uppercase tracking-[0.5px] mb-4" style={{ color: 'rgba(255,255,255,0.25)' }}>Current Plan</p>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <p className="font-clash font-[700] text-[22px] text-white">Free Plan</p>
-                  <p className="font-dm text-[13px] mt-1" style={{ color: 'var(--text-secondary)' }}>Limited features for exploring AI creativity</p>
+                  <p className="font-clash font-[700] text-[22px] text-white">
+                    {subscription?.hasSubscription && subscription.plan
+                      ? subscription.plan.charAt(0).toUpperCase() + subscription.plan.slice(1) + ' Plan'
+                      : 'Free Plan'}
+                  </p>
+                  <p className="font-dm text-[13px] mt-1" style={{ color: 'var(--text-secondary)' }}>
+                    {subscription?.hasSubscription
+                      ? `${subscription.credits.toLocaleString()} credits remaining`
+                      : 'Limited features for exploring AI creativity'}
+                  </p>
                 </div>
-                <Link href="/pricing"
-                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl font-dm font-[700] text-[14px] text-white transition-all hover:brightness-110 active:scale-95 whitespace-nowrap"
-                  style={{ background: 'linear-gradient(135deg, #c4b0ff 0%, #9b7eff 40%, #6b4ef5 100%)' }}>
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="white"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg>
-                  Upgrade
-                </Link>
+                {subscription?.hasSubscription ? (
+                  <Link href="/pricing"
+                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl font-dm font-[700] text-[14px] transition-all hover:brightness-110 active:scale-95 whitespace-nowrap"
+                    style={{ background: 'rgba(255,255,255,0.06)', border: '0.5px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.7)' }}>
+                    Manage plan
+                  </Link>
+                ) : (
+                  <Link href="/pricing"
+                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl font-dm font-[700] text-[14px] text-white transition-all hover:brightness-110 active:scale-95 whitespace-nowrap"
+                    style={{ background: 'linear-gradient(135deg, #c4b0ff 0%, #9b7eff 40%, #6b4ef5 100%)' }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="white"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg>
+                    Upgrade
+                  </Link>
+                )}
               </div>
             </div>
           )}

@@ -40,6 +40,7 @@ export default function Navbar() {
   const { signOut } = useClerk();
 
   const [credits, setCredits] = useState<number | null>(null);
+  const [userIsAdmin, setUserIsAdmin] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -52,6 +53,7 @@ export default function Navbar() {
       const res = await fetch('/api/user-credits');
       const data = await res.json();
       if (data.credits !== undefined) setCredits(data.credits);
+      if (data.isAdmin !== undefined) setUserIsAdmin(data.isAdmin);
     } catch {
       setCredits(null);
     }
@@ -94,28 +96,6 @@ export default function Navbar() {
 
   return (
     <>
-      <style>{`
-        .nav-active { color: rgba(170,140,255,0.95) !important; background: rgba(120,80,255,0.1); border: 0.5px solid rgba(120,80,255,0.22); border-radius: 20px; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-        /* Clerk modal overrides — scoped to keyo-auth-modal */
-        .keyo-auth-modal .cl-card { background: #111111 !important; box-shadow: none !important; border: none !important; border-radius: 0 !important; }
-        .keyo-auth-modal .cl-header { display: none !important; }
-        .keyo-auth-modal .cl-footer,
-        .keyo-auth-modal .cl-footer > *,
-        .keyo-auth-modal [class*="cl-footer"] { background: #111111 !important; }
-        .keyo-auth-modal [class*="cl-internal"] { background: #111111 !important; }
-        .keyo-auth-modal .cl-rootBox { width: 100% !important; }
-        .keyo-auth-modal [class*="formButtonPrimary"] { background: linear-gradient(135deg, #c4b0ff 0%, #9b7eff 40%, #6b4ef5 100%) !important; background-color: transparent !important; }
-        .keyo-auth-modal [class*="formButtonPrimary"] * { background: transparent !important; background-color: transparent !important; }
-        @keyframes pricing-glow {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(83,47,207,0); border-color: rgba(120,80,255,0.3); background: rgba(120,80,255,0.15); }
-          50%       { box-shadow: 0 0 12px rgba(120,80,255,0.35), 0 0 24px rgba(83,47,207,0.15); border-color: rgba(150,110,255,0.6); background: rgba(120,80,255,0.22); }
-        }
-        .pricing-pill { animation: pricing-glow 2.8s ease-in-out infinite; }
-      `}</style>
-
       {/* ── Main navbar ── */}
       <nav
         className="fixed top-0 z-[100]"

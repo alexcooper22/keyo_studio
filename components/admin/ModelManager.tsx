@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
+import { invalidateModelsCache } from '../../lib/modelCache'
 
 type PricingRow = {
   id: string
@@ -58,13 +59,16 @@ export default function ModelManager() {
       body: JSON.stringify({ enabled: !model.enabled }),
     })
     setModels(prev => prev.map(m => m.id === model.id ? { ...m, enabled: !m.enabled } : m))
+    invalidateModelsCache(model.category)
     showNotice('Cache cleared — changes live within seconds')
   }
 
   const deleteModel = async (id: string) => {
     if (!confirm('Delete this model and all its pricing?')) return
     await fetch(`/api/admin/models/${id}`, { method: 'DELETE' })
+    const deleted = models.find(m => m.id === id)
     setModels(prev => prev.filter(m => m.id !== id))
+    if (deleted) invalidateModelsCache(deleted.category)
     showNotice('Model deleted')
   }
 
@@ -77,6 +81,7 @@ export default function ModelManager() {
       body: JSON.stringify({ ...form, api_secret_env: form.api_secret_env || null }),
     })
     if (!res.ok) { const d = await res.json(); alert(d.error); return }
+    invalidateModelsCache(form.category)
     await fetchModels()
     setShowAddModel(false)
     setEditModel(null)

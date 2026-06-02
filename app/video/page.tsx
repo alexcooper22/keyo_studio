@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useRef, useEffect } from 'react';
 import Navbar from '../../components/layout/Navbar';
+import { fetchModelsWithCache } from '../../lib/modelCache';
 
 interface VideoItem {
   id: string;
@@ -137,11 +138,10 @@ export default function VideoDashboard() {
   };
   const fetchVideoModels = async () => {
     try {
-      const res = await fetch('/api/models?category=video');
-      const data = await res.json();
-      if (data.models?.length) {
-        setVideoModels(data.models);
-        setSelectedVideoModelId(data.models[0].id);
+      const models = await fetchModelsWithCache('video');
+      if (models.length) {
+        setVideoModels(models);
+        setSelectedVideoModelId(models[0].id);
       }
     } catch (err) {
       console.error('Failed to fetch video models', err);
