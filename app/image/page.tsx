@@ -90,6 +90,13 @@ export default function ImageDashboard() {
   }, [uploadedImages]);
 
   useEffect(() => {
+    const onFocus = () => { fetchModels(); fetchCredits(); };
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) onFocus(); });
+    return () => { window.removeEventListener('focus', onFocus); };
+  }, []);
+
+  useEffect(() => {
     if (isLoaded && isSignedIn) {
       fetchCredits();
       fetchImages();
