@@ -212,7 +212,7 @@ export default function PromptBar({
             rows={1}
             className="w-full bg-transparent border-none outline-none text-white font-dm resize-none"
             style={{
-              fontSize: '14px',
+              fontSize: '16px',
               lineHeight: '1.6',
               minHeight: '40px',
               maxHeight: '120px',
@@ -455,25 +455,18 @@ export default function PromptBar({
           {/* Generate button — bottom right */}
           <button
             onClick={onGenerate}
-            disabled={isLoaded && !!isSignedIn && (isLoading || !prompt.trim() || noCredits)}
-            className={[
-              'flex-shrink-0 flex items-center gap-1.5 font-dm font-[500]',
-              noCredits ? 'generate-btn-empty' : isLoading ? 'generate-btn generate-btn-loading' : 'generate-btn',
-            ].join(' ')}
+            disabled={isLoaded && !!isSignedIn && (!prompt.trim() || noCredits)}
+            className={`flex-shrink-0 flex items-center gap-1.5 font-dm font-[500] ${noCredits ? 'generate-btn-empty' : 'generate-btn'}`}
             style={{
               height: '32px', padding: '0 14px', borderRadius: '50px', fontSize: '12px', letterSpacing: '0.01em',
               background: noCredits ? 'rgba(255,255,255,0.05)' : undefined,
               border: noCredits ? '0.5px solid rgba(255,255,255,0.08)' : 'none',
               color: noCredits ? 'rgba(255,255,255,0.25)' : '#fff',
-              cursor: (isLoaded && !!isSignedIn && (isLoading || !prompt.trim() || noCredits)) ? 'not-allowed' : 'pointer',
+              cursor: (isLoaded && !!isSignedIn && (!prompt.trim() || noCredits)) ? 'not-allowed' : 'pointer',
             }}
           >
-            {isLoading ? (
-              <div className="w-3 h-3 border-[1.5px] border-white/60 border-t-white rounded-full animate-spin" />
-            ) : (
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg>
-            )}
-            {isLoading ? 'Generating…' : noCredits ? 'No credits' : `Generate · ${creditCost}`}
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg>
+            {noCredits ? 'No credits' : `Generate · ${creditCost}`}
           </button>
         </div>
       </div>{/* end card */}

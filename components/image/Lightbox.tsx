@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback } from 'react';
 import type { UserResource } from '@clerk/shared/types';
 
 export interface ImageDetails {
+  id?: string;
   url: string;
   prompt: string;
   model: string;
@@ -17,10 +18,12 @@ interface LightboxProps {
   onClose: () => void;
   onNavigate: (image: ImageDetails) => void;
   onDownload: (url: string) => void;
+  onDelete?: (image: ImageDetails) => void;
 }
 
-export default function Lightbox({ image, allImages, user, onClose, onNavigate, onDownload }: LightboxProps) {
+export default function Lightbox({ image, allImages, user, onClose, onNavigate, onDownload, onDelete }: LightboxProps) {
   const [copied, setCopied] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const currentIndex = allImages.findIndex(img => img.url === image.url);
   const hasPrev = currentIndex > 0;
@@ -43,6 +46,8 @@ export default function Lightbox({ image, allImages, user, onClose, onNavigate, 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [image, allImages, onClose, onNavigate]);
+
+  useEffect(() => { setConfirmingDelete(false); }, [image.url]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(image.prompt);
@@ -77,11 +82,13 @@ export default function Lightbox({ image, allImages, user, onClose, onNavigate, 
             <div style={{ color: 'rgba(255,255,255,0.28)', fontSize: '11px', fontFamily: 'var(--font-dm)', marginTop: '2px' }}>Author</div>
           </div>
         </a>
-        <button onClick={onClose} style={{ width: '28px', height: '28px', borderRadius: '8px', border: 'none', cursor: 'pointer', background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' }}
-          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'white'; }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'rgba(255,255,255,0.35)'; }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
+        {!isMobile && (
+          <button onClick={onClose} style={{ width: '28px', height: '28px', borderRadius: '8px', border: 'none', cursor: 'pointer', background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'white'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'rgba(255,255,255,0.35)'; }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        )}
       </div>
 
       <div style={{ height: '0.5px', background: 'rgba(255,255,255,0.06)' }} />
@@ -122,6 +129,34 @@ export default function Lightbox({ image, allImages, user, onClose, onNavigate, 
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Download image
       </button>
+
+      {/* Delete */}
+      {onDelete && (
+        confirmingDelete ? (
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button onClick={() => setConfirmingDelete(false)}
+              style={{ flex: 1, padding: '10px', borderRadius: '10px', cursor: 'pointer', background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)', fontSize: '12px', fontFamily: 'var(--font-dm)', fontWeight: 500, transition: 'all 0.15s' }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'rgba(255,255,255,0.7)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.color = 'rgba(255,255,255,0.4)'; }}>
+              Cancel
+            </button>
+            <button onClick={() => { onDelete(image); setConfirmingDelete(false); }}
+              style={{ flex: 1, padding: '10px', borderRadius: '10px', cursor: 'pointer', background: 'rgba(220,50,50,0.12)', border: '0.5px solid rgba(220,50,50,0.3)', color: 'rgba(255,100,100,0.9)', fontSize: '12px', fontFamily: 'var(--font-dm)', fontWeight: 500, transition: 'all 0.15s' }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(220,50,50,0.22)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(220,50,50,0.12)'; }}>
+              Delete
+            </button>
+          </div>
+        ) : (
+          <button onClick={() => setConfirmingDelete(true)}
+            style={{ width: '100%', padding: '10px', borderRadius: '10px', cursor: 'pointer', background: 'rgba(255,255,255,0.03)', border: '0.5px solid rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.25)', fontSize: '12px', fontFamily: 'var(--font-dm)', fontWeight: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '7px', transition: 'all 0.15s' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(220,50,50,0.1)'; e.currentTarget.style.borderColor = 'rgba(220,50,50,0.25)'; e.currentTarget.style.color = 'rgba(255,100,100,0.7)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = 'rgba(255,255,255,0.25)'; }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+            Delete image
+          </button>
+        )
+      )}
     </div>
   );
 
@@ -153,6 +188,11 @@ export default function Lightbox({ image, allImages, user, onClose, onNavigate, 
               {currentIndex + 1} / {allImages.length}
             </div>
           )}
+
+          {/* Glass close button */}
+          <button onClick={onClose} style={{ position: 'absolute', top: '10px', right: '10px', width: '36px', height: '36px', borderRadius: '10px', border: '0.5px solid rgba(255,255,255,0.3)', cursor: 'pointer', background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 12px rgba(0,0,0,0.4)' }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
         </div>
 
         {/* Info panel */}

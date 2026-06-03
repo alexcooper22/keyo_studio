@@ -22,7 +22,7 @@ export type PublicModel = Omit<AIModel, 'api_key_env' | 'api_secret_env'>
 
 type CacheEntry = { data: AIModel[]; expiresAt: number }
 const cache = new Map<string, CacheEntry>()
-const TTL_MS = 30 * 60 * 1000
+const TTL_MS = 5 * 60 * 1000
 
 async function fetchFromSupabase(category?: string): Promise<AIModel[]> {
   let query = supabaseAdmin

@@ -169,6 +169,7 @@ export async function POST(request: NextRequest) {
         prompt,
         image_url: publicUrl,
         model: aiModel.name,
+        aspect_ratio: aspectRatio || '4:3',
         resolution: resolution || '1K',
       })
 
@@ -189,15 +190,39 @@ export async function POST(request: NextRequest) {
 
     if (aiModel.provider === 'alibaba') {
       // qwen-image-2.0-pro on DashScope International (Singapore) — synchronous multimodal endpoint
-      const sizeMap: Record<string, string> = { '1K': '1024*1024', '2K': '1280*1024', '4K': '1280*1024' }
-      const size = sizeMap[resolution] ?? '1024*1024'
+      // Size matrix: [aspectRatio][resolution] → WIDTHxHEIGHT
+      const sizeMatrix: Record<string, Record<string, string>> = {
+        '1:1':   { '1K': '1024*1024', '2K': '1440*1440', '4K': '2048*2048' },
+        '4:3':   { '1K': '1024*768',  '2K': '1440*1080', '4K': '2048*1536' },
+        '3:4':   { '1K': '768*1024',  '2K': '1080*1440', '4K': '1536*2048' },
+        '16:9':  { '1K': '1280*720',  '2K': '1920*1080', '4K': '2560*1440' },
+        '9:16':  { '1K': '720*1280',  '2K': '1080*1920', '4K': '1440*2560' },
+        '3:2':   { '1K': '1024*682',  '2K': '1536*1024', '4K': '2048*1365' },
+        '2:3':   { '1K': '682*1024',  '2K': '1024*1536', '4K': '1365*2048' },
+        '21:9':  { '1K': '1280*549',  '2K': '1920*823',  '4K': '2560*1097' },
+        '5:4':   { '1K': '1024*819',  '2K': '1280*1024', '4K': '2048*1638' },
+        '4:5':   { '1K': '819*1024',  '2K': '1024*1280', '4K': '1638*2048' },
+        'auto':  { '1K': '1024*1024', '2K': '1440*1440', '4K': '2048*2048' },
+      }
+      const ratioSizes = sizeMatrix[aspectRatio] ?? sizeMatrix['4:3']
+      const size = ratioSizes[resolution] ?? ratioSizes['1K']
 
       const genRes = await fetch('https://dashscope-intl.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: aiModel.model_id,
-          input: { messages: [{ role: 'user', content: [{ text: prompt }] }] },
+          input: {
+            messages: [{
+              role: 'user',
+              content: [
+                ...(imageUrls && imageUrls.length > 0
+                  ? (imageUrls as string[]).map((url: string) => ({ image: url }))
+                  : []),
+                { text: prompt },
+              ],
+            }],
+          },
           parameters: { size },
         }),
         signal: AbortSignal.timeout(90_000),
@@ -232,6 +257,7 @@ export async function POST(request: NextRequest) {
         prompt,
         image_url: publicUrl,
         model: aiModel.name,
+        aspect_ratio: aspectRatio || '4:3',
         resolution: resolution || '1K',
       })
 
@@ -300,15 +326,18 @@ export async function POST(request: NextRequest) {
 
     console.log("Gemini request:", { model: aiModel.model_id, isEdit, aspectRatio, resolution });
 
+    // Append aspect ratio hint to text prompt so Gemini respects it
+    const ratioHint = aspectRatio && aspectRatio !== 'auto' ? ` Aspect ratio: ${aspectRatio}.` : '';
+    if (contents[0]?.parts) {
+      const textPart = contents[0].parts.find((p: any) => p.text);
+      if (textPart) textPart.text = textPart.text + ratioHint;
+    }
+
     const geminiResponse = await ai.models.generateContent({
       model: aiModel.model_id,
       contents,
       config: {
         responseModalities: isEdit ? ["TEXT", "IMAGE"] : ["IMAGE"],
-        imageConfig: {
-          aspectRatio: aspectRatio || "4:3",
-          imageSize: resolution || "1K"
-        }
       }
     });
 
@@ -363,6 +392,7 @@ export async function POST(request: NextRequest) {
         prompt,
         image_url: publicUrl,
         model: aiModel.name,
+        aspect_ratio: aspectRatio || '4:3',
         resolution: resolution || '1K'
       });
 
@@ -394,6 +424,7 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     console.error("Generation error:", error);
-    return NextResponse.json({ error: "Failed to generate image" }, { status: 500 });
+    const message = error?.message || error?.toString() || "Failed to generate image";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

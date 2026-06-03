@@ -1,4 +1,4 @@
-const TTL = 30 * 60 * 1000
+const TTL = 5 * 60 * 1000
 
 type ModelEntry = { data: any[]; cachedAt: number }
 
