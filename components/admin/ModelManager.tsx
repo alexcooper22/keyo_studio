@@ -26,6 +26,51 @@ type AdminModel = {
 const PROVIDERS = ['google', 'openai', 'kling', 'alibaba']
 const UNITS = ['per_image', 'per_second'] as const
 
+const inputStyle: React.CSSProperties = { background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '6px 10px', color: 'white', fontSize: '12px', outline: 'none', width: '100%' }
+const selectStyle: React.CSSProperties = { ...inputStyle, cursor: 'pointer' }
+const btnPrimary: React.CSSProperties = { background: 'linear-gradient(135deg, #9b7eff 0%, #6b4ef5 100%)', border: 'none', borderRadius: '8px', padding: '6px 14px', color: 'white', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }
+const btnSecondary: React.CSSProperties = { background: 'rgba(255,255,255,0.06)', border: '0.5px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '5px 10px', color: 'rgba(255,255,255,0.6)', fontSize: '11px', cursor: 'pointer' }
+
+type ModelFormShape = { name: string; provider: string; model_id: string; category: string; api_key_env: string; api_secret_env: string }
+
+function ModelForm({ initial, onSave, onCancel }: { initial: ModelFormShape; onSave: (f: ModelFormShape) => void; onCancel: () => void }) {
+  const [form, setForm] = useState(initial)
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      {[
+        { label: 'Display Name', key: 'name', placeholder: 'e.g. GPT-image-2' },
+        { label: 'Model ID (API string)', key: 'model_id', placeholder: 'e.g. gpt-image-2' },
+        { label: 'API Key Env Var', key: 'api_key_env', placeholder: 'e.g. OPENAI_API_KEY' },
+        { label: 'API Secret Env Var (optional)', key: 'api_secret_env', placeholder: 'e.g. KLING_ACCESS_KEY_SECRET' },
+      ].map(({ label, key, placeholder }) => (
+        <div key={key}>
+          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '10px', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{label}</p>
+          <input style={inputStyle} placeholder={placeholder} value={(form as Record<string, string>)[key]} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))} />
+        </div>
+      ))}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+        <div>
+          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '10px', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Provider</p>
+          <select style={selectStyle} value={form.provider} onChange={e => setForm(f => ({ ...f, provider: e.target.value }))}>
+            {PROVIDERS.map(p => <option key={p} value={p}>{p}</option>)}
+          </select>
+        </div>
+        <div>
+          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '10px', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Category</p>
+          <select style={selectStyle} value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))}>
+            <option value="image">image</option>
+            <option value="video">video</option>
+          </select>
+        </div>
+      </div>
+      <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', paddingTop: '4px' }}>
+        <button style={btnSecondary} onClick={onCancel}>Cancel</button>
+        <button style={btnPrimary} onClick={() => onSave(form)}>Save</button>
+      </div>
+    </div>
+  )
+}
+
 export default function ModelManager() {
   const [models, setModels] = useState<AdminModel[]>([])
   const [loading, setLoading] = useState(true)
@@ -43,6 +88,7 @@ export default function ModelManager() {
   const showNotice = (msg: string) => { setNotice(msg); setTimeout(() => setNotice(''), 3000) }
 
   const closeMenu = () => { setOpenMenuId(null); setMenuPos(null) }
+
 
   const fetchModels = async () => {
     setLoading(true)
@@ -138,51 +184,7 @@ export default function ModelManager() {
     showNotice('Pricing row deleted')
   }
 
-  const inputStyle: React.CSSProperties = { background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '6px 10px', color: 'white', fontSize: '12px', outline: 'none', width: '100%' }
-  const selectStyle: React.CSSProperties = { ...inputStyle, cursor: 'pointer' }
-  const btnPrimary: React.CSSProperties = { background: 'linear-gradient(135deg, #9b7eff 0%, #6b4ef5 100%)', border: 'none', borderRadius: '8px', padding: '6px 14px', color: 'white', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }
   const btnDanger: React.CSSProperties = { background: 'rgba(255,60,60,0.1)', border: '0.5px solid rgba(255,60,60,0.3)', borderRadius: '8px', padding: '5px 10px', color: 'rgba(255,100,100,0.9)', fontSize: '11px', cursor: 'pointer' }
-  const btnSecondary: React.CSSProperties = { background: 'rgba(255,255,255,0.06)', border: '0.5px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '5px 10px', color: 'rgba(255,255,255,0.6)', fontSize: '11px', cursor: 'pointer' }
-
-  type ModelFormShape = { name: string; provider: string; model_id: string; category: string; api_key_env: string; api_secret_env: string }
-
-  const ModelForm = ({ initial, onSave, onCancel }: { initial: ModelFormShape; onSave: (f: ModelFormShape) => void; onCancel: () => void }) => {
-    const [form, setForm] = useState(initial)
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        {[
-          { label: 'Display Name', key: 'name', placeholder: 'e.g. GPT-image-2' },
-          { label: 'Model ID (API string)', key: 'model_id', placeholder: 'e.g. gpt-image-2' },
-          { label: 'API Key Env Var', key: 'api_key_env', placeholder: 'e.g. OPENAI_API_KEY' },
-          { label: 'API Secret Env Var (optional)', key: 'api_secret_env', placeholder: 'e.g. KLING_ACCESS_KEY_SECRET' },
-        ].map(({ label, key, placeholder }) => (
-          <div key={key}>
-            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '10px', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{label}</p>
-            <input style={inputStyle} placeholder={placeholder} value={(form as Record<string, string>)[key]} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))} />
-          </div>
-        ))}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-          <div>
-            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '10px', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Provider</p>
-            <select style={selectStyle} value={form.provider} onChange={e => setForm(f => ({ ...f, provider: e.target.value }))}>
-              {PROVIDERS.map(p => <option key={p} value={p}>{p}</option>)}
-            </select>
-          </div>
-          <div>
-            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '10px', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Category</p>
-            <select style={selectStyle} value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))}>
-              <option value="image">image</option>
-              <option value="video">video</option>
-            </select>
-          </div>
-        </div>
-        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', paddingTop: '4px' }}>
-          <button style={btnSecondary} onClick={onCancel}>Cancel</button>
-          <button style={btnPrimary} onClick={() => onSave(form)}>Save</button>
-        </div>
-      </div>
-    )
-  }
 
   const backdrop: React.CSSProperties = { position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(6px)' }
   const modalCard = (width: string): React.CSSProperties => ({ background: '#0c0c12', border: '0.5px solid rgba(255,255,255,0.1)', borderRadius: '16px', padding: '24px', width, maxWidth: '92vw', maxHeight: '85vh', overflowY: 'auto' })

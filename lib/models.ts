@@ -20,10 +20,6 @@ export type AIModel = {
 
 export type PublicModel = Omit<AIModel, 'api_key_env' | 'api_secret_env'>
 
-type CacheEntry = { data: AIModel[]; expiresAt: number }
-const cache = new Map<string, CacheEntry>()
-const TTL_MS = 5 * 60 * 1000
-
 async function fetchFromSupabase(category?: string): Promise<AIModel[]> {
   let query = supabaseAdmin
     .from('ai_models')
@@ -49,24 +45,11 @@ async function fetchFromSupabase(category?: string): Promise<AIModel[]> {
 }
 
 export async function getModels(category: 'image' | 'video'): Promise<AIModel[]> {
-  const entry = cache.get(category)
-  if (entry && Date.now() < entry.expiresAt) return entry.data
-
-  const data = await fetchFromSupabase(category)
-  cache.set(category, { data, expiresAt: Date.now() + TTL_MS })
-  return data
+  return fetchFromSupabase(category)
 }
 
 export async function getModelById(id: string): Promise<AIModel> {
-  const entry = cache.get('all')
-  if (entry && Date.now() < entry.expiresAt) {
-    const found = entry.data.find(m => m.id === id)
-    if (found) return found
-  }
-
   const data = await fetchFromSupabase()
-  cache.set('all', { data, expiresAt: Date.now() + TTL_MS })
-
   const model = data.find(m => m.id === id)
   if (!model) throw new Error(`Model not found or disabled: ${id}`)
   return model
@@ -86,6 +69,4 @@ export function resolveApiKey(model: AIModel): { apiKey: string; apiSecret: stri
   return { apiKey, apiSecret }
 }
 
-export function invalidateModelsCache(): void {
-  cache.clear()
-}
+export function invalidateModelsCache(): void {}
