@@ -193,16 +193,17 @@ export default function ImageDashboard() {
 
     setLoadingCount(c => c + 1);
     setError('');
+    const currentPrompt = prompt;
     const uploadedUrls = uploadedImages.filter(img => !img.uploading).map(img => img.url);
     setPrompt('');
     setUploadedImages([]);
 
     try {
-      localStorage.setItem('image_generation_pending', JSON.stringify({ prompt, startTime: Date.now(), quality, aspectRatio }));
+      localStorage.setItem('image_generation_pending', JSON.stringify({ prompt: currentPrompt, startTime: Date.now(), quality, aspectRatio }));
       const response = await fetch('/api/generate-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, modelId: selectedModelId, imageUrls: uploadedUrls, aspectRatio, resolution: quality }),
+        body: JSON.stringify({ prompt: currentPrompt, modelId: selectedModelId, imageUrls: uploadedUrls, aspectRatio, resolution: quality }),
       });
 
       let data;
