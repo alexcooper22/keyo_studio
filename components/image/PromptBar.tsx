@@ -462,7 +462,7 @@ export default function PromptBar({
               background: noCredits ? 'rgba(255,255,255,0.05)' : undefined,
               border: noCredits ? '0.5px solid rgba(255,255,255,0.08)' : 'none',
               color: noCredits ? 'rgba(255,255,255,0.25)' : '#fff',
-              cursor: (isLoaded && !!isSignedIn && (!prompt.trim() || noCredits)) ? 'not-allowed' : 'pointer',
+              cursor: (isLoaded && !!isSignedIn && noCredits) ? 'not-allowed' : 'pointer',
             }}
           >
             <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg>
