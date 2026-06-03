@@ -8,30 +8,24 @@ import Lightbox, { type ImageDetails } from '../../components/image/Lightbox';
 import { useAuth } from '../../context/AuthContext';
 import { useUser } from '@clerk/nextjs';
 
-const compressImage = async (base64: string): Promise<Blob> => {
+const compressImage = (file: File): Promise<Blob> => {
   return new Promise((resolve) => {
+    const url = URL.createObjectURL(file);
     const img = new window.Image();
     img.onload = () => {
-      const canvas = document.createElement('canvas');
       const maxSize = 1024;
-      let width = img.width;
-      let height = img.height;
+      let { width, height } = img;
       if (width > maxSize || height > maxSize) {
-        if (width > height) {
-          height = (height / width) * maxSize;
-          width = maxSize;
-        } else {
-          width = (width / height) * maxSize;
-          height = maxSize;
-        }
+        if (width > height) { height = (height / width) * maxSize; width = maxSize; }
+        else { width = (width / height) * maxSize; height = maxSize; }
       }
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext('2d')!;
-      ctx.drawImage(img, 0, 0, width, height);
-      canvas.toBlob((blob) => resolve(blob!), 'image/jpeg', 0.8);
+      const canvas = document.createElement('canvas');
+      canvas.width = width; canvas.height = height;
+      canvas.getContext('2d')!.drawImage(img, 0, 0, width, height);
+      URL.revokeObjectURL(url);
+      canvas.toBlob((blob) => resolve(blob!), 'image/jpeg', 0.85);
     };
-    img.src = base64;
+    img.src = url;
   });
 };
 
@@ -277,8 +271,12 @@ export default function ImageDashboard() {
       const previewUrl = URL.createObjectURL(file);
       setUploadedImages(prev => [...prev, { url: previewUrl, uploading: true, tempId }]);
       try {
+        const needsCompression = file.size > 4.5 * 1024 * 1024;
+        const fileToUpload = needsCompression
+          ? new File([await compressImage(file)], 'image.jpg', { type: 'image/jpeg' })
+          : file;
         const formData = new FormData();
-        formData.append('file', file);
+        formData.append('file', fileToUpload);
         const res = await fetch('/api/upload-image', { method: 'POST', body: formData });
         const data = await res.json();
         if (res.ok && data.url) {
