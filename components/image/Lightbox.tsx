@@ -227,7 +227,7 @@ export default function Lightbox({ image, allImages, user, onClose, onNavigate, 
         </div>
       )}
 
-      <img src={image.url} alt="Full view" style={{ maxWidth: '100%', maxHeight: '88vh', objectFit: 'contain', borderRadius: '12px' }} onClick={e => e.stopPropagation()} />
+      <img src={image.url} alt="Full view" style={{ maxWidth: '100%', maxHeight: '88vh', objectFit: 'contain' }} onClick={e => e.stopPropagation()} />
 
       {/* Side panel */}
       <div style={{ position: 'fixed', right: 0, top: 0, height: '100vh', width: '300px', background: '#0a0a0e', borderLeft: '0.5px solid rgba(255,255,255,0.07)', overflowY: 'auto', overflowX: 'hidden', display: 'flex', flexDirection: 'column' }} onClick={e => e.stopPropagation()}>
