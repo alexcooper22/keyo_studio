@@ -202,8 +202,6 @@ export default function ImageDashboard() {
     setError('');
     const currentPrompt = prompt;
     const uploadedUrls = uploadedImages.filter(img => !img.uploading).map(img => img.url);
-    setPrompt('');
-    setUploadedImages([]);
 
     try {
       localStorage.setItem('image_generation_pending', JSON.stringify({ prompt: currentPrompt, startTime: Date.now(), quality, aspectRatio }));
