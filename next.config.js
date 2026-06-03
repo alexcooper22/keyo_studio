@@ -30,7 +30,7 @@ const nextConfig = {
       "object-src 'none'",
       "worker-src 'self' blob:",
       "base-uri 'self'",
-      "form-action 'self'",
+      "form-action 'self' https://www.liqpay.ua",
       "frame-ancestors 'none'",
       "upgrade-insecure-requests",
     ].join('; ');

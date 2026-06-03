@@ -17,9 +17,14 @@ function sign(data: string): string {
     .digest('base64')
 }
 
-export function buildCheckoutUrl(params: Record<string, string>): string {
+export function buildCheckoutParams(params: Record<string, string>): { data: string; signature: string } {
   const data = Buffer.from(JSON.stringify(params)).toString('base64')
   const signature = sign(data)
+  return { data, signature }
+}
+
+export function buildCheckoutUrl(params: Record<string, string>): string {
+  const { data, signature } = buildCheckoutParams(params)
   return `https://www.liqpay.ua/api/3/checkout?data=${encodeURIComponent(data)}&signature=${encodeURIComponent(signature)}`
 }
 

@@ -48,10 +48,21 @@ export default function PricingPage() {
         body: JSON.stringify({ plan }),
       });
       const data = await res.json();
-      if (data.url) {
-        window.location.href = data.url;
+      if (data.data && data.signature) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'https://www.liqpay.ua/api/3/checkout';
+        form.acceptCharset = 'utf-8';
+        const dataInput = document.createElement('input');
+        dataInput.type = 'hidden'; dataInput.name = 'data'; dataInput.value = data.data;
+        const sigInput = document.createElement('input');
+        sigInput.type = 'hidden'; sigInput.name = 'signature'; sigInput.value = data.signature;
+        form.appendChild(dataInput);
+        form.appendChild(sigInput);
+        document.body.appendChild(form);
+        form.submit();
       } else {
-        alert('Something went wrong. Please try again.');
+        alert(data.error || 'Something went wrong. Please try again.');
         setLoadingPlan(null);
       }
     } catch {
@@ -85,7 +96,7 @@ export default function PricingPage() {
         }} />
 
         {/* ── Hero ── */}
-        <div className="relative" style={{ padding: '60px 32px 40px', textAlign: 'center' }}>
+        <div className="relative px-5 md:px-8" style={{ paddingTop: '60px', paddingBottom: '40px', textAlign: 'center' }}>
 
           {/* Top shimmer */}
           <div aria-hidden="true" style={{
@@ -135,11 +146,11 @@ export default function PricingPage() {
         </div>
 
         {/* ── Cards ── */}
-        <div style={{ maxWidth: '760px', margin: '0 auto', padding: '0 32px 60px', marginTop: '-16px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 px-4 md:px-8" style={{ maxWidth: '760px', margin: '-16px auto 0', paddingBottom: '60px', gap: '16px' }}>
           {plans.map((plan) => (
             <div
               key={plan.id}
-              className="relative flex flex-col"
+              className={`relative flex flex-col${plan.featured ? ' order-first md:order-none' : ''}`}
               style={{
                 background: plan.featured
                   ? 'radial-gradient(ellipse 100% 55% at 50% 0%, rgba(83,47,207,0.28) 0%, rgba(83,47,207,0.08) 55%, rgba(83,47,207,0) 100%), #0e0e0e'
@@ -148,7 +159,7 @@ export default function PricingPage() {
                   ? '0.5px solid rgba(100,65,220,0.55)'
                   : '0.5px solid rgba(255,255,255,0.07)',
                 borderRadius: '18px',
-                padding: '32px 28px 28px',
+                padding: 'clamp(20px, 5vw, 32px) clamp(16px, 4vw, 28px) clamp(20px, 4vw, 28px)',
                 boxShadow: plan.featured
                   ? '0 0 0 1px rgba(83,47,207,0.06), 0 24px 60px rgba(83,47,207,0.2), inset 0 1px 0 rgba(140,100,255,0.18)'
                   : 'inset 0 1px 0 rgba(255,255,255,0.03)',
@@ -186,7 +197,7 @@ export default function PricingPage() {
               {/* Price */}
               <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0', marginBottom: '20px' }}>
                 <span style={{ color: 'rgba(255,255,255,0.28)', fontSize: '18px', fontWeight: 400, marginBottom: '7px', marginRight: '3px' }}>$</span>
-                <span className="font-clash" style={{ color: '#fff', fontSize: '52px', fontWeight: 700, letterSpacing: '-3px', lineHeight: 1 }}>{plan.price_usd}</span>
+                <span className="font-clash" style={{ color: '#fff', fontSize: 'clamp(40px, 10vw, 52px)', fontWeight: 700, letterSpacing: '-3px', lineHeight: 1 }}>{plan.price_usd}</span>
                 <span style={{ color: 'rgba(255,255,255,0.22)', fontSize: '13px', marginBottom: '8px', marginLeft: '6px' }}>/mo</span>
               </div>
 
@@ -266,7 +277,7 @@ export default function PricingPage() {
         </div>
 
         {/* Footer note */}
-        <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.2)', fontSize: '12px', paddingBottom: '48px' }}>
+        <div className="px-4" style={{ textAlign: 'center', color: 'rgba(255,255,255,0.2)', fontSize: '12px', paddingBottom: '48px' }}>
           No contracts · Cancel anytime ·{' '}
           <a href="mailto:hello@keyo.studio" style={{ color: 'rgba(120,80,255,0.7)', textDecoration: 'none' }}>
             Enterprise plan →
