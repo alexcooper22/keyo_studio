@@ -279,7 +279,7 @@ export default function PromptBar({
                 className="flex items-center gap-1.5 font-dm transition-colors min-w-0"
                 style={{
                   height: '30px', padding: '0 8px', borderRadius: '8px',
-                  maxWidth: '110px',
+                  maxWidth: '160px',
                   background: isModelDropdownOpen ? 'rgba(83,47,207,0.15)' : 'rgba(255,255,255,0.05)',
                   border: isModelDropdownOpen ? '0.5px solid rgba(83,47,207,0.4)' : '0.5px solid rgba(255,255,255,0.08)',
                   color: isModelDropdownOpen ? 'rgba(160,120,255,0.9)' : 'rgba(255,255,255,0.45)',
