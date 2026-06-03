@@ -17,7 +17,7 @@ interface PromptBarProps {
   isSignedIn: boolean | null | undefined;
   creditCount: number | null;
   creditCost: number;
-  models: Array<{ id: string; name: string; pricing: Array<{ quality: string; credits: number }> }>;
+  models: Array<{ id: string; name: string; provider: string; pricing: Array<{ quality: string; credits: number }> }>;
   selectedModelId: string;
   onModelChange: (id: string) => void;
   aspectRatio: string;
@@ -299,32 +299,83 @@ export default function PromptBar({
                 <Portal>
                   <div className="fixed inset-0 z-[40]" onMouseDown={() => setIsModelDropdownOpen(false)} />
                   <div
-                    className="fixed z-[60] w-[220px] overflow-hidden"
+                    className="fixed z-[60] w-[260px]"
                     onMouseDown={e => e.stopPropagation()}
                     style={{
                       bottom: `${modelPopupPos.bottom}px`, left: `${modelPopupPos.left}px`,
                       background: 'rgba(12,12,18,0.98)', border: '0.5px solid rgba(255,255,255,0.1)',
-                      borderRadius: '12px', boxShadow: '0 16px 40px rgba(0,0,0,0.5)',
+                      borderRadius: '14px', boxShadow: '0 16px 40px rgba(0,0,0,0.6)',
+                      maxHeight: '400px', overflowY: 'auto',
                     }}
                   >
-                    {models.map(m => (
-                      <button
-                        key={m.id}
-                        onClick={() => { onModelChange(m.id); setIsModelDropdownOpen(false); }}
-                        className="w-full text-left px-3 py-2.5 transition-colors"
-                        style={{
-                          background: selectedModelId === m.id ? 'rgba(83,47,207,0.12)' : 'none',
-                          borderBottom: '0.5px solid rgba(255,255,255,0.04)',
-                        }}
-                        onMouseEnter={e => { if (selectedModelId !== m.id) e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
-                        onMouseLeave={e => { if (selectedModelId !== m.id) e.currentTarget.style.background = 'none'; }}
-                      >
-                        <div className="font-dm font-medium text-[12px]" style={{ color: selectedModelId === m.id ? 'rgba(160,120,255,0.9)' : 'rgba(255,255,255,0.75)' }}>{m.name}</div>
-                        <div className="font-dm text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.3)' }}>
-                          {m.pricing.find(p => p.quality === quality)?.credits ?? '?'} credits
+                    {(() => {
+                      const providerNames: Record<string, string> = { google: 'Google', openai: 'OpenAI', alibaba: 'Alibaba', kling: 'Kling' };
+                      const providerIcons: Record<string, React.ReactNode> = {
+                        google: (
+                          <svg width="16" height="16" viewBox="0 0 24 24">
+                            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+                            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                          </svg>
+                        ),
+                        openai: (
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="rgba(200,200,200,0.85)">
+                            <path d="M22.282 9.821a5.985 5.985 0 0 0-.516-4.91 6.046 6.046 0 0 0-6.51-2.9A6.065 6.065 0 0 0 4.981 4.18a5.985 5.985 0 0 0-3.998 2.9 6.046 6.046 0 0 0 .743 7.097 5.98 5.98 0 0 0 .51 4.911 6.051 6.051 0 0 0 6.515 2.9A5.985 5.985 0 0 0 13.26 24a6.056 6.056 0 0 0 5.772-4.206 5.99 5.99 0 0 0 3.997-2.9 6.056 6.056 0 0 0-.747-7.073zM13.26 22.43a4.476 4.476 0 0 1-2.876-1.04l.141-.081 4.779-2.758a.795.795 0 0 0 .392-.681v-6.737l2.02 1.168a.071.071 0 0 1 .038.052v5.583a4.504 4.504 0 0 1-4.494 4.494zM3.6 18.304a4.47 4.47 0 0 1-.535-3.014l.142.085 4.783 2.759a.771.771 0 0 0 .78 0l5.843-3.369v2.332a.08.08 0 0 1-.033.062L9.74 19.95a4.5 4.5 0 0 1-6.14-1.646zM2.34 7.896a4.485 4.485 0 0 1 2.366-1.973V11.6a.766.766 0 0 0 .388.676l5.815 3.355-2.02 1.168a.076.076 0 0 1-.071 0l-4.83-2.786A4.504 4.504 0 0 1 2.34 7.886zm16.597 3.855l-5.833-3.387L15.119 7.2a.076.076 0 0 1 .071 0l4.83 2.791a4.494 4.494 0 0 1-.676 8.105v-5.678a.79.79 0 0 0-.407-.667zm2.01-3.023l-.141-.085-4.774-2.782a.776.776 0 0 0-.785 0L9.409 9.23V6.897a.066.066 0 0 1 .027-.057l4.83-2.791a4.5 4.5 0 0 1 6.68 4.66zm-12.64 4.135l-2.02-1.164a.08.08 0 0 1-.038-.057V6.075a4.5 4.5 0 0 1 7.375-3.453l-.142.08L8.704 5.46a.795.795 0 0 0-.393.681zm1.097-2.365l2.602-1.5 2.607 1.5v2.999l-2.597 1.5-2.607-1.5z"/>
+                          </svg>
+                        ),
+                        alibaba: (
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 2a10 10 0 1 0 6.32 17.74l1.47 1.47 1.41-1.41-1.47-1.47A10 10 0 0 0 12 2zm0 2a8 8 0 1 1-4.9 14.32l1.72-1.72A5.5 5.5 0 1 0 7.4 14.9L5.68 16.6A8 8 0 0 1 12 4zm0 3a5.5 5.5 0 1 0 3.18 9.94l-1.44-1.44A3.5 3.5 0 1 1 15.5 12c0 .7-.21 1.36-.56 1.9l1.44 1.44A5.48 5.48 0 0 0 17.5 12 5.5 5.5 0 0 0 12 7z" fill="#FF6A00"/>
+                          </svg>
+                        ),
+                        kling: (
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path d="M19 3H5C3.9 3 3 3.9 3 5v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3l5 6-5 6V6z" fill="rgba(100,180,255,0.85)"/>
+                          </svg>
+                        ),
+                      };
+                      const groups = models.reduce((acc, m) => {
+                        const p = m.provider || 'other';
+                        if (!acc[p]) acc[p] = [];
+                        acc[p].push(m);
+                        return acc;
+                      }, {} as Record<string, typeof models>);
+
+                      return Object.entries(groups).map(([provider, providerModels], gi) => (
+                        <div key={provider}>
+                          <div className="flex items-center gap-1.5 px-3 font-dm" style={{ padding: '10px 12px 6px', color: 'rgba(255,255,255,0.25)', fontSize: '10px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.7px', borderTop: gi > 0 ? '0.5px solid rgba(255,255,255,0.06)' : 'none' }}>
+                            <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '8px' }}>✦</span>
+                            {providerNames[provider] || provider}
+                          </div>
+                          {providerModels.map(m => {
+                            const isSelected = selectedModelId === m.id;
+                            const credits = m.pricing.find(p => p.quality === quality)?.credits;
+                            return (
+                              <button
+                                key={m.id}
+                                onClick={() => { onModelChange(m.id); setIsModelDropdownOpen(false); }}
+                                className="w-full text-left font-dm transition-colors flex items-center gap-2.5"
+                                style={{ padding: '8px 12px', background: isSelected ? 'rgba(83,47,207,0.12)' : 'none' }}
+                                onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
+                                onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = 'none'; }}
+                              >
+                                <div style={{ width: '34px', height: '34px', borderRadius: '8px', flexShrink: 0, background: 'rgba(255,255,255,0.06)', border: '0.5px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                  {providerIcons[provider] || <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '11px', fontWeight: 700 }}>{provider[0].toUpperCase()}</span>}
+                                </div>
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                  <div style={{ fontSize: '12px', fontWeight: 500, color: isSelected ? 'rgba(160,120,255,0.9)' : 'rgba(255,255,255,0.8)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{m.name}</div>
+                                  <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.28)', marginTop: '1px' }}>{credits != null ? `${credits} credits` : '? credits'}</div>
+                                </div>
+                                {isSelected && (
+                                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(160,120,255,0.9)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><polyline points="20 6 9 17 4 12"/></svg>
+                                )}
+                              </button>
+                            );
+                          })}
                         </div>
-                      </button>
-                    ))}
+                      ));
+                    })()}
                   </div>
                 </Portal>
               )}

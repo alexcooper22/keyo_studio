@@ -1,132 +1,111 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { SignIn, SignUp } from '@clerk/nextjs';
+import Portal from '../ui/Portal';
 
 interface AuthModalProps {
   onClose: () => void;
+  authMode: 'login' | 'signup';
+  setAuthMode: (mode: 'login' | 'signup') => void;
 }
 
 const clerkAppearance = {
-  variables: {
-    colorPrimary: '#532fcf',
-    colorBackground: 'transparent',
-    colorText: '#f0f0f0',
-    colorInputBackground: 'rgba(255,255,255,0.06)',
-    colorInputText: '#f0f0f0',
-    borderRadius: '0.75rem',
-  },
   elements: {
     rootBox: 'w-full',
-    card: 'bg-transparent shadow-none border-none w-full !p-0',
-    headerTitle: 'hidden',
-    headerSubtitle: 'hidden',
-    header: 'hidden',
-    formButtonPrimary: 'bg-accent hover:brightness-110 font-dm font-semibold',
-    footerActionLink: 'text-accent',
-    socialButtonsBlockButton: { color: '#ffffff !important' },
-    socialButtonsBlockButtonText: { color: '#ffffff !important' },
-    formFieldInput: { fontSize: '16px', background: 'rgba(255,255,255,0.06)', border: '0.5px solid rgba(255,255,255,0.12)', color: '#f0f0f0' },
-    footer: { background: 'transparent' },
-    main: { gap: '12px' },
+    card: '!shadow-none !border-0 !rounded-none',
+    header: '!hidden',
+    formFieldInput: { fontSize: '16px' },
+    badge: '!bg-[rgba(83,47,207,0.08)] !text-[#7c5cf0] !border-[rgba(83,47,207,0.3)] !rounded-full !font-medium',
   },
 };
 
-export default function AuthModal({ onClose }: AuthModalProps) {
-  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
+export default function AuthModal({ onClose, authMode, setAuthMode }: AuthModalProps) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', onKey);
+    document.documentElement.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.documentElement.style.overflow = '';
+    };
+  }, [onClose]);
 
   return (
-    <div
-      className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/80 backdrop-blur-[6px] p-4"
-      onClick={onClose}
-    >
+    <Portal>
       <div
-        className="relative flex w-full overflow-hidden"
-        style={{ maxWidth: '860px', borderRadius: '20px', background: '#0d0d12', border: '0.5px solid rgba(255,255,255,0.08)', boxShadow: '0 32px 80px rgba(0,0,0,0.7)', maxHeight: '90vh' }}
-        onClick={(e) => e.stopPropagation()}
+        className="fixed inset-0 z-[500] flex items-center justify-center overflow-hidden p-4"
+        style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}
+        onClick={onClose}
       >
-        {/* Close button */}
-        <button
-          className="absolute z-20 flex items-center justify-center bg-black/40 backdrop-blur-sm border border-white/10 hover:bg-white/10 text-white/50 hover:text-white transition-all"
-          style={{ top: '14px', right: '14px', width: '30px', height: '30px', borderRadius: '50%', fontSize: '18px', lineHeight: 1 }}
-          onClick={onClose}
-          aria-label="Close"
-        >
-          ×
-        </button>
+        <div className="relative w-full" style={{ maxWidth: '820px' }} onClick={(e) => e.stopPropagation()}>
+          <div
+            className="flex overflow-hidden"
+            style={{
+              background: '#111111',
+              border: '0.5px solid rgba(83,47,207,0.35)',
+              borderRadius: '16px',
+              boxShadow: '0 0 0 1px rgba(83,47,207,0.08), 0 0 60px rgba(83,47,207,0.22), 0 20px 60px rgba(0,0,0,0.7)',
+              position: 'relative',
+              maxHeight: 'calc(100vh - 32px)',
+              alignItems: 'stretch',
+            }}
+          >
+            {/* LEFT: form panel */}
+            <div className="relative flex flex-col w-full md:w-[400px] flex-shrink-0" style={{ zIndex: 1, background: '#ffffff', height: 'min(600px, calc(100vh - 32px))' }}>
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '1px', background: 'linear-gradient(90deg, transparent 0%, rgba(120,80,255,0.4) 30%, rgba(83,47,207,0.8) 50%, rgba(120,80,255,0.4) 70%, transparent 100%)', pointerEvents: 'none', zIndex: 2 }} />
+              <div style={{ position: 'absolute', top: '-80px', left: '50%', transform: 'translateX(-50%)', width: '340px', height: '220px', background: 'radial-gradient(ellipse at center, rgba(83,47,207,0.22) 0%, transparent 68%)', pointerEvents: 'none' }} />
+              <div aria-hidden="true" style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(120,80,255,0.07) 1px, transparent 1px)', backgroundSize: '24px 24px', maskImage: 'radial-gradient(ellipse 90% 55% at 50% 0%, black 0%, transparent 80%)', WebkitMaskImage: 'radial-gradient(ellipse 90% 55% at 50% 0%, black 0%, transparent 80%)', pointerEvents: 'none' }} />
 
-        {/* LEFT — form panel */}
-        <div className="flex flex-col w-full md:w-[420px] flex-shrink-0 overflow-y-auto" style={{ padding: '36px 32px 32px' }}>
-          {/* Logo + heading */}
-          <div className="mb-6">
-            <div className="font-syne font-black text-white text-2xl mb-1">
-              keyo<span style={{ color: '#7c5cf0' }}>.studio</span>
+              <div className="relative flex flex-col items-center px-5 pt-5 pb-4" style={{ borderBottom: '0.5px solid rgba(83,47,207,0.15)' }}>
+                <button onClick={onClose} className="absolute top-4 right-4 text-white/20 hover:text-white/50 transition-colors" aria-label="Close">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+                <div style={{ display: 'inline-flex', alignItems: 'baseline', marginBottom: '16px' }}>
+                  <span style={{ fontFamily: 'var(--font-clash)', fontSize: '22px', fontWeight: 700, letterSpacing: '-0.02em', color: '#111111' }}>keyo</span>
+                  <span style={{ fontFamily: 'var(--font-clash)', fontSize: '22px', fontWeight: 700, letterSpacing: '-0.02em', background: 'linear-gradient(135deg, #7c5cf0 0%, #532fcf 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>.</span>
+                  <span style={{ fontFamily: 'var(--font-clash)', fontSize: '22px', fontWeight: 600, letterSpacing: '-0.02em', color: '#532fcf', opacity: 0.75 }}>studio</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  {(['login', 'signup'] as const).map((mode) => (
+                    <button key={mode} onClick={() => setAuthMode(mode)} className="font-dm font-[500] text-[13px] transition-all duration-150 px-3 py-1"
+                      style={{ background: authMode === mode ? 'rgba(83,47,207,0.1)' : 'transparent', border: authMode === mode ? '0.5px solid rgba(83,47,207,0.35)' : '0.5px solid rgba(0,0,0,0.1)', borderRadius: '20px', color: authMode === mode ? '#532fcf' : '#6b7280' }}>
+                      {mode === 'login' ? 'Login' : 'Sign up'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="keyo-auth-modal relative" style={{ padding: '0', marginTop: 'auto' }}>
+                {authMode === 'login' ? (
+                  <SignIn routing="hash" fallbackRedirectUrl="/" signUpUrl="/sign-up" appearance={clerkAppearance} />
+                ) : (
+                  <SignUp routing="hash" fallbackRedirectUrl="/" signInUrl="/sign-in" appearance={clerkAppearance} />
+                )}
+              </div>
             </div>
-            <p className="font-dm text-sm" style={{ color: 'rgba(255,255,255,0.4)' }}>
-              {mode === 'signin' ? 'Welcome back — sign in to continue' : 'Create your account for free'}
-            </p>
-          </div>
 
-          {/* Mode tabs */}
-          <div className="flex gap-1 mb-5 p-1 rounded-xl self-start" style={{ background: 'rgba(255,255,255,0.05)', border: '0.5px solid rgba(255,255,255,0.08)' }}>
-            {(['signin', 'signup'] as const).map((m) => (
-              <button
-                key={m}
-                onClick={() => setMode(m)}
-                className="font-dm text-sm transition-all"
-                style={{
-                  padding: '5px 16px',
-                  borderRadius: '9px',
-                  fontWeight: mode === m ? 600 : 400,
-                  background: mode === m ? 'linear-gradient(135deg, #532fcf 0%, #7c5cf0 100%)' : 'transparent',
-                  color: mode === m ? '#fff' : 'rgba(255,255,255,0.38)',
-                  border: 'none',
-                  cursor: 'pointer',
-                  boxShadow: mode === m ? '0 0 12px rgba(83,47,207,0.4)' : 'none',
-                  transition: 'all 0.2s',
-                }}
-              >
-                {m === 'signin' ? 'Sign In' : 'Sign Up'}
+            {/* RIGHT: showcase panel */}
+            <div className="hidden md:block flex-1 relative overflow-hidden">
+              <img src="/hero-bg.jpg" alt="" className="absolute inset-0 w-full h-full object-cover" />
+              <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.25) 50%, rgba(0,0,0,0.15) 100%)' }} />
+              <button onClick={onClose} className="absolute top-3 right-3 flex items-center justify-center transition-all" style={{ width: '32px', height: '32px', borderRadius: '10px', background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', border: '0.5px solid rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.7)' }} aria-label="Close">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               </button>
-            ))}
-          </div>
-
-          {/* Clerk */}
-          <div className="w-full">
-            {mode === 'signin' ? (
-              <SignIn routing="hash" fallbackRedirectUrl="/" appearance={clerkAppearance} />
-            ) : (
-              <SignUp routing="hash" fallbackRedirectUrl="/" appearance={clerkAppearance} />
-            )}
-          </div>
-        </div>
-
-        {/* RIGHT — showcase panel (hidden on mobile) */}
-        <div className="hidden md:block flex-1 relative overflow-hidden" style={{ minHeight: '560px' }}>
-          <img
-            src="/hero-bg.jpg"
-            alt=""
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-          {/* gradient overlay */}
-          <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.1) 100%)' }} />
-          {/* top accent line */}
-          <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(120,80,255,0.6), transparent)' }} />
-
-          {/* bottom text */}
-          <div className="absolute bottom-0 left-0 right-0 p-8">
-            <div className="inline-flex items-center gap-1.5 mb-3 px-2.5 py-1 rounded-full" style={{ background: 'rgba(120,80,255,0.2)', border: '0.5px solid rgba(120,80,255,0.4)' }}>
-              <div className="w-1.5 h-1.5 rounded-full bg-purple-400" />
-              <span className="font-dm text-xs font-medium" style={{ color: 'rgba(200,170,255,0.9)' }}>AI Creative Studio</span>
+              <div className="absolute inset-y-0 left-0 w-8" style={{ background: 'linear-gradient(to right, #111111, transparent)' }} />
+              <div className="absolute bottom-0 left-0 right-0 p-7">
+                <div className="inline-flex items-center gap-1.5 mb-3 px-2.5 py-1 rounded-full" style={{ background: 'rgba(120,80,255,0.18)', border: '0.5px solid rgba(120,80,255,0.35)' }}>
+                  <div className="w-1.5 h-1.5 rounded-full bg-purple-400" />
+                  <span className="font-dm text-xs font-medium" style={{ color: 'rgba(200,170,255,0.9)' }}>AI Creative Studio</span>
+                </div>
+                <h2 className="text-white text-2xl leading-tight mb-2" style={{ fontFamily: 'var(--font-clash)', fontWeight: 700, letterSpacing: '-0.02em' }}>
+                  Generate stunning<br />images with AI
+                </h2>
+                <p className="font-dm text-sm" style={{ color: 'rgba(255,255,255,0.4)' }}>Powered by Gemini, Flux, SDXL and more.</p>
+              </div>
             </div>
-            <h2 className="font-syne font-black text-white text-3xl leading-tight mb-2">
-              Generate stunning<br />images with AI
-            </h2>
-            <p className="font-dm text-sm" style={{ color: 'rgba(255,255,255,0.45)' }}>
-              Powered by the latest models — Gemini, Flux, SDXL and more.
-            </p>
           </div>
         </div>
       </div>
-    </div>
+    </Portal>
   );
 }

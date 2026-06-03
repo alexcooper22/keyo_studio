@@ -6,18 +6,16 @@ import { useUser } from '@clerk/nextjs';
 import { useEffect } from 'react';
 
 function AuthModalManager() {
-  const { showModal, setShowModal } = useAuth();
+  const { showModal, setShowModal, authMode, setAuthMode } = useAuth();
   const { isSignedIn } = useUser();
-  
+
   useEffect(() => {
-    if (isSignedIn && showModal) {
-      setShowModal(false);
-    }
+    if (isSignedIn && showModal) setShowModal(false);
   }, [isSignedIn, showModal, setShowModal]);
-  
+
   if (!showModal) return null;
-  
-  return <AuthModal onClose={() => setShowModal(false)} />;
+
+  return <AuthModal onClose={() => setShowModal(false)} authMode={authMode} setAuthMode={setAuthMode} />;
 }
 
 export default function Providers({ children }: { children: React.ReactNode }) {

@@ -39,7 +39,7 @@ export default function ImageDashboard() {
   const [uploadedImages, setUploadedImages] = useState<Array<{ url: string; uploading?: boolean; tempId?: string }>>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [creditCount, setCreditCount] = useState<number | null>(null);
-  const [imageModels, setImageModels] = useState<Array<{ id: string; name: string; pricing: Array<{ quality: string; credits: number; unit: string; cost_usd: number }> }>>([]);
+  const [imageModels, setImageModels] = useState<Array<{ id: string; name: string; provider: string; pricing: Array<{ quality: string; credits: number; unit: string; cost_usd: number }> }>>([]);
   const [selectedModelId, setSelectedModelId] = useState('');
   const [error, setError] = useState('');
   const [aspectRatio, setAspectRatio] = useState('4:3');
@@ -296,6 +296,68 @@ export default function ImageDashboard() {
   const removeImage = (indexToRemove: number) => {
     setUploadedImages(prev => prev.filter((_, i) => i !== indexToRemove));
   };
+
+  if (isLoaded && !isSignedIn) {
+    return (
+      <div className="min-h-screen relative overflow-hidden flex flex-col" style={{ background: '#0a0c10' }}>
+        <Navbar />
+        {/* radial glow */}
+        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 70% 55% at 50% 50%, rgba(60,80,160,0.28) 0%, rgba(40,55,120,0.1) 45%, transparent 70%)', pointerEvents: 'none' }} />
+
+        {/* center content */}
+        <div className="flex-1 flex flex-col items-center justify-center relative z-10 px-6 text-center">
+          {/* corner brackets */}
+          {[['top-0 left-0', 'border-t border-l', '-translate-x-px -translate-y-px'],
+            ['top-0 right-0', 'border-t border-r', 'translate-x-px -translate-y-px'],
+            ['bottom-0 left-0', 'border-b border-l', '-translate-x-px translate-y-px'],
+            ['bottom-0 right-0', 'border-b border-r', 'translate-x-px translate-y-px'],
+          ].map(([pos, border, translate], i) => (
+            <div key={i} className={`absolute ${pos} ${translate}`} style={{ width: '36px', height: '36px' }}>
+              <div className={`w-full h-full ${border}`} style={{ borderColor: 'rgba(100,130,210,0.35)' }} />
+            </div>
+          ))}
+
+          <p className="font-dm mb-5 tracking-[0.2em] uppercase" style={{ fontSize: '11px', color: 'rgba(140,160,220,0.55)', letterSpacing: '0.18em' }}>
+            Keyo Image Studio
+          </p>
+          <h1 className="font-clash" style={{
+            fontSize: 'clamp(32px, 6vw, 72px)',
+            fontWeight: 700,
+            lineHeight: 1.1,
+            letterSpacing: '-0.02em',
+            background: 'linear-gradient(135deg, #7090e8 0%, #5b7fe0 35%, #8ba4f0 65%, #a8c0ff 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            maxWidth: '680px',
+          }}>
+            What would you imagine if anything was possible?
+          </h1>
+        </div>
+
+        <PromptBar
+          prompt={prompt}
+          onPromptChange={setPrompt}
+          onGenerate={handleGenerate}
+          isLoading={loadingCount > 0}
+          isLoaded={isLoaded}
+          isSignedIn={isSignedIn}
+          creditCount={creditCount}
+          creditCost={creditCost}
+          models={imageModels}
+          selectedModelId={selectedModelId}
+          onModelChange={setSelectedModelId}
+          aspectRatio={aspectRatio}
+          onAspectRatioChange={setAspectRatio}
+          quality={quality}
+          onQualityChange={setQuality}
+          uploadedImages={uploadedImages}
+          onImageUpload={handleImageUpload}
+          onRemoveImage={removeImage}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[var(--bg)] pb-[200px] md:pb-[120px] relative" style={{ paddingTop: '64px' }}>
