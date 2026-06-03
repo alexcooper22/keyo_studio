@@ -328,6 +328,37 @@ export default function VideoDashboard() {
   const perSecond = selectedVideoModel?.pricing.find(p => p.quality === quality)?.credits ?? (quality === '1080p' ? 4 : 3);
   const videoCreditCost = (perSecond + (audioEnabled ? 1 : 0)) * duration;
 
+  const videoHero = (
+    <>
+      <div className="inline-flex items-center gap-2" style={{ background: 'rgba(83,47,207,0.1)', border: '0.5px solid rgba(83,47,207,0.3)', borderRadius: '20px', padding: '4px 12px', marginBottom: '20px', position: 'relative' }}>
+        <span style={{ color: 'rgba(120,80,255,0.8)', fontSize: '9px' }}>✦</span>
+        <span className="font-dm" style={{ color: 'rgba(120,80,255,0.7)', fontSize: '11px', fontWeight: 500, letterSpacing: '0.8px', textTransform: 'uppercase' }}>AI Video Studio</span>
+      </div>
+      <h1 style={{ fontWeight: 700, lineHeight: 1.05, marginBottom: '16px', position: 'relative' }}>
+        <span className="font-clash" style={{ display: 'block', fontSize: 'clamp(22px, 3.2vw, 34px)', letterSpacing: '-0.01em', color: 'rgba(255,255,255,0.85)' }}>
+          Turn ideas into
+        </span>
+        <span className="font-clash" style={{ display: 'block', fontSize: 'clamp(64px, 12vw, 110px)', letterSpacing: '-0.04em', lineHeight: 0.93, background: 'linear-gradient(135deg, #c4b0ff 0%, #9b7eff 40%, #6b4ef5 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+          videos
+        </span>
+        <span className="font-clash" style={{ display: 'block', fontSize: 'clamp(22px, 3.2vw, 34px)', letterSpacing: '-0.01em', color: 'rgba(255,255,255,0.85)', marginTop: '6px' }}>
+          using{' '}
+          <span style={{ background: 'linear-gradient(135deg, #c4b0ff 0%, #9b7eff 50%, #7c5cf0 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>keyo.studio</span>
+        </span>
+      </h1>
+      <p className="font-dm" style={{ fontSize: '13px', color: 'rgba(180,160,230,0.45)', marginBottom: '36px', position: 'relative' }}>
+        Infrastructure for AI Video Generation
+      </p>
+      <button
+        onClick={() => setShowModal(true)}
+        style={{ background: 'linear-gradient(135deg, #7c5cf0 0%, #9b7eff 100%)', border: 'none', borderRadius: '12px', padding: '14px 40px', fontSize: '15px', fontWeight: 700, fontFamily: 'var(--font-dm)', color: '#fff', cursor: 'pointer', boxShadow: '0 4px 24px rgba(83,47,207,0.45), inset 0 1px 0 rgba(255,255,255,0.15)', display: 'inline-flex', alignItems: 'center', gap: '8px', position: 'relative' }}
+      >
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v14l11-7-11-7z"/></svg>
+        Try for free
+      </button>
+    </>
+  );
+
 
   return (
     <div className={`video-root${isLoaded && !isSignedIn ? ' mobile-locked' : ''}`} style={{ paddingTop: '94px', background: 'var(--bg)', minHeight: '100vh' }}>
@@ -362,7 +393,7 @@ export default function VideoDashboard() {
 
         {/* MOBILE HERO — unauthenticated only */}
         {isLoaded && !isSignedIn && (
-          <div className="flex md:hidden flex-col items-center justify-center text-center relative px-6" style={{ minHeight: 'calc(100vh - 94px)', overflow: 'hidden' }}>
+          <div className="flex md:hidden flex-col items-center justify-start text-center relative px-6" style={{ minHeight: 'calc(100vh - 94px)', overflow: 'hidden', paddingTop: '15vh' }}>
             {/* Purple ambient orbs — mirrors homepage */}
             <div aria-hidden style={{ position: 'absolute', top: '-10%', left: '50%', transform: 'translateX(-50%)', width: '500px', height: '500px', background: 'radial-gradient(ellipse at center, rgba(83,47,207,0.28) 0%, rgba(60,30,180,0.12) 40%, transparent 70%)', borderRadius: '50%', pointerEvents: 'none' }} />
             <div aria-hidden style={{ position: 'absolute', top: '20%', left: '-20%', width: '350px', height: '350px', background: 'radial-gradient(ellipse at center, rgba(100,50,220,0.14) 0%, transparent 65%)', borderRadius: '50%', pointerEvents: 'none' }} />
@@ -411,6 +442,7 @@ export default function VideoDashboard() {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '8px',
+                marginTop: '20px',
               }}
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v14l11-7-11-7z"/></svg>
