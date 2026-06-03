@@ -321,7 +321,7 @@ export default function ImageDashboard() {
             Keyo Image Studio
           </p>
           <h1 className="font-clash" style={{
-            fontSize: 'clamp(32px, 6vw, 72px)',
+            fontSize: 'clamp(44px, 6vw, 72px)',
             fontWeight: 700,
             lineHeight: 1.1,
             letterSpacing: '-0.02em',
@@ -331,7 +331,7 @@ export default function ImageDashboard() {
             backgroundClip: 'text',
             maxWidth: '680px',
           }}>
-            What would you imagine if anything was possible?
+            What would you<br className="block md:hidden" /> imagine<br className="block md:hidden" /> if anything was possible?
           </h1>
         </div>
 

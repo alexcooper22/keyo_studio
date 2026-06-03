@@ -2,6 +2,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Navbar from '../../components/layout/Navbar';
 import { fetchModelsWithCache } from '../../lib/modelCache';
+import { useUser } from '@clerk/nextjs';
+import { useAuth } from '../../context/AuthContext';
 
 interface VideoItem {
   id: string;
@@ -14,6 +16,8 @@ interface VideoItem {
 }
 
 export default function VideoDashboard() {
+  const { isLoaded, isSignedIn } = useUser();
+  const { setShowModal } = useAuth();
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [videos, setVideos] = useState<VideoItem[]>([]);
@@ -324,6 +328,7 @@ export default function VideoDashboard() {
   const perSecond = selectedVideoModel?.pricing.find(p => p.quality === quality)?.credits ?? (quality === '1080p' ? 4 : 3);
   const videoCreditCost = (perSecond + (audioEnabled ? 1 : 0)) * duration;
 
+
   return (
     <div className="video-root" style={{ paddingTop: '94px', background: 'var(--bg)', minHeight: '100vh' }}>
       <Navbar />
@@ -504,13 +509,25 @@ export default function VideoDashboard() {
           )}
           {/* Empty state */}
           {videos.length === 0 && !isGenerating && (
-            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 'calc(100vh - 154px)' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-                <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: 'rgba(83,47,207,0.08)', border: '0.5px solid rgba(83,47,207,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <div style={{ width: 0, height: 0, borderTop: '9px solid transparent', borderBottom: '9px solid transparent', borderLeft: '16px solid rgba(120,80,255,0.3)', marginLeft: '4px' }}></div>
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 'calc(100vh - 154px)', position: 'relative' }}>
+              {isLoaded && !isSignedIn ? (
+                <div style={{ textAlign: 'center', padding: '0 24px', position: 'relative' }}>
+                  {[['top-0 left-0', '-translate-x-px -translate-y-px'], ['top-0 right-0', 'translate-x-px -translate-y-px'], ['bottom-0 left-0', '-translate-x-px translate-y-px'], ['bottom-0 right-0', 'translate-x-px translate-y-px']].map(([pos, translate], i) => (
+                    <div key={i} className={`absolute ${pos} ${translate}`} style={{ width: '28px', height: '28px', border: `0.5px solid rgba(100,130,210,0.3)`, borderRadius: '0', ...(i === 0 ? { borderRight: 'none', borderBottom: 'none' } : i === 1 ? { borderLeft: 'none', borderBottom: 'none' } : i === 2 ? { borderRight: 'none', borderTop: 'none' } : { borderLeft: 'none', borderTop: 'none' }) }} />
+                  ))}
+                  <p style={{ fontSize: '10px', color: 'rgba(140,160,220,0.5)', letterSpacing: '0.18em', textTransform: 'uppercase', fontFamily: 'var(--font-dm)', marginBottom: '16px' }}>Keyo Video Studio</p>
+                  <h2 style={{ fontSize: 'clamp(28px, 4vw, 54px)', fontWeight: 700, lineHeight: 1.1, letterSpacing: '-0.02em', background: 'linear-gradient(135deg, #7090e8 0%, #5b7fe0 35%, #8ba4f0 65%, #a8c0ff 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', maxWidth: '520px', fontFamily: 'var(--font-clash)' }}>
+                    What story would you tell with unlimited frames?
+                  </h2>
                 </div>
-                <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.25)' }}>Your videos will appear here</span>
-              </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: 'rgba(83,47,207,0.08)', border: '0.5px solid rgba(83,47,207,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div style={{ width: 0, height: 0, borderTop: '9px solid transparent', borderBottom: '9px solid transparent', borderLeft: '16px solid rgba(120,80,255,0.3)', marginLeft: '4px' }}></div>
+                  </div>
+                  <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.25)' }}>Your videos will appear here</span>
+                </div>
+              )}
             </div>
           )}
           {/* Video list */}
