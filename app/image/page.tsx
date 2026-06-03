@@ -299,13 +299,13 @@ export default function ImageDashboard() {
 
   if (isLoaded && !isSignedIn) {
     return (
-      <div className="min-h-screen relative overflow-hidden flex flex-col" style={{ background: '#0a0c10' }}>
+      <div className="relative overflow-hidden flex flex-col" style={{ background: '#0a0c10', height: '100dvh', overflow: 'hidden' }}>
         <Navbar />
         {/* radial glow */}
         <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 70% 55% at 50% 50%, rgba(60,80,160,0.28) 0%, rgba(40,55,120,0.1) 45%, transparent 70%)', pointerEvents: 'none' }} />
 
-        {/* center content */}
-        <div className="flex-1 flex flex-col items-center justify-center relative z-10 px-6 text-center">
+        {/* center content — shifted up on mobile */}
+        <div className="flex-1 flex flex-col items-center relative z-10 px-6 text-center" style={{ justifyContent: 'center', paddingBottom: '160px' }}>
           {/* corner brackets */}
           {[['top-0 left-0', 'border-t border-l', '-translate-x-px -translate-y-px'],
             ['top-0 right-0', 'border-t border-r', 'translate-x-px -translate-y-px'],
@@ -313,7 +313,7 @@ export default function ImageDashboard() {
             ['bottom-0 right-0', 'border-b border-r', 'translate-x-px translate-y-px'],
           ].map(([pos, border, translate], i) => (
             <div key={i} className={`absolute ${pos} ${translate}`} style={{ width: '36px', height: '36px' }}>
-              <div className={`w-full h-full ${border}`} style={{ borderColor: 'rgba(100,130,210,0.35)' }} />
+              <div className={`w-full h-full ${border}`} style={{ borderColor: 'rgba(83,47,207,0.7)' }} />
             </div>
           ))}
 

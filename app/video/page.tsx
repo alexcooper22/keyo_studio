@@ -330,7 +330,7 @@ export default function VideoDashboard() {
 
 
   return (
-    <div className="video-root" style={{ paddingTop: '94px', background: 'var(--bg)', minHeight: '100vh' }}>
+    <div className={`video-root${isLoaded && !isSignedIn ? ' mobile-locked' : ''}`} style={{ paddingTop: '94px', background: 'var(--bg)', minHeight: '100vh' }}>
       <Navbar />
       <style>{`
         textarea::-webkit-scrollbar { width: 4px; }
@@ -345,16 +345,82 @@ export default function VideoDashboard() {
           .video-layout { height: calc(100vh - 94px); padding-bottom: 24px; }
           .video-panel { width: 260px; flex-shrink: 0; }
         }
+        .video-panel { display: none; }
+        @media (min-width: 768px) {
+          .video-panel { display: flex; flex-direction: column; }
+        }
         .video-sidebar { display: none; }
         @media (min-width: 768px) {
           .video-sidebar { display: flex; width: 200px; flex-shrink: 0; border-left: var(--border); flex-direction: column; }
+        }
+        @media (max-width: 767px) {
+          .mobile-locked { overflow: hidden; height: 100vh; }
         }
       `}</style>
 
       <div className="video-layout flex flex-col md:flex-row" style={{ padding: '0 16px 80px', gap: '12px', alignItems: 'stretch' }}>
 
+        {/* MOBILE HERO — unauthenticated only */}
+        {isLoaded && !isSignedIn && (
+          <div className="flex md:hidden flex-col items-center justify-center text-center relative px-6" style={{ minHeight: 'calc(100vh - 94px)', overflow: 'hidden' }}>
+            {/* Purple ambient orbs — mirrors homepage */}
+            <div aria-hidden style={{ position: 'absolute', top: '-10%', left: '50%', transform: 'translateX(-50%)', width: '500px', height: '500px', background: 'radial-gradient(ellipse at center, rgba(83,47,207,0.28) 0%, rgba(60,30,180,0.12) 40%, transparent 70%)', borderRadius: '50%', pointerEvents: 'none' }} />
+            <div aria-hidden style={{ position: 'absolute', top: '20%', left: '-20%', width: '350px', height: '350px', background: 'radial-gradient(ellipse at center, rgba(100,50,220,0.14) 0%, transparent 65%)', borderRadius: '50%', pointerEvents: 'none' }} />
+            <div aria-hidden style={{ position: 'absolute', top: '25%', right: '-20%', width: '300px', height: '300px', background: 'radial-gradient(ellipse at center, rgba(140,80,255,0.12) 0%, transparent 65%)', borderRadius: '50%', pointerEvents: 'none' }} />
+
+            {[['top-0 left-0', 'border-t border-l', '-translate-x-px -translate-y-px'],
+              ['top-0 right-0', 'border-t border-r', 'translate-x-px -translate-y-px'],
+              ['bottom-0 left-0', 'border-b border-l', '-translate-x-px translate-y-px'],
+              ['bottom-0 right-0', 'border-b border-r', 'translate-x-px translate-y-px'],
+            ].map(([pos, border, translate], i) => (
+              <div key={i} className={`absolute ${pos} ${translate}`} style={{ width: '36px', height: '36px' }}>
+                <div className={`w-full h-full ${border}`} style={{ borderColor: 'rgba(120,80,255,0.5)' }} />
+              </div>
+            ))}
+            <p className="font-dm mb-5 tracking-[0.2em] uppercase" style={{ fontSize: '11px', color: 'rgba(160,120,255,0.6)', letterSpacing: '0.18em', position: 'relative' }}>
+              Keyo Video Studio
+            </p>
+            <h1 className="font-clash" style={{
+              fontSize: 'clamp(44px, 11vw, 72px)',
+              fontWeight: 700,
+              lineHeight: 1.1,
+              letterSpacing: '-0.02em',
+              background: 'linear-gradient(135deg, #e8e0ff 0%, #c4b0ff 40%, #9b7eff 70%, #6b4ef5 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              maxWidth: '680px',
+              position: 'relative',
+            }}>
+              What story<br />would you tell<br />with unlimited frames?
+            </h1>
+            <button
+              onClick={() => setShowModal(true)}
+              style={{
+                background: 'linear-gradient(135deg, #7c5cf0 0%, #9b7eff 100%)',
+                border: 'none',
+                borderRadius: '12px',
+                padding: '14px 40px',
+                fontSize: '15px',
+                fontWeight: 700,
+                fontFamily: 'var(--font-dm)',
+                color: '#fff',
+                cursor: 'pointer',
+                boxShadow: '0 4px 24px rgba(83,47,207,0.45), inset 0 1px 0 rgba(255,255,255,0.15)',
+                letterSpacing: '0.1px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+              }}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v14l11-7-11-7z"/></svg>
+              Try for free
+            </button>
+          </div>
+        )}
+
         {/* LEFT PANEL */}
-        <div className="video-panel" style={{ background: '#0a0a0e', border: '0.5px solid rgba(255,255,255,0.08)', borderRadius: '16px', overflow: 'hidden', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+        <div className="video-panel" style={{ background: '#0a0a0e', border: '0.5px solid rgba(255,255,255,0.08)', borderRadius: '16px', overflow: 'hidden', position: 'relative' }}>
           {/* Top shimmer */}
           <div aria-hidden style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '1px', background: 'linear-gradient(90deg, transparent 5%, rgba(120,80,255,0.5) 40%, rgba(83,47,207,0.75) 50%, rgba(120,80,255,0.5) 60%, transparent 95%)', pointerEvents: 'none', zIndex: 1 }} />
 
@@ -511,9 +577,9 @@ export default function VideoDashboard() {
           {videos.length === 0 && !isGenerating && (
             <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 'calc(100vh - 154px)', position: 'relative' }}>
               {isLoaded && !isSignedIn ? (
-                <div style={{ textAlign: 'center', padding: '0 24px', position: 'relative' }}>
+                <div className="hidden md:block" style={{ textAlign: 'center', padding: '0 24px', position: 'relative' }}>
                   {[['top-0 left-0', '-translate-x-px -translate-y-px'], ['top-0 right-0', 'translate-x-px -translate-y-px'], ['bottom-0 left-0', '-translate-x-px translate-y-px'], ['bottom-0 right-0', 'translate-x-px translate-y-px']].map(([pos, translate], i) => (
-                    <div key={i} className={`absolute ${pos} ${translate}`} style={{ width: '28px', height: '28px', border: `0.5px solid rgba(100,130,210,0.3)`, borderRadius: '0', ...(i === 0 ? { borderRight: 'none', borderBottom: 'none' } : i === 1 ? { borderLeft: 'none', borderBottom: 'none' } : i === 2 ? { borderRight: 'none', borderTop: 'none' } : { borderLeft: 'none', borderTop: 'none' }) }} />
+                    <div key={i} className={`absolute ${pos} ${translate}`} style={{ width: '28px', height: '28px', border: `0.5px solid rgba(83,47,207,0.7)`, borderRadius: '0', ...(i === 0 ? { borderRight: 'none', borderBottom: 'none' } : i === 1 ? { borderLeft: 'none', borderBottom: 'none' } : i === 2 ? { borderRight: 'none', borderTop: 'none' } : { borderLeft: 'none', borderTop: 'none' }) }} />
                   ))}
                   <p style={{ fontSize: '10px', color: 'rgba(140,160,220,0.5)', letterSpacing: '0.18em', textTransform: 'uppercase', fontFamily: 'var(--font-dm)', marginBottom: '16px' }}>Keyo Video Studio</p>
                   <h2 style={{ fontSize: 'clamp(28px, 4vw, 54px)', fontWeight: 700, lineHeight: 1.1, letterSpacing: '-0.02em', background: 'linear-gradient(135deg, #7090e8 0%, #5b7fe0 35%, #8ba4f0 65%, #a8c0ff 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', maxWidth: '520px', fontFamily: 'var(--font-clash)' }}>

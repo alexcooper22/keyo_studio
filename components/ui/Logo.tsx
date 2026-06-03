@@ -7,7 +7,7 @@ interface LogoProps {
 
 const GRADIENT_KEYO = 'linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.85) 100%)';
 const GRADIENT_DOT  = 'linear-gradient(135deg, #c4b0ff 0%, #7c5cf0 100%)';
-const GRADIENT_STUDIO = 'linear-gradient(135deg, #e8e0ff 0%, #c4b0ff 50%, #a080ff 100%)';
+const GRADIENT_STUDIO = 'linear-gradient(135deg, #f0ecff 0%, #d8c8ff 50%, #c0a0ff 100%)';
 
 export default function Logo({ size = 17, href = '/' }: LogoProps) {
   const base: React.CSSProperties = {
@@ -24,7 +24,7 @@ export default function Logo({ size = 17, href = '/' }: LogoProps) {
       <span style={{ ...base, fontWeight: 700, background: GRADIENT_DOT, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
         .
       </span>
-      <span style={{ ...base, fontWeight: 600, background: GRADIENT_STUDIO, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', opacity: 0.45 }}>
+      <span style={{ ...base, fontWeight: 600, background: GRADIENT_STUDIO, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', opacity: 0.65 }}>
         studio
       </span>
     </>

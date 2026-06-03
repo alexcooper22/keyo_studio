@@ -2,8 +2,8 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { useAuth } from '@clerk/nextjs';
-import { useRouter } from 'next/navigation';
+import { useAuth as useClerkAuth } from '@clerk/nextjs';
+import { useAuth } from '@/context/AuthContext';
 import type { SubscriptionPlan } from '@/lib/plans';
 
 const FALLBACK_PLANS: SubscriptionPlan[] = [
@@ -26,8 +26,8 @@ const FALLBACK_PLANS: SubscriptionPlan[] = [
 ];
 
 export default function PricingPage() {
-  const { isSignedIn } = useAuth();
-  const router = useRouter();
+  const { isSignedIn } = useClerkAuth();
+  const { setShowModal } = useAuth();
   const [loadingPlan, setLoadingPlan] = useState<'starter' | 'plus' | null>(null);
   const [plans, setPlans] = useState<SubscriptionPlan[]>(FALLBACK_PLANS);
 
@@ -39,7 +39,7 @@ export default function PricingPage() {
   }, []);
 
   const handleCheckout = async (plan: 'starter' | 'plus') => {
-    if (!isSignedIn) { router.push('/sign-in'); return; }
+    if (!isSignedIn) { setShowModal(true); return; }
     setLoadingPlan(plan);
     try {
       const res = await fetch('/api/liqpay/checkout', {
