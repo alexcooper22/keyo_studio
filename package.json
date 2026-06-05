@@ -10,6 +10,7 @@
     "postinstall": "node scripts/patch-clerk.js && node scripts/copy-ffmpeg-core.js"
   },
   "dependencies": {
+    "@clerk/localizations": "^4.7.1",
     "@clerk/nextjs": "^7.4.2",
     "@fal-ai/client": "^1.9.5",
     "@ffmpeg/core": "^0.12.6",

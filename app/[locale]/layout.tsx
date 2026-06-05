@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { Syne, Onest } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import { ClerkProvider } from '@clerk/nextjs';
+import { ukUA, enUS } from '@clerk/localizations';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import Providers from '@/components/layout/Providers';
@@ -129,6 +130,7 @@ export default async function LocaleLayout({
       </head>
       <body className={`${syne.variable} ${onest.variable} font-dm antialiased`}>
         <ClerkProvider
+          localization={locale === 'ua' ? ukUA : enUS}
           appearance={{
             variables: {
               colorPrimary: '#532fcf',
