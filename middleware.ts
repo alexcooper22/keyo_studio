@@ -5,10 +5,11 @@ import { routing } from './i18n/routing';
 const intlMiddleware = createMiddleware(routing);
 
 const isPublicRoute = createRouteMatcher([
+  '/',
+  '/:locale',
   '/:locale/sign-in(.*)',
   '/:locale/sign-up(.*)',
   '/:locale/sso-callback(.*)',
-  '/:locale',
   '/:locale/image',
   '/:locale/video',
   '/:locale/audio',
