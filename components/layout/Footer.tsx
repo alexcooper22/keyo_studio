@@ -15,13 +15,12 @@ const socials = [
 const productLinks = [
   { key: 'image' as const, href: '/image' as const },
   { key: 'video' as const, href: '/video' as const },
-  { key: 'audio' as const, href: '/audio' as const },
   { key: 'pricing' as const, href: '/pricing' as const },
 ];
 
 const legalLinks = [
-  { label: 'Privacy', href: '/privacy' as const },
-  { label: 'Terms', href: '/terms' as const },
+  { key: 'privacy' as const, href: '/privacy' as const },
+  { key: 'terms' as const, href: '/terms' as const },
 ];
 
 export default function Footer() {
@@ -154,14 +153,14 @@ export default function Footer() {
 
           <div className="flex items-center">
             {legalLinks.map((link, i) => (
-              <React.Fragment key={link.label}>
+              <React.Fragment key={link.key}>
                 {i > 0 && <span style={{ color: 'rgba(255,255,255,0.08)', fontSize: '11px', margin: '0 8px' }}>·</span>}
                 <Link
                   href={link.href}
                   className="font-dm hover:text-white/40 transition-colors duration-200"
                   style={{ fontSize: '11px', color: 'rgba(255,255,255,0.18)', textDecoration: 'none' }}
                 >
-                  {link.label}
+                  {t(link.key)}
                 </Link>
               </React.Fragment>
             ))}

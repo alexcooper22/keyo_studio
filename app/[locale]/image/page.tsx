@@ -7,6 +7,7 @@ import { fetchModelsWithCache } from '@/lib/modelCache';
 import Lightbox, { type ImageDetails } from '@/components/image/Lightbox';
 import { useAuth } from '@/context/AuthContext';
 import { useUser } from '@clerk/nextjs';
+import { useTranslations } from 'next-intl';
 
 const compressImage = (file: File): Promise<Blob> => {
   return new Promise((resolve) => {
@@ -30,6 +31,7 @@ const compressImage = (file: File): Promise<Blob> => {
 };
 
 export default function ImageDashboard() {
+  const t = useTranslations('image');
   const { setShowModal } = useAuth();
   const { isLoaded, isSignedIn, user } = useUser();
 
@@ -318,7 +320,7 @@ export default function ImageDashboard() {
           ))}
 
           <p className="font-dm mb-5 tracking-[0.2em] uppercase" style={{ fontSize: '11px', color: 'rgba(140,160,220,0.55)', letterSpacing: '0.18em' }}>
-            Keyo Image Studio
+            {t('studioLabel')}
           </p>
           <h1 className="font-clash" style={{
             fontSize: 'clamp(44px, 6vw, 72px)',
@@ -331,7 +333,7 @@ export default function ImageDashboard() {
             backgroundClip: 'text',
             maxWidth: '680px',
           }}>
-            What would you<br className="block md:hidden" /> imagine<br className="block md:hidden" /> if anything was possible?
+            {t('heroTitle')}
           </h1>
         </div>
 

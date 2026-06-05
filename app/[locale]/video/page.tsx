@@ -4,6 +4,7 @@ import Navbar from '@/components/layout/Navbar';
 import { fetchModelsWithCache } from '@/lib/modelCache';
 import { useUser } from '@clerk/nextjs';
 import { useAuth } from '@/context/AuthContext';
+import { useTranslations } from 'next-intl';
 
 interface VideoItem {
   id: string;
@@ -16,6 +17,7 @@ interface VideoItem {
 }
 
 export default function VideoDashboard() {
+  const t = useTranslations('video');
   const { isLoaded, isSignedIn } = useUser();
   const { setShowModal } = useAuth();
   const [prompt, setPrompt] = useState('');
@@ -332,29 +334,29 @@ export default function VideoDashboard() {
     <>
       <div className="inline-flex items-center gap-2" style={{ background: 'rgba(83,47,207,0.1)', border: '0.5px solid rgba(83,47,207,0.3)', borderRadius: '20px', padding: '4px 12px', marginBottom: '20px', position: 'relative' }}>
         <span style={{ color: 'rgba(120,80,255,0.8)', fontSize: '9px' }}>✦</span>
-        <span className="font-dm" style={{ color: 'rgba(120,80,255,0.7)', fontSize: '11px', fontWeight: 500, letterSpacing: '0.8px', textTransform: 'uppercase' }}>AI Video Studio</span>
+        <span className="font-dm" style={{ color: 'rgba(120,80,255,0.7)', fontSize: '11px', fontWeight: 500, letterSpacing: '0.8px', textTransform: 'uppercase' }}>{t('aiBadge')}</span>
       </div>
       <h1 style={{ fontWeight: 700, lineHeight: 1.05, marginBottom: '16px', position: 'relative' }}>
         <span className="font-clash" style={{ display: 'block', fontSize: 'clamp(22px, 3.2vw, 34px)', letterSpacing: '-0.01em', color: 'rgba(255,255,255,0.85)' }}>
-          Turn ideas into
+          {t('heroLine1')}
         </span>
         <span className="font-clash" style={{ display: 'block', fontSize: 'clamp(64px, 12vw, 110px)', letterSpacing: '-0.04em', lineHeight: 0.93, background: 'linear-gradient(135deg, #c4b0ff 0%, #9b7eff 40%, #6b4ef5 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-          videos
+          {t('heroWord')}
         </span>
         <span className="font-clash" style={{ display: 'block', fontSize: 'clamp(22px, 3.2vw, 34px)', letterSpacing: '-0.01em', color: 'rgba(255,255,255,0.85)', marginTop: '6px' }}>
-          using{' '}
+          {t('heroLine3')}{' '}
           <span style={{ background: 'linear-gradient(135deg, #c4b0ff 0%, #9b7eff 50%, #7c5cf0 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>keyo.studio</span>
         </span>
       </h1>
       <p className="font-dm" style={{ fontSize: '13px', color: 'rgba(180,160,230,0.45)', marginBottom: '36px', position: 'relative' }}>
-        Infrastructure for AI Video Generation
+        {t('heroSubtitle')}
       </p>
       <button
         onClick={() => setShowModal(true)}
         style={{ background: 'linear-gradient(135deg, #7c5cf0 0%, #9b7eff 100%)', border: 'none', borderRadius: '12px', padding: '14px 40px', fontSize: '15px', fontWeight: 700, fontFamily: 'var(--font-dm)', color: '#fff', cursor: 'pointer', boxShadow: '0 4px 24px rgba(83,47,207,0.45), inset 0 1px 0 rgba(255,255,255,0.15)', display: 'inline-flex', alignItems: 'center', gap: '8px', position: 'relative' }}
       >
         <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v14l11-7-11-7z"/></svg>
-        Try for free
+        {t('tryForFree')}
       </button>
     </>
   );
@@ -409,7 +411,7 @@ export default function VideoDashboard() {
               </div>
             ))}
             <p className="font-dm mb-5 tracking-[0.2em] uppercase" style={{ fontSize: '11px', color: 'rgba(160,120,255,0.6)', letterSpacing: '0.18em', position: 'relative' }}>
-              Keyo Video Studio
+              {t('studioLabel')}
             </p>
             <h1 className="font-clash" style={{
               fontSize: 'clamp(44px, 11vw, 72px)',
@@ -423,7 +425,7 @@ export default function VideoDashboard() {
               maxWidth: '680px',
               position: 'relative',
             }}>
-              What story<br />would you tell<br />with unlimited frames?
+              {t('heroTitle')}
             </h1>
             <button
               onClick={() => setShowModal(true)}
@@ -446,7 +448,7 @@ export default function VideoDashboard() {
               }}
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v14l11-7-11-7z"/></svg>
-              Try for free
+              {t('tryForFree')}
             </button>
           </div>
         )}
@@ -458,8 +460,8 @@ export default function VideoDashboard() {
 
           {/* Tabs */}
           <div style={{ display: 'flex', borderBottom: '0.5px solid rgba(255,255,255,0.06)', padding: '0 14px', gap: '2px' }}>
-            {['Create Video', 'Edit', 'Motion'].map((t, i) => (
-              <div key={t} style={{ fontFamily: 'var(--font-dm)', fontSize: '12px', fontWeight: 500, color: i === 0 ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.28)', padding: '11px 6px', marginRight: '8px', borderBottom: i === 0 ? '1.5px solid rgba(120,80,255,0.8)' : '1.5px solid transparent', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'color 0.15s' }}>{t}</div>
+            {[t('tabCreate'), t('tabEdit'), t('tabMotion')].map((tab, i) => (
+              <div key={tab} style={{ fontFamily: 'var(--font-dm)', fontSize: '12px', fontWeight: 500, color: i === 0 ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.28)', padding: '11px 6px', marginRight: '8px', borderBottom: i === 0 ? '1.5px solid rgba(120,80,255,0.8)' : '1.5px solid transparent', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'color 0.15s' }}>{tab}</div>
             ))}
           </div>
 
@@ -469,11 +471,11 @@ export default function VideoDashboard() {
             <div style={{ background: '#0c0c14', border: '0.5px solid rgba(83,47,207,0.25)', borderRadius: '12px', overflow: 'hidden' }}>
               <div style={{ height: '70px', background: 'radial-gradient(ellipse 100% 120% at 50% 0%, rgba(83,47,207,0.35) 0%, rgba(20,10,40,0.9) 100%)', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '1px', background: 'linear-gradient(90deg, transparent, rgba(120,80,255,0.5), transparent)' }} />
-                <button style={{ position: 'absolute', top: '7px', right: '7px', background: 'rgba(255,255,255,0.06)', border: '0.5px solid rgba(255,255,255,0.1)', borderRadius: '6px', padding: '3px 9px', fontSize: '10px', color: 'rgba(255,255,255,0.45)', cursor: 'pointer', fontFamily: 'var(--font-dm)' }}>✎ Change</button>
+                <button style={{ position: 'absolute', top: '7px', right: '7px', background: 'rgba(255,255,255,0.06)', border: '0.5px solid rgba(255,255,255,0.1)', borderRadius: '6px', padding: '3px 9px', fontSize: '10px', color: 'rgba(255,255,255,0.45)', cursor: 'pointer', fontFamily: 'var(--font-dm)' }}>✎ {t('change')}</button>
               </div>
               <div style={{ padding: '8px 12px' }}>
-                <div style={{ fontSize: '9px', fontWeight: 700, color: 'rgba(120,80,255,0.7)', letterSpacing: '0.8px', textTransform: 'uppercase', fontFamily: 'var(--font-dm)' }}>✦ General</div>
-                <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.75)', marginTop: '3px', fontFamily: 'var(--font-dm)', fontWeight: 500 }}>{videoModels.find(m => m.id === selectedVideoModelId)?.name ?? 'Loading...'}</div>
+                <div style={{ fontSize: '9px', fontWeight: 700, color: 'rgba(120,80,255,0.7)', letterSpacing: '0.8px', textTransform: 'uppercase', fontFamily: 'var(--font-dm)' }}>✦ {t('general')}</div>
+                <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.75)', marginTop: '3px', fontFamily: 'var(--font-dm)', fontWeight: 500 }}>{videoModels.find(m => m.id === selectedVideoModelId)?.name ?? t('loading')}</div>
               </div>
             </div>
 
@@ -490,9 +492,9 @@ export default function VideoDashboard() {
                         <img src={frame} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       ) : (
                         <>
-                          <span style={{ position: 'absolute', top: '6px', right: '8px', fontSize: '8px', color: 'rgba(255,255,255,0.22)', fontFamily: 'var(--font-dm)' }}>Optional</span>
+                          <span style={{ position: 'absolute', top: '6px', right: '8px', fontSize: '8px', color: 'rgba(255,255,255,0.22)', fontFamily: 'var(--font-dm)' }}>{t('optional')}</span>
                           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                          <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.25)', fontFamily: 'var(--font-dm)' }}>{type === 'start' ? 'Start frame' : 'End frame'}</span>
+                          <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.25)', fontFamily: 'var(--font-dm)' }}>{type === 'start' ? t('startFrame') : t('endFrame')}</span>
                         </>
                       )}
                     </div>
@@ -506,7 +508,7 @@ export default function VideoDashboard() {
 
             {/* Audio toggle */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
-              <span style={{ fontSize: '12px', fontFamily: 'var(--font-dm)', color: audioEnabled ? 'rgba(160,120,255,0.9)' : 'rgba(255,255,255,0.3)', transition: 'color 0.2s', cursor: 'pointer' }} onClick={() => setAudioEnabled(v => !v)}>Audio</span>
+              <span style={{ fontSize: '12px', fontFamily: 'var(--font-dm)', color: audioEnabled ? 'rgba(160,120,255,0.9)' : 'rgba(255,255,255,0.3)', transition: 'color 0.2s', cursor: 'pointer' }} onClick={() => setAudioEnabled(v => !v)}>{t('audio')}</span>
               <div onClick={() => setAudioEnabled(v => !v)} style={{ width: '32px', height: '18px', background: audioEnabled ? 'rgba(83,47,207,0.8)' : 'rgba(255,255,255,0.1)', borderRadius: '20px', position: 'relative', cursor: 'pointer', transition: 'background 0.2s' }}>
                 <div style={{ width: '14px', height: '14px', background: 'white', borderRadius: '50%', position: 'absolute', left: audioEnabled ? '16px' : '2px', top: '2px', transition: 'left 0.2s' }} />
               </div>
@@ -516,7 +518,7 @@ export default function VideoDashboard() {
             <textarea
               value={prompt}
               onChange={e => setPrompt(e.target.value)}
-              placeholder="Describe your video scene..."
+              placeholder={t('promptPlaceholder')}
               style={{ background: 'rgba(255,255,255,0.03)', border: '0.5px solid rgba(255,255,255,0.07)', borderRadius: '10px', padding: '10px 12px', fontSize: '13px', color: 'rgba(255,255,255,0.85)', flex: 1, minHeight: '110px', resize: 'none', outline: 'none', width: '100%', fontFamily: 'var(--font-dm)', boxSizing: 'border-box', lineHeight: 1.6 }}
             />
 
@@ -524,10 +526,10 @@ export default function VideoDashboard() {
             <div style={{ position: 'relative' }} data-menu="true">
               <div onClick={e => { e.stopPropagation(); setShowModelMenu(v => !v); setShowQualityMenu(false); setShowAspectMenu(false); setShowDurationMenu(false); }} style={{ background: showModelMenu ? 'rgba(83,47,207,0.1)' : 'rgba(255,255,255,0.03)', border: showModelMenu ? '0.5px solid rgba(83,47,207,0.4)' : '0.5px solid rgba(255,255,255,0.07)', borderRadius: '10px', padding: '9px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', transition: 'all 0.15s' }}>
                 <div>
-                  <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.28)', fontFamily: 'var(--font-dm)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '3px' }}>Model</div>
+                  <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.28)', fontFamily: 'var(--font-dm)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '3px' }}>{t('model')}</div>
                   <div style={{ fontSize: '12px', fontFamily: 'var(--font-dm)', fontWeight: 500, color: 'rgba(255,255,255,0.75)', display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: 'rgba(120,80,255,0.8)', flexShrink: 0 }} />
-                    {videoModels.find(m => m.id === selectedVideoModelId)?.name ?? 'Loading...'}
+                    {videoModels.find(m => m.id === selectedVideoModelId)?.name ?? t('loading')}
                   </div>
                 </div>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
@@ -586,11 +588,11 @@ export default function VideoDashboard() {
               }}
             >
               {isGenerating ? (
-                <><div style={{ width: '13px', height: '13px', border: '1.5px solid rgba(255,255,255,0.35)', borderTop: '1.5px solid #fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />{status || 'Generating...'}</>
+                <><div style={{ width: '13px', height: '13px', border: '1.5px solid rgba(255,255,255,0.35)', borderTop: '1.5px solid #fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />{status || t('generating')}</>
               ) : (creditCount !== null && creditCount <= 0) ? (
-                <><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg>No credits</>
+                <><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg>{t('noCredits')}</>
               ) : (
-                <><span style={{ fontSize: '10px', color: 'rgba(220,200,255,0.9)' }}>✦</span>Generate<span style={{ color: 'rgba(200,170,255,0.7)', fontSize: '11px', fontWeight: 500 }}>· {videoCreditCost}</span></>
+                <><span style={{ fontSize: '10px', color: 'rgba(220,200,255,0.9)' }}>✦</span>{t('generate')}<span style={{ color: 'rgba(200,170,255,0.7)', fontSize: '11px', fontWeight: 500 }}>· {videoCreditCost}</span></>
               )}
             </button>
           </div>
@@ -602,7 +604,7 @@ export default function VideoDashboard() {
           {isGenerating && (
             <div style={{ width: '100%', aspectRatio: '16/9', background: 'var(--bg-card)', border: 'var(--border)', borderRadius: 'var(--radius-card)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
               <div style={{ width: '36px', height: '36px', border: '2px solid var(--accent)', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
-              <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{status || 'Generating...'}</span>
+              <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{status || t('generating')}</span>
             </div>
           )}
           {/* Empty state */}
@@ -613,9 +615,9 @@ export default function VideoDashboard() {
                   {[['top-0 left-0', '-translate-x-px -translate-y-px'], ['top-0 right-0', 'translate-x-px -translate-y-px'], ['bottom-0 left-0', '-translate-x-px translate-y-px'], ['bottom-0 right-0', 'translate-x-px translate-y-px']].map(([pos, translate], i) => (
                     <div key={i} className={`absolute ${pos} ${translate}`} style={{ width: '28px', height: '28px', border: `0.5px solid rgba(83,47,207,0.7)`, borderRadius: '0', ...(i === 0 ? { borderRight: 'none', borderBottom: 'none' } : i === 1 ? { borderLeft: 'none', borderBottom: 'none' } : i === 2 ? { borderRight: 'none', borderTop: 'none' } : { borderLeft: 'none', borderTop: 'none' }) }} />
                   ))}
-                  <p style={{ fontSize: '10px', color: 'rgba(140,160,220,0.5)', letterSpacing: '0.18em', textTransform: 'uppercase', fontFamily: 'var(--font-dm)', marginBottom: '16px' }}>Keyo Video Studio</p>
+                  <p style={{ fontSize: '10px', color: 'rgba(140,160,220,0.5)', letterSpacing: '0.18em', textTransform: 'uppercase', fontFamily: 'var(--font-dm)', marginBottom: '16px' }}>{t('studioLabel')}</p>
                   <h2 style={{ fontSize: 'clamp(28px, 4vw, 54px)', fontWeight: 700, lineHeight: 1.1, letterSpacing: '-0.02em', background: 'linear-gradient(135deg, #7090e8 0%, #5b7fe0 35%, #8ba4f0 65%, #a8c0ff 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', maxWidth: '520px', fontFamily: 'var(--font-clash)' }}>
-                    What story would you tell with unlimited frames?
+                    {t('heroTitle')}
                   </h2>
                 </div>
               ) : (
@@ -623,7 +625,7 @@ export default function VideoDashboard() {
                   <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: 'rgba(83,47,207,0.08)', border: '0.5px solid rgba(83,47,207,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <div style={{ width: 0, height: 0, borderTop: '9px solid transparent', borderBottom: '9px solid transparent', borderLeft: '16px solid rgba(120,80,255,0.3)', marginLeft: '4px' }}></div>
                   </div>
-                  <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.25)' }}>Your videos will appear here</span>
+                  <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.25)' }}>{t('emptyState')}</span>
                 </div>
               )}
             </div>

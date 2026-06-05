@@ -1,5 +1,6 @@
 'use client';
 import { useRef, useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import Portal from '../ui/Portal';
 
 interface UploadedImage {
@@ -73,6 +74,7 @@ export default function PromptBar({
   const [popupPosition, setPopupPosition] = useState({ bottom: 0, left: 0 });
   const [qualityPopupPos, setQualityPopupPos] = useState({ bottom: 0, left: 0 });
 
+  const t = useTranslations('image');
   const selectedModel = models.find(m => m.id === selectedModelId);
   const availableQualities = new Set(selectedModel?.pricing.map(p => p.quality) ?? qualityOptions.map(q => q.value));
 
@@ -208,7 +210,7 @@ export default function PromptBar({
               el.style.height = 'auto';
               el.style.height = Math.min(el.scrollHeight, 120) + 'px';
             }}
-            placeholder="Describe the image you imagine..."
+            placeholder={t('promptPlaceholder')}
             rows={1}
             className="w-full bg-transparent border-none outline-none text-white font-dm resize-none"
             style={{
@@ -365,7 +367,7 @@ export default function PromptBar({
                                 </div>
                                 <div style={{ flex: 1, minWidth: 0 }}>
                                   <div style={{ fontSize: '12px', fontWeight: 500, color: isSelected ? 'rgba(160,120,255,0.9)' : 'rgba(255,255,255,0.8)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{m.name}</div>
-                                  <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.28)', marginTop: '1px' }}>{credits != null ? `${credits} credits` : '? credits'}</div>
+                                  <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.28)', marginTop: '1px' }}>{credits != null ? t('creditsCount', { credits }) : '?'}</div>
                                 </div>
                                 {isSelected && (
                                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(160,120,255,0.9)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><polyline points="20 6 9 17 4 12"/></svg>
@@ -411,7 +413,7 @@ export default function PromptBar({
                       borderRadius: '12px', boxShadow: '0 16px 40px rgba(0,0,0,0.5)',
                     }}
                   >
-                    <p className="font-dm text-[10px] mb-2.5 uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.25)' }}>Aspect ratio</p>
+                    <p className="font-dm text-[10px] mb-2.5 uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.25)' }}>{t('aspectRatio')}</p>
                     <div className="flex flex-col gap-0.5">
                       {ratioOptions.map(ratio => (
                         <button
@@ -470,7 +472,7 @@ export default function PromptBar({
                       borderRadius: '12px', boxShadow: '0 16px 40px rgba(0,0,0,0.5)',
                     }}
                   >
-                    <p className="font-dm text-[10px] mb-2.5 uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.25)' }}>Quality</p>
+                    <p className="font-dm text-[10px] mb-2.5 uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.25)' }}>{t('quality')}</p>
                     <div className="flex flex-col gap-0.5">
                       {qualityOptions.map(q => {
                         const available = availableQualities.has(q.value);
@@ -517,7 +519,7 @@ export default function PromptBar({
             }}
           >
             <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg>
-            {noCredits ? 'No credits' : `Generate · ${creditCost}`}
+            {noCredits ? t('noCredits') : `${t('generate')} · ${creditCost}`}
           </button>
         </div>
       </div>{/* end card */}
