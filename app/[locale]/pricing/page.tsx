@@ -4,6 +4,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { useAuth as useClerkAuth } from '@clerk/nextjs';
 import { useAuth } from '@/context/AuthContext';
+import { useTranslations } from 'next-intl';
 import type { SubscriptionPlan } from '@/lib/plans';
 
 const FALLBACK_PLANS: SubscriptionPlan[] = [
@@ -28,6 +29,7 @@ const FALLBACK_PLANS: SubscriptionPlan[] = [
 export default function PricingPage() {
   const { isSignedIn } = useClerkAuth();
   const { setShowModal } = useAuth();
+  const t = useTranslations('pricing');
   const [loadingPlan, setLoadingPlan] = useState<'starter' | 'plus' | null>(null);
   const [plans, setPlans] = useState<SubscriptionPlan[]>(FALLBACK_PLANS);
 
@@ -116,7 +118,7 @@ export default function PricingPage() {
             }}>
               <span style={{ color: 'rgba(120,80,255,0.8)', fontSize: '9px' }}>✦</span>
               <span className="font-dm" style={{ color: 'rgba(120,80,255,0.7)', fontSize: '11px', fontWeight: 500, letterSpacing: '0.8px', textTransform: 'uppercase' }}>
-                Simple pricing
+                {t('badge')}
               </span>
             </div>
 
@@ -128,19 +130,19 @@ export default function PricingPage() {
               marginBottom: '14px',
               color: '#fff',
             }}>
-              Create more,{' '}
+              {t('title')}{' '}
               <span style={{
                 background: 'linear-gradient(135deg, #c4b0ff 0%, #9b7eff 40%, #6b4ef5 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
               }}>
-                think less
+                {t('titleAccent')}
               </span>
             </h1>
 
             <p className="font-dm" style={{ color: 'rgba(255,255,255,0.32)', fontSize: '14px', lineHeight: 1.7, maxWidth: '360px', margin: '0 auto' }}>
-              One credit system across images, video, and audio. Upgrade or cancel anytime.
+              {t('subtitle')}
             </p>
           </div>
         </div>
@@ -184,7 +186,7 @@ export default function PricingPage() {
                   whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '5px',
                   boxShadow: '0 4px 16px rgba(83,47,207,0.45)',
                 }}>
-                  <span style={{ fontSize: '8px' }}>✦</span> Most popular
+                  <span style={{ fontSize: '8px' }}>✦</span> {t('mostPopular')}
                 </div>
               )}
 
@@ -198,7 +200,7 @@ export default function PricingPage() {
               <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0', marginBottom: '20px' }}>
                 <span style={{ color: 'rgba(255,255,255,0.28)', fontSize: '18px', fontWeight: 400, marginBottom: '7px', marginRight: '3px' }}>$</span>
                 <span className="font-clash" style={{ color: '#fff', fontSize: 'clamp(40px, 10vw, 52px)', fontWeight: 700, letterSpacing: '-3px', lineHeight: 1 }}>{plan.price_usd}</span>
-                <span style={{ color: 'rgba(255,255,255,0.22)', fontSize: '13px', marginBottom: '8px', marginLeft: '6px' }}>/mo</span>
+                <span style={{ color: 'rgba(255,255,255,0.22)', fontSize: '13px', marginBottom: '8px', marginLeft: '6px' }}>{t('perMonth')}</span>
               </div>
 
               {/* Credits pill — full width */}
@@ -210,7 +212,7 @@ export default function PricingPage() {
               }}>
                 <span style={{ color: plan.featured ? 'rgba(160,120,255,0.85)' : 'rgba(255,255,255,0.25)', fontSize: '9px' }}>✦</span>
                 <span style={{ color: plan.featured ? '#c4aeff' : 'rgba(255,255,255,0.75)', fontSize: '15px', fontWeight: 700, letterSpacing: '-0.3px' }}>{plan.credits.toLocaleString()}</span>
-                <span style={{ color: 'rgba(255,255,255,0.22)', fontSize: '12px' }}>credits / month</span>
+                <span style={{ color: 'rgba(255,255,255,0.22)', fontSize: '12px' }}>{t('creditsPerMonth')}</span>
               </div>
 
               {/* Breakdown */}
@@ -270,7 +272,7 @@ export default function PricingPage() {
                   boxShadow: plan.cta_style === 'primary' ? '0 4px 24px rgba(83,47,207,0.4), inset 0 1px 0 rgba(255,255,255,0.15)' : 'none',
                 }}
               >
-                {loadingPlan === plan.id ? 'Loading…' : plan.cta_text}
+                {loadingPlan === plan.id ? t('loading') : plan.cta_text}
               </button>
             </div>
           ))}
@@ -278,9 +280,9 @@ export default function PricingPage() {
 
         {/* Footer note */}
         <div className="px-4" style={{ textAlign: 'center', color: 'rgba(255,255,255,0.2)', fontSize: '12px', paddingBottom: '48px' }}>
-          No contracts · Cancel anytime ·{' '}
+          {t('footerNote')}{' '}
           <a href="mailto:hello@keyo.studio" style={{ color: 'rgba(120,80,255,0.7)', textDecoration: 'none' }}>
-            Enterprise plan →
+            {t('enterprisePlan')}
           </a>
         </div>
 

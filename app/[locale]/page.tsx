@@ -1,12 +1,12 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import ToolCard from '@/components/home/ToolCard';
 import CommunityGallery from '@/components/home/CommunityGallery';
-
-const cycleWords = ['images', 'videos', 'audio'] as const;
 
 const imageExamples = [
   { prompt: 'Portrait, golden hour, 85mm lens, shallow depth of field', src: 'https://image.lexica.art/full_webp/33481a2f-e92e-4fe1-a19b-b89080dca786' },
@@ -61,6 +61,8 @@ function SectionHeader({ badge, title, href, linkLabel }: { badge: string; title
 }
 
 export default function Home() {
+  const t = useTranslations('home');
+  const cycleWords = [t('cycleWord0'), t('cycleWord1'), t('cycleWord2')];
   const orb1 = useRef<HTMLDivElement>(null);
   const orb2 = useRef<HTMLDivElement>(null);
   const orb3 = useRef<HTMLDivElement>(null);
@@ -358,7 +360,7 @@ export default function Home() {
 
             <div className="inline-flex items-center gap-2 mb-4" style={{ background: 'rgba(83,47,207,0.1)', border: '0.5px solid rgba(83,47,207,0.3)', borderRadius: '20px', padding: '4px 12px' }}>
               <span style={{ color: 'rgba(120,80,255,0.8)', fontSize: '9px' }}>✦</span>
-              <span className="font-dm" style={{ color: 'rgba(120,80,255,0.7)', fontSize: '11px', fontWeight: 500, letterSpacing: '0.8px', textTransform: 'uppercase' }}>AI Creative Studio</span>
+              <span className="font-dm" style={{ color: 'rgba(120,80,255,0.7)', fontSize: '11px', fontWeight: 500, letterSpacing: '0.8px', textTransform: 'uppercase' }}>{t('badge')}</span>
             </div>
 
             <style>{`
@@ -397,7 +399,7 @@ export default function Home() {
 
             <h1 style={{ fontWeight: 700, lineHeight: 1.1, marginBottom: '12px', color: '#fff' }}>
               <span className="font-clash" style={{ display: 'block', fontSize: 'clamp(22px, 3.2vw, 38px)', letterSpacing: '-0.01em', background: 'linear-gradient(135deg, #e8e0ff 0%, #c4b0ff 50%, #a080ff 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-                Turn ideas into
+                {t('heroLine1')}
               </span>
               {/* Animated cycling word — Syne 800, inline-grid for zero layout shift */}
               <span className="font-clash" style={{ display: 'inline-grid', fontSize: 'clamp(54px, 9vw, 100px)', fontWeight: 700, letterSpacing: '-0.04em', padding: '6px 20px', overflow: 'visible' }}>
@@ -421,7 +423,7 @@ export default function Home() {
                 ))}
               </span>
               <span className="font-clash" style={{ display: 'block', fontSize: 'clamp(22px, 3.2vw, 38px)', letterSpacing: '-0.01em', background: 'linear-gradient(135deg, #e8e0ff 0%, #c4b0ff 50%, #a080ff 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-                using{' '}
+                {t('heroLine3')}{' '}
                 <span style={{ background: 'linear-gradient(135deg, #c4b0ff 0%, #9b7eff 40%, #6b4ef5 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
                   keyo.studio
                 </span>
@@ -429,7 +431,7 @@ export default function Home() {
             </h1>
 
             <p className="font-dm" style={{ fontSize: '14px', color: 'rgba(255,255,255,0.32)', maxWidth: '400px', lineHeight: '1.7' }}>
-              Infrastructure for AI Video &amp; Image Gen
+              {t('subtitle')}
             </p>
           </section>
 
@@ -450,7 +452,7 @@ export default function Home() {
 
         {/* ── Image generation section ── */}
         <div style={{ padding: 'clamp(8px,2vw,8px) clamp(16px,4vw,32px) clamp(20px,4vw,32px)' }}>
-          <SectionHeader badge="Image" title="Generate images" href="/image" linkLabel="Try Image" />
+          <SectionHeader badge={t('sectionImageBadge')} title={t('sectionImageTitle')} href="/image" linkLabel={t('sectionImageLink')} />
 
           <div className="grid grid-cols-3 md:grid-cols-6" style={{ gap: '8px' }}>
             {imageExamples.map((item, i) => (
@@ -473,7 +475,7 @@ export default function Home() {
                   </p>
                   <div className="inline-flex items-center gap-1" style={{ background: 'rgba(83,47,207,0.8)', borderRadius: '4px', padding: '3px 6px', width: 'fit-content' }}>
                     <span style={{ color: 'rgba(200,180,255,0.9)', fontSize: '8px' }}>✦</span>
-                    <span className="font-dm text-white" style={{ fontSize: '9px', fontWeight: 600 }}>Try prompt</span>
+                    <span className="font-dm text-white" style={{ fontSize: '9px', fontWeight: 600 }}>{t('tryPrompt')}</span>
                   </div>
                 </div>
               </div>
@@ -483,7 +485,7 @@ export default function Home() {
 
         {/* ── Video generation section ── */}
         <div style={{ padding: '0 clamp(16px,4vw,32px) clamp(20px,4vw,32px)' }}>
-          <SectionHeader badge="Video" title="Generate videos" href="/video" linkLabel="Try Video" />
+          <SectionHeader badge={t('sectionVideoBadge')} title={t('sectionVideoTitle')} href="/video" linkLabel={t('sectionVideoLink')} />
 
           <div className="grid grid-cols-2 md:grid-cols-4" style={{ gap: '8px' }}>
             {videoExamples.map((item, i) => (
