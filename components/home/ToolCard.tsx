@@ -1,5 +1,4 @@
 'use client';
-import { Link } from '@/i18n/navigation';
 
 interface ToolCardProps {
   href: string;
@@ -8,7 +7,7 @@ interface ToolCardProps {
 
 export default function ToolCard({ href, videoSrc }: ToolCardProps) {
   return (
-    <Link
+    <a
       href={href}
       className="group block"
       style={{
@@ -18,6 +17,7 @@ export default function ToolCard({ href, videoSrc }: ToolCardProps) {
         overflow: 'hidden',
         textDecoration: 'none',
         position: 'relative',
+        display: 'block',
       }}
     >
       <video
@@ -26,8 +26,9 @@ export default function ToolCard({ href, videoSrc }: ToolCardProps) {
         loop
         muted
         playsInline
+        preload="auto"
         style={{ display: 'block', width: '100%', height: 'auto', zIndex: 0 }}
       />
-    </Link>
+    </a>
   );
 }
