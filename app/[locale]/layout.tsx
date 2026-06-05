@@ -134,8 +134,10 @@ export default async function LocaleLayout({
               colorPrimary: '#532fcf',
               colorBackground: '#0f0f0f',
               colorText: '#f0f0f0',
+              colorTextSecondary: '#a0a0a0',
               colorInputBackground: '#161616',
               colorInputText: '#f0f0f0',
+              colorDanger: '#ff6b6b',
               borderRadius: '0.75rem',
             },
           }}

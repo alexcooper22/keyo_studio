@@ -39,7 +39,7 @@ export default function AuthModal({ onClose, authMode, setAuthMode }: AuthModalP
       >
         <div className="relative w-full" style={{ maxWidth: '820px' }} onClick={(e) => e.stopPropagation()}>
           <div
-            className="flex overflow-hidden"
+            className="flex"
             style={{
               background: '#111111',
               border: '0.5px solid rgba(83,47,207,0.35)',
@@ -48,10 +48,11 @@ export default function AuthModal({ onClose, authMode, setAuthMode }: AuthModalP
               position: 'relative',
               maxHeight: 'calc(100vh - 32px)',
               alignItems: 'stretch',
+              overflow: 'hidden',
             }}
           >
             {/* LEFT: form panel */}
-            <div className="relative flex flex-col w-full md:w-[400px] flex-shrink-0" style={{ zIndex: 1, background: '#ffffff', height: 'min(600px, calc(100vh - 32px))' }}>
+            <div className="relative flex flex-col w-full md:w-[400px] flex-shrink-0" style={{ zIndex: 1, background: '#ffffff', height: 'min(600px, calc(100vh - 32px))', overflowY: 'auto' }}>
               <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '1px', background: 'linear-gradient(90deg, transparent 0%, rgba(120,80,255,0.4) 30%, rgba(83,47,207,0.8) 50%, rgba(120,80,255,0.4) 70%, transparent 100%)', pointerEvents: 'none', zIndex: 2 }} />
               <div style={{ position: 'absolute', top: '-80px', left: '50%', transform: 'translateX(-50%)', width: '340px', height: '220px', background: 'radial-gradient(ellipse at center, rgba(83,47,207,0.22) 0%, transparent 68%)', pointerEvents: 'none' }} />
               <div aria-hidden="true" style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(120,80,255,0.07) 1px, transparent 1px)', backgroundSize: '24px 24px', maskImage: 'radial-gradient(ellipse 90% 55% at 50% 0%, black 0%, transparent 80%)', WebkitMaskImage: 'radial-gradient(ellipse 90% 55% at 50% 0%, black 0%, transparent 80%)', pointerEvents: 'none' }} />
