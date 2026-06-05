@@ -86,17 +86,20 @@ export default function ImageDashboard() {
   }, [uploadedImages]);
 
   useEffect(() => {
-    const onFocus = () => { fetchModels(); fetchCredits(); };
+    fetchModels();
+  }, []);
+
+  useEffect(() => {
+    const onFocus = () => { if (isSignedIn) fetchModels(); fetchCredits(); };
     window.addEventListener('focus', onFocus);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) onFocus(); });
     return () => { window.removeEventListener('focus', onFocus); };
-  }, []);
+  }, [isSignedIn]);
 
   useEffect(() => {
     if (isLoaded && isSignedIn) {
       fetchCredits();
       fetchImages();
-      fetchModels();
       const pendingGeneration = localStorage.getItem('image_generation_pending');
       if (pendingGeneration) {
         const pending = JSON.parse(pendingGeneration);
