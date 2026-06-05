@@ -1,5 +1,7 @@
+'use client';
 import React from 'react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 import Logo from '../ui/Logo';
 
 const socials = [
@@ -11,18 +13,21 @@ const socials = [
 ];
 
 const productLinks = [
-  { label: 'Image', href: '/image' },
-  { label: 'Video', href: '/video' },
-  { label: 'Audio', href: '/audio' },
-  { label: 'Pricing', href: '/pricing' },
+  { key: 'image' as const, href: '/image' as const },
+  { key: 'video' as const, href: '/video' as const },
+  { key: 'audio' as const, href: '/audio' as const },
+  { key: 'pricing' as const, href: '/pricing' as const },
 ];
 
 const legalLinks = [
-  { label: 'Privacy', href: '/privacy' },
-  { label: 'Terms', href: '/terms' },
+  { label: 'Privacy', href: '/privacy' as const },
+  { label: 'Terms', href: '/terms' as const },
 ];
 
 export default function Footer() {
+  const t = useTranslations('footer');
+  const tn = useTranslations('navbar');
+
   return (
     <footer className="pb-20 md:pb-0" style={{ position: 'relative', background: '#080808', overflow: 'hidden' }}>
 
@@ -73,10 +78,10 @@ export default function Footer() {
             borderRadius: '20px', padding: '3px 10px', marginBottom: '14px',
           }}>
             <span style={{ color: 'rgba(120,80,255,0.8)', fontSize: '8px' }}>✦</span>
-            <span style={{ color: 'rgba(120,80,255,0.6)', fontSize: '10px', fontWeight: 500, letterSpacing: '0.8px', textTransform: 'uppercase' }}>AI Creative Studio</span>
+            <span style={{ color: 'rgba(120,80,255,0.6)', fontSize: '10px', fontWeight: 500, letterSpacing: '0.8px', textTransform: 'uppercase' }}>{t('badge')}</span>
           </div>
           <p className="font-clash" style={{ fontSize: 'clamp(22px, 3.5vw, 38px)', fontWeight: 700, letterSpacing: '-0.03em', lineHeight: 1.2, margin: 0, background: 'linear-gradient(135deg, #e8e0ff 0%, #c4b0ff 50%, #a080ff 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-            Create anything with AI
+            {t('tagline')}
           </p>
         </div>
 
@@ -89,13 +94,13 @@ export default function Footer() {
 
           <div className="flex items-center gap-0 justify-center">
             {productLinks.map((link, i) => (
-              <React.Fragment key={link.label}>
+              <React.Fragment key={link.href}>
                 <Link
                   href={link.href}
                   className="font-dm transition-colors duration-200 hover:text-white"
                   style={{ fontSize: '13px', color: 'rgba(255,255,255,0.32)', textDecoration: 'none' }}
                 >
-                  {link.label}
+                  {tn(link.key)}
                 </Link>
                 {i < productLinks.length - 1 && (
                   <span style={{ color: 'rgba(255,255,255,0.1)', margin: '0 10px', fontSize: '12px' }}>·</span>
@@ -143,7 +148,7 @@ export default function Footer() {
               borderRadius: '20px', padding: '2px 8px',
             }}>
               <span style={{ color: 'rgba(120,80,255,0.7)', fontSize: '8px' }}>✦</span>
-              <span style={{ color: 'rgba(120,80,255,0.5)', fontSize: '10px', fontWeight: 500 }}>Powered by AI</span>
+              <span style={{ color: 'rgba(120,80,255,0.5)', fontSize: '10px', fontWeight: 500 }}>{t('poweredBy')}</span>
             </div>
           </div>
 

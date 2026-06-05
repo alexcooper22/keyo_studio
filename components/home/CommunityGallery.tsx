@@ -1,4 +1,6 @@
-import Link from 'next/link';
+'use client';
+import { Link } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 
 const galleryVideos = [
   { id: 1, prompt: 'portrait of a young woman, natural window light, Canon 50mm', src: 'https://cdn.higgsfield.ai/job_set_chain_preset/2b5ee036-8873-4871-a3f8-4ed4eeab1721.mp4' },
@@ -10,6 +12,8 @@ const galleryVideos = [
 ];
 
 export default function CommunityGallery() {
+  const t = useTranslations('gallery');
+
   return (
     <section
       className="animate-fadeUp delay-200"
@@ -24,10 +28,10 @@ export default function CommunityGallery() {
       <div className="flex items-center justify-between" style={{ marginBottom: '14px' }}>
         <div>
           <p className="font-[600] text-white" style={{ fontSize: '12px', letterSpacing: '0.08em', textTransform: 'uppercase', margin: 0, fontFamily: 'var(--font-clash)' }}>
-            Community Gallery
+            {t('title')}
           </p>
           <p className="font-dm" style={{ fontSize: '11px', color: '#555', margin: '2px 0 0' }}>
-            Created by our users
+            {t('subtitle')}
           </p>
         </div>
         <Link
@@ -35,7 +39,7 @@ export default function CommunityGallery() {
           className="font-dm font-[500] hover:text-white transition-colors duration-200"
           style={{ fontSize: '12px', color: 'var(--accent)' }}
         >
-          See all ›
+          {t('seeAll')}
         </Link>
       </div>
 
@@ -72,7 +76,7 @@ export default function CommunityGallery() {
                 className="font-dm font-[600] text-white w-full"
                 style={{ fontSize: '9px', background: 'var(--accent)', border: 'none', borderRadius: '4px', padding: '4px 6px', cursor: 'pointer' }}
               >
-                ✦ Try prompt
+                {t('tryPrompt')}
               </button>
             </div>
           </div>
