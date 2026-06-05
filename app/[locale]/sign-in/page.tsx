@@ -1,13 +1,13 @@
 import { SignIn } from "@clerk/nextjs";
 
-export default function Page() {
+export default function Page({ params }: { params: { locale: string } }) {
   return (
     <div className="min-h-screen bg-[var(--bg)] flex items-center justify-center p-4">
-      <SignIn 
+      <SignIn
         routing="path"
-        path="/sign-in"
-        fallbackRedirectUrl="/"
-        signUpUrl="/sign-up"
+        path={`/${params.locale}/sign-in`}
+        fallbackRedirectUrl={`/${params.locale}`}
+        signUpUrl={`/${params.locale}/sign-up`}
         appearance={{
           variables: {
             colorPrimary: '#532fcf',

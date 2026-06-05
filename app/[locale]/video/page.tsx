@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useRef, useEffect } from 'react';
-import Navbar from '../../components/layout/Navbar';
+import Navbar from '@/components/layout/Navbar';
 import { fetchModelsWithCache } from '../../lib/modelCache';
 import { useUser } from '@clerk/nextjs';
 import { useAuth } from '../../context/AuthContext';

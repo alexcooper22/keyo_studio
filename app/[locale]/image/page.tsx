@@ -1,10 +1,10 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import Navbar from '../../components/layout/Navbar';
-import PromptBar from '../../components/image/PromptBar';
+import Navbar from '@/components/layout/Navbar';
+import PromptBar from '@/components/image/PromptBar';
 import { fetchModelsWithCache } from '../../lib/modelCache';
-import Lightbox, { type ImageDetails } from '../../components/image/Lightbox';
+import Lightbox, { type ImageDetails } from '@/components/image/Lightbox';
 import { useAuth } from '../../context/AuthContext';
 import { useUser } from '@clerk/nextjs';
 

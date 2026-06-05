@@ -2,10 +2,10 @@
 import React, { useState, useEffect, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import Navbar from '../../components/layout/Navbar';
+import Navbar from '@/components/layout/Navbar';
 import { useUser } from '@clerk/nextjs';
-import ModelManager from '../../components/admin/ModelManager';
-import PlanManager from '../../components/admin/PlanManager';
+import ModelManager from '@/components/admin/ModelManager';
+import PlanManager from '@/components/admin/PlanManager';
 
 type Section = 'Personal Profile' | 'Gifts' | 'Referrals' | 'Subscription' | 'Credits Usage' | 'Promo Code' | 'Models';
 

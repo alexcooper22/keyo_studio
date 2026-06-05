@@ -1,11 +1,10 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
-import Navbar from '../components/layout/Navbar';
-import Footer from '../components/layout/Footer';
-import ToolCard from '../components/home/ToolCard';
-import CommunityGallery from '../components/home/CommunityGallery';
+import Navbar from '@/components/layout/Navbar';
+import Footer from '@/components/layout/Footer';
+import ToolCard from '@/components/home/ToolCard';
+import CommunityGallery from '@/components/home/CommunityGallery';
 
 const cycleWords = ['images', 'videos', 'audio'] as const;
 

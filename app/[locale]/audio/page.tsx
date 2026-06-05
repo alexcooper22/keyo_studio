@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import Navbar from '../../components/layout/Navbar';
+import Navbar from '@/components/layout/Navbar';
 
 const bars = [20,40,60,30,80,50,90,40,70,55,85,35,65,75,45,95,25,60,80,50,70,40,85,30,60,90,45,75,55,80];
 
