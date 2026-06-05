@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { invalidateModelsCache } from '../../lib/modelCache'
+import { useTranslations } from 'next-intl'
+import { invalidateModelsCache } from '@/lib/modelCache'
 
 type PricingRow = {
   id: string
@@ -33,7 +34,7 @@ const btnSecondary: React.CSSProperties = { background: 'rgba(255,255,255,0.06)'
 
 type ModelFormShape = { name: string; provider: string; model_id: string; category: string; api_key_env: string; api_secret_env: string }
 
-function ModelForm({ initial, onSave, onCancel }: { initial: ModelFormShape; onSave: (f: ModelFormShape) => void; onCancel: () => void }) {
+function ModelForm({ initial, onSave, onCancel, cancelLabel, saveLabel }: { initial: ModelFormShape; onSave: (f: ModelFormShape) => void; onCancel: () => void; cancelLabel: string; saveLabel: string }) {
   const [form, setForm] = useState(initial)
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -64,14 +65,15 @@ function ModelForm({ initial, onSave, onCancel }: { initial: ModelFormShape; onS
         </div>
       </div>
       <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', paddingTop: '4px' }}>
-        <button style={btnSecondary} onClick={onCancel}>Cancel</button>
-        <button style={btnPrimary} onClick={() => onSave(form)}>Save</button>
+        <button style={btnSecondary} onClick={onCancel}>{cancelLabel}</button>
+        <button style={btnPrimary} onClick={() => onSave(form)}>{saveLabel}</button>
       </div>
     </div>
   )
 }
 
 export default function ModelManager() {
+  const t = useTranslations('settings.admin.models')
   const [models, setModels] = useState<AdminModel[]>([])
   const [loading, setLoading] = useState(true)
   const [notice, setNotice] = useState('')
@@ -108,16 +110,16 @@ export default function ModelManager() {
     })
     setModels(prev => prev.map(m => m.id === model.id ? { ...m, enabled: !m.enabled } : m))
     invalidateModelsCache(model.category)
-    showNotice('Cache cleared — changes live within seconds')
+    showNotice(t('cacheCleared'))
   }
 
   const deleteModel = async (id: string) => {
-    if (!confirm('Delete this model and all its pricing?')) return
+    if (!confirm(t('deleteConfirm'))) return
     await fetch(`/api/admin/models/${id}`, { method: 'DELETE' })
     const deleted = models.find(m => m.id === id)
     setModels(prev => prev.filter(m => m.id !== id))
     if (deleted) invalidateModelsCache(deleted.category)
-    showNotice('Model deleted')
+    showNotice(t('modelDeleted'))
   }
 
   const saveModel = async (form: typeof addModelForm, id?: string) => {
@@ -134,7 +136,7 @@ export default function ModelManager() {
     setShowAddModel(false)
     setEditModel(null)
     if (!id) setAddModelForm({ name: '', provider: 'google', model_id: '', category: 'image', api_key_env: '', api_secret_env: '' })
-    showNotice(id ? 'Model updated' : 'Model added (disabled by default)')
+    showNotice(id ? t('modelUpdated') : t('modelAdded'))
   }
 
   const addPricing = async () => {
@@ -155,7 +157,7 @@ export default function ModelManager() {
     const refreshed = data.models?.find((m: AdminModel) => m.id === pricingModel.id)
     if (refreshed) { setPricingModel(refreshed); setModels(data.models) }
     setAddPricingForm({ quality: '', credits: '', unit: 'per_image', cost_usd: '' })
-    showNotice('Pricing row added')
+    showNotice(t('pricingAdded'))
   }
 
   const savePricing = async () => {
@@ -171,17 +173,17 @@ export default function ModelManager() {
     const refreshed = data.models?.find((m: AdminModel) => m.id === pricingModel.id)
     if (refreshed) { setPricingModel(refreshed); setModels(data.models) }
     setEditPricingId(null)
-    showNotice('Pricing row updated')
+    showNotice(t('pricingUpdated'))
   }
 
   const deletePricing = async (pricingId: string) => {
-    if (!confirm('Delete this pricing row?')) return
+    if (!confirm(t('deletePricingConfirm'))) return
     await fetch(`/api/admin/pricing/${pricingId}`, { method: 'DELETE' })
     if (pricingModel) {
       setPricingModel({ ...pricingModel, model_pricing: pricingModel.model_pricing.filter(p => p.id !== pricingId) })
       setModels(prev => prev.map(m => m.id === pricingModel.id ? { ...m, model_pricing: m.model_pricing.filter(p => p.id !== pricingId) } : m))
     }
-    showNotice('Pricing row deleted')
+    showNotice(t('pricingDeleted'))
   }
 
   const btnDanger: React.CSSProperties = { background: 'rgba(255,60,60,0.1)', border: '0.5px solid rgba(255,60,60,0.3)', borderRadius: '8px', padding: '5px 10px', color: 'rgba(255,100,100,0.9)', fontSize: '11px', cursor: 'pointer' }
@@ -208,7 +210,7 @@ export default function ModelManager() {
               onClick={() => { setEditModel(models.find(m => m.id === openMenuId) ?? null); closeMenu() }}
             >
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-              Edit
+              {t('edit')}
             </button>
             <button
               style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%', textAlign: 'left', padding: '8px 10px', background: 'none', border: 'none', color: 'rgba(255,100,100,0.85)', fontSize: '12px', cursor: 'pointer', borderRadius: '7px' }}
@@ -217,7 +219,7 @@ export default function ModelManager() {
               onClick={() => { deleteModel(openMenuId); closeMenu() }}
             >
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-              Delete
+              {t('delete')}
             </button>
           </div>
         </>
@@ -228,10 +230,10 @@ export default function ModelManager() {
         <div style={backdrop} onClick={() => setShowAddModel(false)}>
           <div style={modalCard('480px')} onClick={e => e.stopPropagation()}>
             <div style={modalHeader}>
-              <p style={modalTitle}>New Model</p>
+              <p style={modalTitle}>{t('newModel')}</p>
               <button style={btnClose} onClick={() => setShowAddModel(false)}>{closeIcon}</button>
             </div>
-            <ModelForm initial={addModelForm} onSave={(f) => saveModel(f)} onCancel={() => setShowAddModel(false)} />
+            <ModelForm initial={addModelForm} onSave={(f) => saveModel(f)} onCancel={() => setShowAddModel(false)} cancelLabel={t('cancel')} saveLabel={t('save')} />
           </div>
         </div>
       )}
@@ -241,13 +243,14 @@ export default function ModelManager() {
         <div style={backdrop} onClick={() => setEditModel(null)}>
           <div style={modalCard('480px')} onClick={e => e.stopPropagation()}>
             <div style={modalHeader}>
-              <p style={modalTitle}>Edit — {editModel.name}</p>
+              <p style={modalTitle}>{t('edit')} — {editModel.name}</p>
               <button style={btnClose} onClick={() => setEditModel(null)}>{closeIcon}</button>
             </div>
             <ModelForm
               initial={{ name: editModel.name, provider: editModel.provider, model_id: editModel.model_id, category: editModel.category, api_key_env: editModel.api_key_env, api_secret_env: editModel.api_secret_env ?? '' }}
               onSave={(f) => saveModel(f, editModel.id)}
               onCancel={() => setEditModel(null)}
+              cancelLabel={t('cancel')} saveLabel={t('save')}
             />
           </div>
         </div>
@@ -340,12 +343,12 @@ export default function ModelManager() {
                 </div>
               </div>
             ) : (
-              <div style={{ textAlign: 'center', padding: '28px 0', color: 'rgba(255,255,255,0.2)', fontSize: '12px', marginBottom: '20px' }}>No pricing rows yet</div>
+              <div style={{ textAlign: 'center', padding: '28px 0', color: 'rgba(255,255,255,0.2)', fontSize: '12px', marginBottom: '20px' }}>{t('noPricing')}</div>
             )}
 
             {/* Add row form */}
             <div style={{ background: 'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.07)', borderRadius: '12px', padding: '16px' }}>
-              <p style={{ color: 'rgba(255,255,255,0.25)', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px', margin: '0 0 12px' }}>Add pricing row</p>
+              <p style={{ color: 'rgba(255,255,255,0.25)', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px', margin: '0 0 12px' }}>{t('addPricingRow')}</p>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1.6fr 1fr 72px', gap: '8px', alignItems: 'flex-end' }}>
                 {[
                   { label: 'Quality', key: 'quality', placeholder: '1K' },
@@ -369,7 +372,7 @@ export default function ModelManager() {
                 <button
                   style={{ ...btnPrimary, padding: '8px 0', width: '100%', borderRadius: '8px', fontSize: '13px' }}
                   onClick={addPricing}
-                >Add</button>
+                >+</button>
               </div>
             </div>
 
@@ -384,12 +387,12 @@ export default function ModelManager() {
       )}
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h3 style={{ color: 'white', fontSize: '16px', fontWeight: 700, margin: 0, letterSpacing: '-0.3px' }}>AI Models</h3>
-        <button style={btnPrimary} onClick={() => setShowAddModel(true)}>+ Add Model</button>
+        <h3 style={{ color: 'white', fontSize: '16px', fontWeight: 700, margin: 0, letterSpacing: '-0.3px' }}>{t('title')}</h3>
+        <button style={btnPrimary} onClick={() => setShowAddModel(true)}>{t('addModel')}</button>
       </div>
 
       {loading ? (
-        <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: '13px', padding: '20px 0', textAlign: 'center' }}>Loading...</div>
+        <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: '13px', padding: '20px 0', textAlign: 'center' }}>{t('loading')}</div>
       ) : (
         <div style={{ borderRadius: '14px', border: '0.5px solid rgba(255,255,255,0.07)', overflow: 'hidden' }}>
           {/* Header */}
@@ -472,7 +475,7 @@ export default function ModelManager() {
             </div>
           ))}
           {models.length === 0 && (
-            <div style={{ padding: '40px', textAlign: 'center', color: 'rgba(255,255,255,0.15)', fontSize: '13px' }}>No models yet</div>
+            <div style={{ padding: '40px', textAlign: 'center', color: 'rgba(255,255,255,0.15)', fontSize: '13px' }}>{t('noModels')}</div>
           )}
         </div>
       )}

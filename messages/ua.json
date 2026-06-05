@@ -1,4 +1,40 @@
 {
+  "image": {
+    "studioLabel": "Keyo Image Studio",
+    "heroTitle": "Що б ти уявив, якби все було можливим?",
+    "promptPlaceholder": "Опишіть зображення, яке уявляєте...",
+    "aspectRatio": "Співвідношення",
+    "quality": "Якість",
+    "noCredits": "Немає кредитів",
+    "generate": "Генерувати",
+    "creditsCount": "{credits} кредитів"
+  },
+  "video": {
+    "studioLabel": "Keyo Video Studio",
+    "heroTitle": "Яку б ти розповів історію з нескінченними кадрами?",
+    "tryForFree": "Спробувати безкоштовно",
+    "aiBadge": "AI Video Studio",
+    "heroLine1": "Перетвори ідеї на",
+    "heroWord": "відео",
+    "heroLine3": "за допомогою",
+    "heroSubtitle": "Платформа для AI генерації відео",
+    "tabCreate": "Створити відео",
+    "tabEdit": "Редагувати",
+    "tabMotion": "Анімація",
+    "change": "Змінити",
+    "general": "Загальна",
+    "loading": "Завантаження...",
+    "optional": "Необов'язково",
+    "startFrame": "Початковий кадр",
+    "endFrame": "Кінцевий кадр",
+    "audio": "Аудіо",
+    "promptPlaceholder": "Опишіть сцену відео...",
+    "model": "Модель",
+    "generating": "Генерація...",
+    "noCredits": "Немає кредитів",
+    "generate": "Генерувати",
+    "emptyState": "Тут з'являться ваші відео"
+  },
   "navbar": {
     "explore": "Головна",
     "image": "Зображення",
@@ -49,7 +85,9 @@
   "footer": {
     "tagline": "Створюй будь-що за допомогою AI",
     "badge": "AI Творча Студія",
-    "poweredBy": "Працює на AI"
+    "poweredBy": "Працює на AI",
+    "privacy": "Конфіденційність",
+    "terms": "Умови"
   },
   "privacy": {
     "badge": "Правові документи",
@@ -98,6 +136,88 @@
         "body": "Якщо у вас є запитання щодо цієї Політики конфіденційності, будь ласка, зв'яжіться з нами за адресою privacy@keyo.studio або напишіть до юридичного відділу Keyo Studio."
       }
     ]
+  },
+  "settings": {
+    "sections": {
+      "personalProfile": "Особистий профіль",
+      "gifts": "Подарунки",
+      "referrals": "Реферали",
+      "subscription": "Підписка",
+      "creditsUsage": "Використання кредитів",
+      "promoCode": "Промокод",
+      "models": "Моделі"
+    },
+    "groups": {
+      "account": "Акаунт",
+      "workspace": "Робочий простір",
+      "admin": "Адмін"
+    },
+    "profile": {
+      "personalAccount": "Особистий акаунт",
+      "username": "Ім'я користувача",
+      "email": "Електронна пошта"
+    },
+    "credits": {
+      "label": "Кредити",
+      "topUp": "Поповнити",
+      "usageComingSoon": "Історія використання незабаром"
+    },
+    "subscription": {
+      "currentPlan": "Поточний план",
+      "freePlan": "Безкоштовний план",
+      "planSuffix": "план",
+      "creditsRemaining": "{credits} кредитів залишилось",
+      "limitedFeatures": "Обмежені можливості для вивчення AI творчості",
+      "managePlan": "Керувати планом",
+      "upgrade": "Оновити"
+    },
+    "promoCode": {
+      "redeemCode": "Активувати код",
+      "placeholder": "Введіть промокод...",
+      "apply": "Застосувати"
+    },
+    "comingSoon": {
+      "badge": "Незабаром",
+      "description": "Ми зараз масштабуємо цю функцію. Слідкуйте за оновленнями!"
+    },
+    "discord": {
+      "title": "Приєднатись до Discord",
+      "description": "Отримайте допомогу та спілкуйтесь зі спільнотою",
+      "button": "Приєднатись"
+    },
+    "admin": {
+      "models": {
+        "title": "AI Моделі",
+        "addModel": "+ Додати модель",
+        "loading": "Завантаження...",
+        "noModels": "Моделей ще немає",
+        "noPricing": "Рядків цін ще немає",
+        "cacheCleared": "Кеш очищено — зміни набудуть чинності за секунди",
+        "modelDeleted": "Модель видалено",
+        "modelAdded": "Модель додано (вимкнена за замовчуванням)",
+        "modelUpdated": "Модель оновлено",
+        "pricingAdded": "Рядок цін додано",
+        "pricingUpdated": "Рядок цін оновлено",
+        "pricingDeleted": "Рядок цін видалено",
+        "deleteConfirm": "Видалити цю модель та всі її ціни?",
+        "deletePricingConfirm": "Видалити цей рядок цін?",
+        "addPricingRow": "Додати рядок цін",
+        "newModel": "Нова модель",
+        "edit": "Редагувати",
+        "delete": "Видалити",
+        "save": "Зберегти",
+        "cancel": "Скасувати"
+      },
+      "plans": {
+        "title": "Плани",
+        "loading": "Завантаження...",
+        "noPlans": "Планів ще немає",
+        "edit": "Редагувати",
+        "save": "Зберегти",
+        "cancel": "Скасувати",
+        "planUpdated": "План оновлено — кеш очищено"
+      }
+    }
   },
   "terms": {
     "badge": "Правові документи",

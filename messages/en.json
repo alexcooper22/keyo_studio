@@ -1,4 +1,40 @@
 {
+  "image": {
+    "studioLabel": "Keyo Image Studio",
+    "heroTitle": "What would you imagine if anything was possible?",
+    "promptPlaceholder": "Describe the image you imagine...",
+    "aspectRatio": "Aspect ratio",
+    "quality": "Quality",
+    "noCredits": "No credits",
+    "generate": "Generate",
+    "creditsCount": "{credits} credits"
+  },
+  "video": {
+    "studioLabel": "Keyo Video Studio",
+    "heroTitle": "What story would you tell with unlimited frames?",
+    "tryForFree": "Try for free",
+    "aiBadge": "AI Video Studio",
+    "heroLine1": "Turn ideas into",
+    "heroWord": "videos",
+    "heroLine3": "using",
+    "heroSubtitle": "Infrastructure for AI Video Generation",
+    "tabCreate": "Create Video",
+    "tabEdit": "Edit",
+    "tabMotion": "Motion",
+    "change": "Change",
+    "general": "General",
+    "loading": "Loading...",
+    "optional": "Optional",
+    "startFrame": "Start frame",
+    "endFrame": "End frame",
+    "audio": "Audio",
+    "promptPlaceholder": "Describe your video scene...",
+    "model": "Model",
+    "generating": "Generating...",
+    "noCredits": "No credits",
+    "generate": "Generate",
+    "emptyState": "Your videos will appear here"
+  },
   "navbar": {
     "explore": "Explore",
     "image": "Image",
@@ -49,7 +85,9 @@
   "footer": {
     "tagline": "Create anything with AI",
     "badge": "AI Creative Studio",
-    "poweredBy": "Powered by AI"
+    "poweredBy": "Powered by AI",
+    "privacy": "Privacy",
+    "terms": "Terms"
   },
   "privacy": {
     "badge": "Legal",
@@ -98,6 +136,88 @@
         "body": "If you have questions about this Privacy Policy, please contact us at privacy@keyo.studio or write to us at Keyo Studio, legal department."
       }
     ]
+  },
+  "settings": {
+    "sections": {
+      "personalProfile": "Personal Profile",
+      "gifts": "Gifts",
+      "referrals": "Referrals",
+      "subscription": "Subscription",
+      "creditsUsage": "Credits Usage",
+      "promoCode": "Promo Code",
+      "models": "Models"
+    },
+    "groups": {
+      "account": "Account",
+      "workspace": "Workspace",
+      "admin": "Admin"
+    },
+    "profile": {
+      "personalAccount": "Personal account",
+      "username": "Username",
+      "email": "Email"
+    },
+    "credits": {
+      "label": "Credits",
+      "topUp": "Top-up",
+      "usageComingSoon": "Usage history coming soon"
+    },
+    "subscription": {
+      "currentPlan": "Current Plan",
+      "freePlan": "Free Plan",
+      "planSuffix": "Plan",
+      "creditsRemaining": "{credits} credits remaining",
+      "limitedFeatures": "Limited features for exploring AI creativity",
+      "managePlan": "Manage plan",
+      "upgrade": "Upgrade"
+    },
+    "promoCode": {
+      "redeemCode": "Redeem Code",
+      "placeholder": "Enter promo code...",
+      "apply": "Apply"
+    },
+    "comingSoon": {
+      "badge": "Coming soon",
+      "description": "We're currently scaling this feature. Stay tuned for updates!"
+    },
+    "discord": {
+      "title": "Join Discord",
+      "description": "Get help & connect with the community",
+      "button": "Join now"
+    },
+    "admin": {
+      "models": {
+        "title": "AI Models",
+        "addModel": "+ Add Model",
+        "loading": "Loading...",
+        "noModels": "No models yet",
+        "noPricing": "No pricing rows yet",
+        "cacheCleared": "Cache cleared — changes live within seconds",
+        "modelDeleted": "Model deleted",
+        "modelAdded": "Model added (disabled by default)",
+        "modelUpdated": "Model updated",
+        "pricingAdded": "Pricing row added",
+        "pricingUpdated": "Pricing row updated",
+        "pricingDeleted": "Pricing row deleted",
+        "deleteConfirm": "Delete this model and all its pricing?",
+        "deletePricingConfirm": "Delete this pricing row?",
+        "addPricingRow": "Add pricing row",
+        "newModel": "New Model",
+        "edit": "Edit",
+        "delete": "Delete",
+        "save": "Save",
+        "cancel": "Cancel"
+      },
+      "plans": {
+        "title": "Plans",
+        "loading": "Loading...",
+        "noPlans": "No plans yet",
+        "edit": "Edit",
+        "save": "Save",
+        "cancel": "Cancel",
+        "planUpdated": "Plan updated — cache cleared"
+      }
+    }
   },
   "terms": {
     "badge": "Legal",

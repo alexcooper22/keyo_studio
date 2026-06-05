@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 
 type BreakdownItem = { icon: string; main: string; sub: string }
 
@@ -17,6 +18,7 @@ type Plan = {
 }
 
 export default function PlanManager() {
+  const t = useTranslations('settings.admin.plans')
   const [plans, setPlans] = useState<Plan[]>([])
   const [loading, setLoading] = useState(true)
   const [notice, setNotice] = useState('')
@@ -43,7 +45,7 @@ export default function PlanManager() {
     if (!res.ok) { const d = await res.json(); alert(d.error); return }
     await fetchPlans()
     setEditPlan(null)
-    showNotice('Plan updated — cache cleared')
+    showNotice(t('planUpdated'))
   }
 
   const inputStyle: React.CSSProperties = { background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '6px 10px', color: 'white', fontSize: '12px', outline: 'none', width: '100%' }
@@ -105,8 +107,8 @@ export default function PlanManager() {
           />
         </div>
         <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-          <button style={btnSecondary} onClick={onCancel}>Cancel</button>
-          <button style={btnPrimary} onClick={handleSave}>Save</button>
+          <button style={btnSecondary} onClick={onCancel}>{t('cancel')}</button>
+          <button style={btnPrimary} onClick={handleSave}>{t('save')}</button>
         </div>
       </div>
     )
@@ -117,7 +119,7 @@ export default function PlanManager() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '32px', paddingTop: '24px', borderTop: '0.5px solid rgba(255,255,255,0.06)' }}>
-      <h3 style={{ color: 'white', fontSize: '15px', fontWeight: 700, margin: 0 }}>Subscription Plans</h3>
+      <h3 style={{ color: 'white', fontSize: '15px', fontWeight: 700, margin: 0 }}>{t('title')}</h3>
 
       {/* Edit modal */}
       {editPlan && (
@@ -128,7 +130,7 @@ export default function PlanManager() {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
               <p style={{ color: 'rgba(170,140,255,0.9)', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px', margin: 0 }}>
-                Edit — {editPlan.name}
+                {t('edit')} — {editPlan.name}
               </p>
               <button style={btnClose} onClick={() => setEditPlan(null)}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -146,7 +148,7 @@ export default function PlanManager() {
       )}
 
       {loading ? (
-        <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: '13px', textAlign: 'center', padding: '20px 0' }}>Loading...</div>
+        <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: '13px', textAlign: 'center', padding: '20px 0' }}>{t('loading')}</div>
       ) : (
         <div style={{ borderRadius: '14px', border: '0.5px solid rgba(255,255,255,0.07)', overflow: 'hidden' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '70px 1fr 90px 100px 90px 44px', padding: '10px 18px', background: 'rgba(255,255,255,0.02)', borderBottom: '0.5px solid rgba(255,255,255,0.06)' }}>
