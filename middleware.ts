@@ -16,8 +16,10 @@ const isPublicRoute = createRouteMatcher([
   '/:locale/pricing',
   '/:locale/privacy',
   '/:locale/terms',
-  '/api/liqpay/webhook(.*)',
+  '/api/stripe/webhook(.*)',
   '/api/community-gallery(.*)',
+  '/api/models(.*)',
+  '/api/credits/packages(.*)',
 ]);
 
 export default clerkMiddleware(async (auth, request) => {

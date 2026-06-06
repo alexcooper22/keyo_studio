@@ -57,10 +57,10 @@ export default function DashboardPage() {
       <main className="relative z-10 pt-[90px] pb-[100px] md:pb-24 px-4 md:px-8 max-w-[1200px] mx-auto">
 
         {/* ── Profile header ── */}
-        <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start mb-12">
+        <div className="flex flex-col items-center mb-12">
 
           {/* Avatar + info */}
-          <div className="w-full lg:w-auto flex flex-col items-center lg:items-start text-center lg:text-left">
+          <div className="flex flex-col items-center text-center">
             <div className="relative">
               <div
                 className="w-[80px] h-[80px] rounded-full flex items-center justify-center shadow-lg"
@@ -77,11 +77,11 @@ export default function DashboardPage() {
                 style={{ borderColor: 'var(--bg)' }} />
             </div>
 
-            <div className="mt-4 flex items-center gap-2.5 justify-center lg:justify-start">
+            <div className="mt-4 flex items-center gap-2.5 justify-center">
               <h1 className="font-clash font-[700] text-[24px] text-white tracking-tight">{displayName}</h1>
             </div>
 
-            <div className="mt-2 flex items-center justify-center lg:justify-start gap-2 font-dm text-[13px]" style={{ color: 'var(--text-secondary)' }}>
+            <div className="mt-2 flex items-center justify-center gap-2 font-dm text-[13px]" style={{ color: 'var(--text-secondary)' }}>
               <span className="flex items-center gap-1" style={{ color: 'rgba(170,140,255,0.9)' }}>
                 <span style={{ fontSize: '9px' }}>✦</span>
                 {credits !== null ? `${credits} credits` : '···'}
@@ -101,32 +101,6 @@ export default function DashboardPage() {
               </svg>
               Edit profile
             </Link>
-          </div>
-
-          {/* Featured project card */}
-          <div className="flex-1 w-full">
-            <div
-              className="w-full min-h-[180px] rounded-2xl flex flex-col items-center justify-center p-8 cursor-pointer transition-all duration-300 group"
-              style={{
-                background: 'rgba(255,255,255,0.02)',
-                border: '1px dashed rgba(255,255,255,0.08)',
-              }}
-              onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(120,80,255,0.3)'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(255,255,255,0.08)'; }}
-            >
-              <div
-                className="w-9 h-9 rounded-full flex items-center justify-center mb-3 transition-all duration-300 group-hover:scale-110"
-                style={{ border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-secondary)' }}
-              >
-                <span className="text-[18px] leading-none">+</span>
-              </div>
-              <p className="font-dm font-[500] text-[13px] transition-colors" style={{ color: 'var(--text-secondary)' }}>
-                Add featured project
-              </p>
-              <p className="font-dm text-[11px] mt-1 text-center max-w-[200px]" style={{ color: 'rgba(255,255,255,0.2)' }}>
-                Choose one of your projects to highlight it
-              </p>
-            </div>
           </div>
         </div>
 

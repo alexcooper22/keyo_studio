@@ -31,6 +31,7 @@ export default function VideoDashboard() {
   const [showAspectMenu, setShowAspectMenu] = useState(false);
   const [duration, setDuration] = useState<number>(5);
   const [showDurationMenu, setShowDurationMenu] = useState(false);
+  const [isPromptFocused, setIsPromptFocused] = useState(false);
   const [showModelMenu, setShowModelMenu] = useState(false);
   const [audioEnabled, setAudioEnabled] = useState(false);
   const [startFrame, setStartFrame] = useState<string | null>(null);
@@ -396,10 +397,7 @@ export default function VideoDashboard() {
         {/* MOBILE HERO — unauthenticated only */}
         {isLoaded && !isSignedIn && (
           <div className="flex md:hidden flex-col items-center justify-start text-center relative px-6" style={{ minHeight: 'calc(100vh - 94px)', overflow: 'hidden', paddingTop: '15vh' }}>
-            {/* Purple ambient orbs — mirrors homepage */}
-            <div aria-hidden style={{ position: 'absolute', top: '-10%', left: '50%', transform: 'translateX(-50%)', width: '500px', height: '500px', background: 'radial-gradient(ellipse at center, rgba(83,47,207,0.28) 0%, rgba(60,30,180,0.12) 40%, transparent 70%)', borderRadius: '50%', pointerEvents: 'none' }} />
-            <div aria-hidden style={{ position: 'absolute', top: '20%', left: '-20%', width: '350px', height: '350px', background: 'radial-gradient(ellipse at center, rgba(100,50,220,0.14) 0%, transparent 65%)', borderRadius: '50%', pointerEvents: 'none' }} />
-            <div aria-hidden style={{ position: 'absolute', top: '25%', right: '-20%', width: '300px', height: '300px', background: 'radial-gradient(ellipse at center, rgba(140,80,255,0.12) 0%, transparent 65%)', borderRadius: '50%', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 70% 55% at 50% 50%, rgba(60,80,160,0.28) 0%, rgba(40,55,120,0.1) 45%, transparent 70%)', pointerEvents: 'none' }} />
 
             {[['top-0 left-0', 'border-t border-l', '-translate-x-px -translate-y-px'],
               ['top-0 right-0', 'border-t border-r', 'translate-x-px -translate-y-px'],
@@ -407,18 +405,18 @@ export default function VideoDashboard() {
               ['bottom-0 right-0', 'border-b border-r', 'translate-x-px translate-y-px'],
             ].map(([pos, border, translate], i) => (
               <div key={i} className={`absolute ${pos} ${translate}`} style={{ width: '36px', height: '36px' }}>
-                <div className={`w-full h-full ${border}`} style={{ borderColor: 'rgba(120,80,255,0.5)' }} />
+                <div className={`w-full h-full ${border}`} style={{ borderColor: 'rgba(83,47,207,0.7)' }} />
               </div>
             ))}
-            <p className="font-dm mb-5 tracking-[0.2em] uppercase" style={{ fontSize: '11px', color: 'rgba(160,120,255,0.6)', letterSpacing: '0.18em', position: 'relative' }}>
+            <p className="font-dm mb-5 tracking-[0.2em] uppercase" style={{ fontSize: '11px', color: 'rgba(140,160,220,0.55)', letterSpacing: '0.18em', position: 'relative' }}>
               {t('studioLabel')}
             </p>
             <h1 className="font-clash" style={{
-              fontSize: 'clamp(44px, 11vw, 72px)',
+              fontSize: 'clamp(44px, 6vw, 72px)',
               fontWeight: 700,
               lineHeight: 1.1,
               letterSpacing: '-0.02em',
-              background: 'linear-gradient(135deg, #e8e0ff 0%, #c4b0ff 40%, #9b7eff 70%, #6b4ef5 100%)',
+              background: 'linear-gradient(135deg, #7090e8 0%, #5b7fe0 35%, #8ba4f0 65%, #a8c0ff 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',
@@ -427,29 +425,6 @@ export default function VideoDashboard() {
             }}>
               {t('heroTitle')}
             </h1>
-            <button
-              onClick={() => setShowModal(true)}
-              style={{
-                background: 'linear-gradient(135deg, #7c5cf0 0%, #9b7eff 100%)',
-                border: 'none',
-                borderRadius: '12px',
-                padding: '14px 40px',
-                fontSize: '15px',
-                fontWeight: 700,
-                fontFamily: 'var(--font-dm)',
-                color: '#fff',
-                cursor: 'pointer',
-                boxShadow: '0 4px 24px rgba(83,47,207,0.45), inset 0 1px 0 rgba(255,255,255,0.15)',
-                letterSpacing: '0.1px',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                marginTop: '20px',
-              }}
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v14l11-7-11-7z"/></svg>
-              {t('tryForFree')}
-            </button>
           </div>
         )}
 
@@ -515,12 +490,19 @@ export default function VideoDashboard() {
             </div>
 
             {/* Prompt textarea */}
-            <textarea
-              value={prompt}
-              onChange={e => setPrompt(e.target.value)}
-              placeholder={t('promptPlaceholder')}
-              style={{ background: 'rgba(255,255,255,0.03)', border: '0.5px solid rgba(255,255,255,0.07)', borderRadius: '10px', padding: '10px 12px', fontSize: '13px', color: 'rgba(255,255,255,0.85)', flex: 1, minHeight: '110px', resize: 'none', outline: 'none', width: '100%', fontFamily: 'var(--font-dm)', boxSizing: 'border-box', lineHeight: 1.6 }}
-            />
+            <div
+              className={`prompt-bar-orbit${isPromptFocused ? ' prompt-bar-focused' : ''}${isGenerating ? ' prompt-bar-loading' : ''}`}
+              style={{ borderRadius: '12px' }}
+            >
+              <textarea
+                value={prompt}
+                onChange={e => setPrompt(e.target.value)}
+                onFocus={() => setIsPromptFocused(true)}
+                onBlur={() => setIsPromptFocused(false)}
+                placeholder={t('promptPlaceholder')}
+                style={{ background: 'rgba(10,10,14,0.97)', border: 'none', borderRadius: '10px', padding: '10px 12px', fontSize: '13px', color: 'rgba(255,255,255,0.85)', flex: 1, minHeight: '110px', resize: 'none', outline: 'none', width: '100%', fontFamily: 'var(--font-dm)', boxSizing: 'border-box', lineHeight: 1.6, display: 'block' }}
+              />
+            </div>
 
             {/* Model select */}
             <div style={{ position: 'relative' }} data-menu="true">
@@ -611,12 +593,9 @@ export default function VideoDashboard() {
           {videos.length === 0 && !isGenerating && (
             <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 'calc(100vh - 154px)', position: 'relative' }}>
               {isLoaded && !isSignedIn ? (
-                <div className="hidden md:block" style={{ textAlign: 'center', padding: '0 24px', position: 'relative' }}>
-                  {[['top-0 left-0', '-translate-x-px -translate-y-px'], ['top-0 right-0', 'translate-x-px -translate-y-px'], ['bottom-0 left-0', '-translate-x-px translate-y-px'], ['bottom-0 right-0', 'translate-x-px translate-y-px']].map(([pos, translate], i) => (
-                    <div key={i} className={`absolute ${pos} ${translate}`} style={{ width: '28px', height: '28px', border: `0.5px solid rgba(83,47,207,0.7)`, borderRadius: '0', ...(i === 0 ? { borderRight: 'none', borderBottom: 'none' } : i === 1 ? { borderLeft: 'none', borderBottom: 'none' } : i === 2 ? { borderRight: 'none', borderTop: 'none' } : { borderLeft: 'none', borderTop: 'none' }) }} />
-                  ))}
-                  <p style={{ fontSize: '10px', color: 'rgba(140,160,220,0.5)', letterSpacing: '0.18em', textTransform: 'uppercase', fontFamily: 'var(--font-dm)', marginBottom: '16px' }}>{t('studioLabel')}</p>
-                  <h2 style={{ fontSize: 'clamp(28px, 4vw, 54px)', fontWeight: 700, lineHeight: 1.1, letterSpacing: '-0.02em', background: 'linear-gradient(135deg, #7090e8 0%, #5b7fe0 35%, #8ba4f0 65%, #a8c0ff 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', maxWidth: '520px', fontFamily: 'var(--font-clash)' }}>
+                <div className="hidden md:flex flex-col items-center text-center" style={{ padding: '0 24px' }}>
+                  <p className="font-dm mb-5 tracking-[0.2em] uppercase" style={{ fontSize: '11px', color: 'rgba(140,160,220,0.55)', letterSpacing: '0.18em' }}>{t('studioLabel')}</p>
+                  <h2 className="font-clash" style={{ fontSize: 'clamp(44px, 6vw, 72px)', fontWeight: 700, lineHeight: 1.1, letterSpacing: '-0.02em', background: 'linear-gradient(135deg, #7090e8 0%, #5b7fe0 35%, #8ba4f0 65%, #a8c0ff 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', maxWidth: '680px' }}>
                     {t('heroTitle')}
                   </h2>
                 </div>

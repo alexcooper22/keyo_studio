@@ -276,6 +276,78 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ images: [{ url: publicUrl }], prompt, remainingCredits: updatedSub.credits_remaining })
     }
 
+    if (aiModel.provider === 'bytedance') {
+      // BytePlus / VolcEngine — Seedream image generation
+      const sizeMatrix: Record<string, Record<string, string>> = {
+        '1:1':   { '1K': '1024x1024', '2K': '1536x1536', '4K': '2048x2048' },
+        '4:3':   { '1K': '1024x768',  '2K': '1536x1152', '4K': '2048x1536' },
+        '3:4':   { '1K': '768x1024',  '2K': '1152x1536', '4K': '1536x2048' },
+        '16:9':  { '1K': '1280x720',  '2K': '1920x1080', '4K': '2560x1440' },
+        '9:16':  { '1K': '720x1280',  '2K': '1080x1920', '4K': '1440x2560' },
+        '3:2':   { '1K': '1024x682',  '2K': '1536x1024', '4K': '2048x1365' },
+        '2:3':   { '1K': '682x1024',  '2K': '1024x1536', '4K': '1365x2048' },
+        '21:9':  { '1K': '1280x549',  '2K': '1920x823',  '4K': '2560x1097' },
+        '5:4':   { '1K': '1024x819',  '2K': '1280x1024', '4K': '2048x1638' },
+        '4:5':   { '1K': '819x1024',  '2K': '1024x1280', '4K': '1638x2048' },
+        'auto':  { '1K': '1024x1024', '2K': '1536x1536', '4K': '2048x2048' },
+      }
+      const ratioSizes = sizeMatrix[aspectRatio] ?? sizeMatrix['4:3']
+      const image_size = ratioSizes[resolution] ?? ratioSizes['1K']
+
+      const bdRes = await fetch('https://api.byteplus.com/v1/images/generations', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: aiModel.model_id, prompt, image_size }),
+        signal: AbortSignal.timeout(90_000),
+      })
+
+      const bdData = await bdRes.json()
+      if (!bdRes.ok) throw new Error(`ByteDance error: ${bdData.error?.message ?? bdData.message ?? bdRes.status}`)
+
+      const imageUrl: string | null = bdData.data?.[0]?.url ?? null
+      if (!imageUrl) throw new Error('ByteDance returned no image URL')
+
+      const imgRes = await fetchProviderImage(imageUrl)
+      if (!imgRes.ok) throw new Error('Failed to fetch generated image from ByteDance CDN')
+      const ct = imgRes.headers.get('content-type') || 'image/png'
+      const ext = ct.includes('jpeg') || ct.includes('jpg') ? 'jpg' : 'png'
+      const imageBuffer = Buffer.from(await imgRes.arrayBuffer())
+
+      const fileName = `${userId}/${Date.now()}.${ext}`
+      const bucketName = 'user-images'
+
+      const { error: uploadError } = await supabaseAdmin.storage
+        .from(bucketName)
+        .upload(fileName, imageBuffer, { contentType: `image/${ext}`, upsert: true })
+
+      if (uploadError) throw new Error(`Supabase upload failed: ${uploadError.message}`)
+
+      const { data: { publicUrl } } = supabaseAdmin.storage.from(bucketName).getPublicUrl(fileName)
+
+      await supabaseAdmin.from('generated_images').insert({
+        clerk_id: userId,
+        prompt,
+        image_url: publicUrl,
+        model: aiModel.name,
+        aspect_ratio: aspectRatio || '4:3',
+        resolution: resolution || '1K',
+      })
+
+      const { data: updatedSub, error: updateError } = await supabaseAdmin
+        .from('user_subscriptions')
+        .update({ credits_remaining: currentCredits - creditCost, updated_at: new Date().toISOString() })
+        .eq('clerk_id', userId)
+        .eq('status', 'active')
+        .gte('credits_remaining', creditCost)
+        .select('credits_remaining')
+        .maybeSingle()
+
+      if (updateError) throw updateError
+      if (!updatedSub) return NextResponse.json({ error: 'Insufficient credits' }, { status: 403 })
+
+      return NextResponse.json({ images: [{ url: publicUrl }], prompt, remainingCredits: updatedSub.credits_remaining })
+    }
+
     if (aiModel.provider !== 'google') {
       return NextResponse.json({ error: `Provider "${aiModel.provider}" not yet implemented` }, { status: 501 });
     }

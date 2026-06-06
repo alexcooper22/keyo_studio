@@ -9,8 +9,16 @@ import type { SubscriptionPlan } from '@/lib/plans';
 
 const FALLBACK_PLANS: SubscriptionPlan[] = [
   {
+    id: "nano", name: "Nano", description: "Perfect for trying out AI content creation",
+    price_usd: 9, credits: 100, featured: false, cta_text: "Get started", cta_style: "outline", sort_order: 0,
+    breakdown: [
+      { icon: "image", main: "50 image generations", sub: "Nano Banana Pro · 2 credits each" },
+      { icon: "video", main: "~11 video clips", sub: "Kling 3.0 · ~8.7 credits each" },
+    ],
+  },
+  {
     id: "starter", name: "Starter", description: "For first-time AI content creators",
-    price_usd: 19, credits: 200, featured: false, cta_text: "Get started", cta_style: "outline", sort_order: 1,
+    price_usd: 17, credits: 200, featured: false, cta_text: "Get started", cta_style: "outline", sort_order: 1,
     breakdown: [
       { icon: "image", main: "100 image generations", sub: "Nano Banana Pro · 2 credits each" },
       { icon: "video", main: "~23 video clips", sub: "Kling 3.0 · ~8.7 credits each" },
@@ -18,7 +26,7 @@ const FALLBACK_PLANS: SubscriptionPlan[] = [
   },
   {
     id: "plus", name: "Plus", description: "For consistent and easy AI content creation",
-    price_usd: 49, credits: 1000, featured: true, cta_text: "Get Plus", cta_style: "primary", sort_order: 2,
+    price_usd: 49, credits: 900, featured: true, cta_text: "Get Plus", cta_style: "primary", sort_order: 2,
     breakdown: [
       { icon: "image", main: "500 image generations", sub: "Nano Banana Pro · 2 credits each" },
       { icon: "video", main: "~114 video clips", sub: "Kling 3.0 · ~8.7 credits each" },
@@ -30,7 +38,7 @@ export default function PricingPage() {
   const { isSignedIn } = useClerkAuth();
   const { setShowModal } = useAuth();
   const t = useTranslations('pricing');
-  const [loadingPlan, setLoadingPlan] = useState<'starter' | 'plus' | null>(null);
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [plans, setPlans] = useState<SubscriptionPlan[]>(FALLBACK_PLANS);
 
   useEffect(() => {
@@ -40,29 +48,18 @@ export default function PricingPage() {
       .catch(() => {});
   }, []);
 
-  const handleCheckout = async (plan: 'starter' | 'plus') => {
+  const handleCheckout = async (plan: string) => {
     if (!isSignedIn) { setShowModal(true); return; }
     setLoadingPlan(plan);
     try {
-      const res = await fetch('/api/liqpay/checkout', {
+      const res = await fetch('/api/stripe/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ plan }),
       });
       const data = await res.json();
-      if (data.data && data.signature) {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = 'https://www.liqpay.ua/api/3/checkout';
-        form.acceptCharset = 'utf-8';
-        const dataInput = document.createElement('input');
-        dataInput.type = 'hidden'; dataInput.name = 'data'; dataInput.value = data.data;
-        const sigInput = document.createElement('input');
-        sigInput.type = 'hidden'; sigInput.name = 'signature'; sigInput.value = data.signature;
-        form.appendChild(dataInput);
-        form.appendChild(sigInput);
-        document.body.appendChild(form);
-        form.submit();
+      if (data.url) {
+        window.location.href = data.url;
       } else {
         alert(data.error || 'Something went wrong. Please try again.');
         setLoadingPlan(null);
@@ -148,11 +145,19 @@ export default function PricingPage() {
         </div>
 
         {/* ── Cards ── */}
-        <div className="grid grid-cols-1 md:grid-cols-2 px-4 md:px-8" style={{ maxWidth: '760px', margin: '-16px auto 0', paddingBottom: '60px', gap: '16px' }}>
-          {plans.map((plan) => (
+        {(() => {
+          const sorted = [...plans].sort((a, b) => a.sort_order - b.sort_order);
+          const nonFeatured = sorted.filter(p => !p.featured);
+          const featured = sorted.find(p => p.featured);
+          const displayPlans = featured && nonFeatured.length >= 2
+            ? [nonFeatured[0], featured, ...nonFeatured.slice(1)]
+            : sorted;
+          return (
+        <div className="grid grid-cols-1 md:grid-cols-3 px-4 md:px-8" style={{ maxWidth: '1100px', margin: '-16px auto 0', paddingBottom: '60px', gap: '16px', alignItems: 'center' }}>
+          {displayPlans.map((plan) => (
             <div
               key={plan.id}
-              className={`relative flex flex-col${plan.featured ? ' order-first md:order-none' : ''}`}
+              className="relative flex flex-col"
               style={{
                 background: plan.featured
                   ? 'radial-gradient(ellipse 100% 55% at 50% 0%, rgba(83,47,207,0.28) 0%, rgba(83,47,207,0.08) 55%, rgba(83,47,207,0) 100%), #0e0e0e'
@@ -166,6 +171,7 @@ export default function PricingPage() {
                   ? '0 0 0 1px rgba(83,47,207,0.06), 0 24px 60px rgba(83,47,207,0.2), inset 0 1px 0 rgba(140,100,255,0.18)'
                   : 'inset 0 1px 0 rgba(255,255,255,0.03)',
                 overflow: 'hidden',
+                transform: plan.featured ? 'scale(1.04)' : 'none',
               }}
             >
               {/* Featured top highlight line */}
@@ -250,7 +256,7 @@ export default function PricingPage() {
 
               {/* CTA */}
               <button
-                onClick={() => handleCheckout(plan.id as 'starter' | 'plus')}
+                onClick={() => handleCheckout(plan.id)}
                 disabled={loadingPlan !== null}
                 className="font-dm"
                 style={{
@@ -277,6 +283,8 @@ export default function PricingPage() {
             </div>
           ))}
         </div>
+          );
+        })()}
 
         {/* Footer note */}
         <div className="px-4" style={{ textAlign: 'center', color: 'rgba(255,255,255,0.2)', fontSize: '12px', paddingBottom: '48px' }}>

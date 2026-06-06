@@ -311,7 +311,7 @@ export default function PromptBar({
                     }}
                   >
                     {(() => {
-                      const providerNames: Record<string, string> = { google: 'Google', openai: 'OpenAI', alibaba: 'Alibaba', kling: 'Kling' };
+                      const providerNames: Record<string, string> = { google: 'Google', openai: 'OpenAI', alibaba: 'Alibaba', kling: 'Kling', bytedance: 'ByteDance' };
                       const providerIcons: Record<string, React.ReactNode> = {
                         google: (
                           <svg width="16" height="16" viewBox="0 0 24 24">
@@ -334,6 +334,14 @@ export default function PromptBar({
                         kling: (
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                             <path d="M19 3H5C3.9 3 3 3.9 3 5v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3l5 6-5 6V6z" fill="rgba(100,180,255,0.85)"/>
+                          </svg>
+                        ),
+                        bytedance: (
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <polygon points="2,3 5,3 4,20 1,20" fill="#3951CC"/>
+                            <polygon points="8,10 11,10 10,20 7,20" fill="#5B86F0"/>
+                            <polygon points="13,12 16,12 15,20 12,20" fill="#00C8C0"/>
+                            <polygon points="19,4 22,4 21,20 18,20" fill="#5EE8D8"/>
                           </svg>
                         ),
                       };

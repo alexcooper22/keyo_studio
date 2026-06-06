@@ -24,7 +24,7 @@ type AdminModel = {
   model_pricing: PricingRow[]
 }
 
-const PROVIDERS = ['google', 'openai', 'kling', 'alibaba']
+const PROVIDERS = ['google', 'openai', 'kling', 'alibaba', 'bytedance']
 const UNITS = ['per_image', 'per_second'] as const
 
 const inputStyle: React.CSSProperties = { background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '6px 10px', color: 'white', fontSize: '12px', outline: 'none', width: '100%' }

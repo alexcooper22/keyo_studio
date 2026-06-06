@@ -5,7 +5,6 @@ import { useUser, useClerk } from '@clerk/nextjs';
 import { useTranslations } from 'next-intl';
 import Portal from '../ui/Portal';
 import Logo from '../ui/Logo';
-import LocaleSwitcher from './LocaleSwitcher';
 import { useAuth } from '@/context/AuthContext';
 
 export default function Navbar() {
@@ -115,8 +114,6 @@ export default function Navbar() {
               {t('pricing')}
             </Link>
 
-            {/* ── Language switcher ── */}
-            <LocaleSwitcher />
 
             {isSignedIn ? (
               <div>
@@ -166,6 +163,26 @@ export default function Navbar() {
                           </div>
                         </div>
                       </div>
+
+                      {/* Buy credits CTA */}
+                      <Link href="/credits" onClick={() => setShowUserMenu(false)}
+                        className="flex items-center justify-between w-full px-3 py-2 rounded-xl transition-all duration-150"
+                        style={{
+                          background: 'linear-gradient(135deg, rgba(83,47,207,0.18) 0%, rgba(120,80,255,0.08) 100%)',
+                          border: '0.5px solid rgba(100,65,220,0.3)',
+                          marginBottom: '4px',
+                        }}
+                      >
+                        <div className="flex items-center gap-2">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(160,120,255,0.9)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+                          </svg>
+                          <span className="font-dm text-[12px] font-[500]" style={{ color: 'rgba(180,145,255,0.9)' }}>Buy Credits</span>
+                        </div>
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(130,90,255,0.6)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="9 18 15 12 9 6"/>
+                        </svg>
+                      </Link>
 
                       <div className="h-[1px] mx-1 my-1.5" style={{ background: 'rgba(255,255,255,0.05)' }} />
 

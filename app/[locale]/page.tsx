@@ -437,9 +437,9 @@ export default function Home() {
 
           {/* Tool cards */}
           <div className="tool-cards-container relative" style={{ gap: '12px', paddingBottom: '32px', zIndex: 1 }}>
-            <div className="tool-card-item"><ToolCard href="/image" videoSrc="/image-bg.mp4" /></div>
-            <div className="tool-card-item"><ToolCard href="/video" videoSrc="/video-bg.mp4" /></div>
-            <div className="tool-card-item"><ToolCard href="/audio" videoSrc="/audio-bg.mp4" /></div>
+            <div className="tool-card-item"><ToolCard href="/image" videoSrc="/image-bg.mp4" label="Generate Image" /></div>
+            <div className="tool-card-item"><ToolCard href="/video" videoSrc="/video-bg.mp4" label="Generate Video" /></div>
+            <div className="tool-card-item"><ToolCard href="/audio" videoSrc="/audio-bg.mp4" label="Generate Audio" /></div>
           </div>
 
           {/* Bottom fade */}
