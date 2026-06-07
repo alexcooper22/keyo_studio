@@ -14,6 +14,7 @@ interface VideoItem {
   quality?: string;
   duration?: number;
   aspectRatio?: string;
+  model?: string;
 }
 
 export default function VideoDashboard() {
@@ -23,6 +24,7 @@ export default function VideoDashboard() {
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [videos, setVideos] = useState<VideoItem[]>([]);
+  const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<string>('');
   const [quality, setQuality] = useState<'720p' | '1080p'>('720p');
@@ -95,7 +97,7 @@ export default function VideoDashboard() {
     if (endFrame && !endFrame.startsWith('blob:')) localStorage.setItem('video_end_frame', endFrame);
     else if (!endFrame) localStorage.removeItem('video_end_frame');
   }, [endFrame]);
-  const [videoModels, setVideoModels] = useState<Array<{ id: string; name: string; pricing: Array<{ quality: string; credits: number }> }>>([]);
+  const [videoModels, setVideoModels] = useState<Array<{ id: string; name: string; provider?: string; pricing: Array<{ quality: string; credits: number }> }>>([]);
   const [selectedVideoModelId, setSelectedVideoModelId] = useState('');
   const [likedVideos, setLikedVideos] = useState<Set<string>>(new Set());
   const [creditCount, setCreditCount] = useState<number | null>(null);
@@ -116,6 +118,15 @@ export default function VideoDashboard() {
     a.href = URL.createObjectURL(blob);
     a.download = `video-${id}.mp4`;
     a.click();
+  };
+
+  const deleteVideo = async (taskId: string) => {
+    setVideos(prev => prev.filter(v => v.id !== taskId));
+    await fetch('/api/delete-video', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ taskId }),
+    });
   };
 
   const handleFrameUpload = async (file: File, type: 'start' | 'end') => {
@@ -199,6 +210,7 @@ export default function VideoDashboard() {
             quality: v.quality,
             duration: v.duration,
             aspectRatio: v.aspect_ratio,
+            model: v.model,
           })));
         }
       } catch (err) {
@@ -231,6 +243,7 @@ export default function VideoDashboard() {
                   quality: pending.quality,
                   duration: pending.duration,
                   aspectRatio: pending.aspectRatio,
+                  model: pending.modelName,
                 };
                 setVideos(prev => [newVideo, ...prev]);
                 setIsGenerating(false);
@@ -284,7 +297,8 @@ export default function VideoDashboard() {
         startTime: Date.now(),
         quality,
         duration,
-        aspectRatio
+        aspectRatio,
+        modelName: videoModels.find(m => m.id === selectedVideoModelId)?.name,
       }));
 
       pollRef.current = setInterval(async () => {
@@ -300,6 +314,7 @@ export default function VideoDashboard() {
             quality,
             duration,
             aspectRatio,
+            model: videoModels.find(m => m.id === selectedVideoModelId)?.name,
           };
           setVideos(prev => [newVideo, ...prev]);
           setIsGenerating(false);
@@ -433,12 +448,8 @@ export default function VideoDashboard() {
           {/* Top shimmer */}
           <div aria-hidden style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '1px', background: 'linear-gradient(90deg, transparent 5%, rgba(120,80,255,0.5) 40%, rgba(83,47,207,0.75) 50%, rgba(120,80,255,0.5) 60%, transparent 95%)', pointerEvents: 'none', zIndex: 1 }} />
 
-          {/* Tabs */}
-          <div style={{ display: 'flex', borderBottom: '0.5px solid rgba(255,255,255,0.06)', padding: '0 14px', gap: '2px' }}>
-            {[t('tabCreate'), t('tabEdit'), t('tabMotion')].map((tab, i) => (
-              <div key={tab} style={{ fontFamily: 'var(--font-dm)', fontSize: '12px', fontWeight: 500, color: i === 0 ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.28)', padding: '11px 6px', marginRight: '8px', borderBottom: i === 0 ? '1.5px solid rgba(120,80,255,0.8)' : '1.5px solid transparent', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'color 0.15s' }}>{tab}</div>
-            ))}
-          </div>
+          {/* Divider */}
+          <div style={{ height: '0.5px', background: 'rgba(255,255,255,0.06)' }} />
 
           <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, overflowY: 'auto' }}>
 
@@ -516,15 +527,58 @@ export default function VideoDashboard() {
                 </div>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
               </div>
-              {showModelMenu && (
-                <div data-menu="true" style={{ position: 'absolute', bottom: 'calc(100% + 4px)', left: 0, right: 0, background: 'rgba(12,12,18,0.98)', border: '0.5px solid rgba(255,255,255,0.1)', borderRadius: '10px', overflow: 'hidden', zIndex: 100, boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
-                  {videoModels.map(m => (
-                    <button key={m.id} onClick={() => { setSelectedVideoModelId(m.id); setShowModelMenu(false); }} style={{ display: 'block', width: '100%', textAlign: 'left', padding: '9px 12px', background: selectedVideoModelId === m.id ? 'rgba(83,47,207,0.12)' : 'none', color: selectedVideoModelId === m.id ? 'rgba(160,120,255,0.9)' : 'rgba(255,255,255,0.65)', border: 'none', cursor: 'pointer', fontSize: '12px', fontFamily: 'var(--font-dm)', fontWeight: 500 }}>
-                      {m.name}
-                    </button>
-                  ))}
-                </div>
-              )}
+              {showModelMenu && (() => {
+                const providerNames: Record<string, string> = { kling: 'Kling', bytedance: 'ByteDance' };
+                const providerIcons: Record<string, React.ReactNode> = {
+                  kling: (
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                      <path d="M19 3H5C3.9 3 3 3.9 3 5v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3l5 6-5 6V6z" fill="rgba(100,180,255,0.85)"/>
+                    </svg>
+                  ),
+                  bytedance: (
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                      <polygon points="2,3 5,3 4,20 1,20" fill="#3951CC"/>
+                      <polygon points="8,10 11,10 10,20 7,20" fill="#5B86F0"/>
+                      <polygon points="13,12 16,12 15,20 12,20" fill="#00C8C0"/>
+                      <polygon points="19,4 22,4 21,20 18,20" fill="#5EE8D8"/>
+                    </svg>
+                  ),
+                };
+                const groups = videoModels.reduce((acc, m) => {
+                  const p = m.provider || 'other';
+                  if (!acc[p]) acc[p] = [];
+                  acc[p].push(m);
+                  return acc;
+                }, {} as Record<string, typeof videoModels>);
+                return (
+                  <div data-menu="true" style={{ position: 'absolute', bottom: 'calc(100% + 4px)', left: 0, right: 0, background: 'rgba(12,12,18,0.98)', border: '0.5px solid rgba(255,255,255,0.1)', borderRadius: '12px', overflow: 'hidden', zIndex: 100, boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
+                    {Object.entries(groups).map(([provider, providerModels], gi) => (
+                      <div key={provider}>
+                        <div style={{ padding: '8px 12px 5px', borderTop: gi > 0 ? '0.5px solid rgba(255,255,255,0.06)' : 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                          <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '8px' }}>✦</span>
+                          {providerIcons[provider]}
+                          <span style={{ color: 'rgba(255,255,255,0.25)', fontSize: '10px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.7px', fontFamily: 'var(--font-dm)' }}>
+                            {providerNames[provider] || provider}
+                          </span>
+                        </div>
+                        {providerModels.map(m => {
+                          const credits = m.pricing.find(p => p.quality === quality)?.credits ?? m.pricing[0]?.credits;
+                          const isSelected = selectedVideoModelId === m.id;
+                          return (
+                            <button key={m.id} onClick={() => { setSelectedVideoModelId(m.id); setShowModelMenu(false); }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', textAlign: 'left', padding: '8px 12px', background: isSelected ? 'rgba(83,47,207,0.12)' : 'none', border: 'none', cursor: 'pointer', transition: 'background 0.15s' }}>
+                              <div>
+                                <div style={{ fontSize: '12px', fontFamily: 'var(--font-dm)', fontWeight: 500, color: isSelected ? 'rgba(160,120,255,0.9)' : 'rgba(255,255,255,0.75)' }}>{m.name}</div>
+                                {credits && <div style={{ fontSize: '10px', fontFamily: 'var(--font-dm)', color: 'rgba(255,255,255,0.28)', marginTop: '1px' }}>{credits} credit/s</div>}
+                              </div>
+                              {isSelected && <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(160,120,255,0.9)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
             </div>
 
             {error && <div style={{ fontSize: '11px', color: '#ef4444', fontFamily: 'var(--font-dm)' }}>{error}</div>}
@@ -600,11 +654,16 @@ export default function VideoDashboard() {
                   </h2>
                 </div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-                  <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: 'rgba(83,47,207,0.08)', border: '0.5px solid rgba(83,47,207,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <div style={{ width: 0, height: 0, borderTop: '9px solid transparent', borderBottom: '9px solid transparent', borderLeft: '16px solid rgba(120,80,255,0.3)', marginLeft: '4px' }}></div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', padding: '8px 0' }}>
+                  <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'rgba(83,47,207,0.1)', border: '0.5px solid rgba(83,47,207,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(120,80,255,0.5)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/>
+                    </svg>
                   </div>
-                  <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.25)' }}>{t('emptyState')}</span>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                    <span className="font-clash" style={{ fontSize: '14px', fontWeight: 600, color: 'rgba(255,255,255,0.55)' }}>No videos yet</span>
+                    <span className="font-dm" style={{ fontSize: '11px', color: 'rgba(255,255,255,0.2)', textAlign: 'center', maxWidth: '160px', lineHeight: 1.5 }}>Enter a prompt and hit Generate to create your first video</span>
+                  </div>
                 </div>
               )}
             </div>
@@ -629,7 +688,18 @@ export default function VideoDashboard() {
                   }}
                 >
                   <video src={v.videoUrl} controls loop style={{ width: '100%', display: 'block', maxHeight: '80vh', objectFit: 'contain', background: '#000' }} />
-                  
+
+                  {/* Delete confirmation overlay */}
+                  {confirmingDeleteId === v.id && (
+                    <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px', background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)', zIndex: 40 }} onClick={e => e.stopPropagation()}>
+                      <p className="font-dm" style={{ fontSize: '12px', color: 'rgba(255,255,255,0.75)', textAlign: 'center', padding: '0 16px' }}>Delete this video?</p>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button onClick={() => setConfirmingDeleteId(null)} className="font-dm" style={{ padding: '6px 16px', borderRadius: '8px', fontSize: '12px', background: 'rgba(255,255,255,0.08)', border: '0.5px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.55)', cursor: 'pointer' }}>Cancel</button>
+                        <button onClick={() => { setConfirmingDeleteId(null); deleteVideo(v.id); }} className="font-dm" style={{ padding: '6px 16px', borderRadius: '8px', fontSize: '12px', background: 'rgba(200,40,40,0.8)', border: 'none', color: '#fff', cursor: 'pointer' }}>Delete</button>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Hover actions */}
                   <div className="video-actions" style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '6px', opacity: likedVideos.has(v.id) ? 1 : 0, transition: 'opacity 0.2s', zIndex: 30 }}>
                     <button className="download-btn" onClick={() => downloadVideo(v.videoUrl, v.id)} style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff' }}>
@@ -638,6 +708,9 @@ export default function VideoDashboard() {
                     <button onClick={() => toggleLike(v.id)} style={{ width: '32px', height: '32px', borderRadius: '50%', background: likedVideos.has(v.id) ? 'var(--accent-subtle, rgba(83,47,207,0.13))' : 'rgba(255,255,255,0.1)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill={likedVideos.has(v.id) ? 'var(--accent)' : 'none'} stroke={likedVideos.has(v.id) ? 'var(--accent)' : 'white'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
                     </button>
+                    <button onClick={() => setConfirmingDeleteId(v.id)} style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,60,60,0.15)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'rgba(255,100,100,0.9)' }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -645,7 +718,7 @@ export default function VideoDashboard() {
               <div className="video-sidebar" style={{ padding: '14px', gap: '10px' }}>
                 <div style={{ fontSize: '11px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '5px', fontWeight: 600 }}>
                   <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: 'var(--accent)' }}></div>
-                  Kling 3.0
+                  {v.model ?? 'Kling 3.0'}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '6px' }}>
                   <div style={{ fontSize: '11px', color: 'var(--text-secondary)', lineHeight: '1.6', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical' as const, flex: 1 }}>{v.prompt}</div>

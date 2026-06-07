@@ -135,7 +135,7 @@ export default function Home() {
       <main className="font-dm pb-20 md:pb-0" style={{ paddingTop: '60px', background: 'var(--bg)', minHeight: '100vh' }}>
 
         {/* ── Hero + Tool cards — shared ambient glow ── */}
-        <div className="relative" style={{ padding: 'clamp(20px,4vw,30px) clamp(16px,4vw,32px) 0', overflow: 'hidden' }}>
+        <div className="relative hero-wrapper" style={{ padding: 'clamp(20px,4vw,30px) clamp(16px,4vw,32px) 0', overflow: 'hidden' }}>
 
           {/* Dot grid */}
           <div aria-hidden="true" style={{
@@ -173,59 +173,110 @@ export default function Home() {
             pointerEvents: 'none', zIndex: 0,
           }} />
 
-          {/* Hero text */}
-          <section
-            ref={heroRef}
-            className="relative w-full flex flex-col items-center justify-center text-center"
-            style={{ height: 'calc(44vh - 60px)', marginBottom: '20px', willChange: 'transform, opacity', zIndex: 1 }}
-          >
-            {/* Far depth layer — slowest, AI-themed (desktop only) */}
-            <div ref={iconsFar} aria-hidden="true" className="hidden md:block" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', willChange: 'transform' }}>
+          {/* Far depth layer — slowest, AI-themed (desktop only) */}
+          <div ref={iconsFar} aria-hidden="true" className="hidden md:block" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', willChange: 'transform', zIndex: 0 }}>
               {/* Waveform / audio */}
-              <svg style={{ position: 'absolute', left: '6%', top: '10%', opacity: 0.22, transform: 'rotate(10deg)' }} width="76" height="76" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+              <svg style={{ position: 'absolute', left: '6%', top: '10%', opacity: 0.22, transform: 'rotate(10deg)' }} width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
               </svg>
               {/* CPU / AI chip */}
-              <svg style={{ position: 'absolute', left: '19%', top: '60%', opacity: 0.18 }} width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+              <svg style={{ position: 'absolute', left: '19%', top: '60%', opacity: 0.18 }} width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="8" y="8" width="8" height="8"/>
                 <rect x="5" y="5" width="14" height="14" rx="1.5"/>
                 <path d="M9 5V3M12 5V3M15 5V3M9 21v-2M12 21v-2M15 21v-2M3 9h2M3 12h2M3 15h2M19 9h2M19 12h2M19 15h2"/>
               </svg>
               {/* Microphone / audio AI */}
-              <svg style={{ position: 'absolute', left: '25%', top: '30%', opacity: 0.15, transform: 'rotate(-5deg)' }} width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+              <svg style={{ position: 'absolute', left: '25%', top: '30%', opacity: 0.15, transform: 'rotate(-5deg)' }} width="62" height="62" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
                 <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
                 <line x1="12" y1="19" x2="12" y2="23"/>
                 <line x1="8" y1="23" x2="16" y2="23"/>
               </svg>
-              {/* Image generation frame */}
-              <svg style={{ position: 'absolute', right: '5%', top: '14%', opacity: 0.2, transform: 'rotate(-8deg)' }} width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+              {/* Image frame */}
+              <svg style={{ position: 'absolute', right: '5%', top: '14%', opacity: 0.2, transform: 'rotate(-8deg)' }} width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="3" width="18" height="18" rx="2"/>
                 <circle cx="8.5" cy="8.5" r="1.5"/>
                 <polyline points="21 15 16 10 5 21"/>
               </svg>
-              {/* Layers / content */}
-              <svg style={{ position: 'absolute', right: '18%', top: '64%', opacity: 0.15, transform: 'rotate(5deg)' }} width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+              {/* Layers */}
+              <svg style={{ position: 'absolute', right: '18%', top: '64%', opacity: 0.15, transform: 'rotate(5deg)' }} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
                 <polygon points="12 2 22 8.5 12 15 2 8.5"/>
                 <polyline points="2 15.5 12 22 22 15.5"/>
                 <polyline points="2 11.5 12 18 22 11.5"/>
               </svg>
-              {/* Eye / vision AI */}
-              <svg style={{ position: 'absolute', right: '24%', top: '38%', opacity: 0.14 }} width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+              {/* Eye */}
+              <svg style={{ position: 'absolute', right: '24%', top: '38%', opacity: 0.14 }} width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                 <circle cx="12" cy="12" r="3"/>
               </svg>
-            </div>
+              {/* Globe */}
+              <svg style={{ position: 'absolute', left: '12%', top: '75%', opacity: 0.15, transform: 'rotate(-6deg)' }} width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="2" y1="12" x2="22" y2="12"/>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              </svg>
+              {/* Palette */}
+              <svg style={{ position: 'absolute', right: '11%', top: '70%', opacity: 0.16, transform: 'rotate(8deg)' }} width="68" height="68" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="13.5" cy="6.5" r="1"/><circle cx="17.5" cy="10.5" r="1"/><circle cx="8.5" cy="7.5" r="1"/><circle cx="6.5" cy="12.5" r="1"/>
+                <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>
+              </svg>
+              {/* Code brackets */}
+              <svg style={{ position: 'absolute', left: '4%', top: '55%', opacity: 0.13, transform: 'rotate(-3deg)' }} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+              </svg>
+              {/* Star */}
+              <svg style={{ position: 'absolute', right: '31%', top: '72%', opacity: 0.13 }} width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+              {/* Terminal / code — below text center-left */}
+              <svg style={{ position: 'absolute', left: '36%', top: '48%', opacity: 0.14, transform: 'rotate(-3deg)' }} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/>
+              </svg>
+              {/* Lock / secure — below text center-right */}
+              <svg style={{ position: 'absolute', right: '36%', top: '52%', opacity: 0.13 }} width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+              {/* Sliders — below text left */}
+              <svg style={{ position: 'absolute', left: '29%', top: '60%', opacity: 0.15, transform: 'rotate(6deg)' }} width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/>
+                <line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/>
+                <line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/>
+                <line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/>
+              </svg>
+              {/* Diamond — below text right */}
+              <svg style={{ position: 'absolute', right: '29%', top: '58%', opacity: 0.13, transform: 'rotate(8deg)' }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="12 2 22 12 12 22 2 12"/>
+              </svg>
+              {/* Cloud upload */}
+              <svg style={{ position: 'absolute', left: '40%', top: '82%', opacity: 0.14, transform: 'rotate(-4deg)' }} width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/>
+                <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
+              </svg>
+              {/* Link */}
+              <svg style={{ position: 'absolute', right: '7%', top: '84%', opacity: 0.13, transform: 'rotate(-12deg)' }} width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+              </svg>
+              {/* Pen tool */}
+              <svg style={{ position: 'absolute', left: '7%', top: '88%', opacity: 0.13, transform: 'rotate(8deg)' }} width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
+                <path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/>
+              </svg>
+              {/* Bookmark */}
+              <svg style={{ position: 'absolute', right: '43%', top: '88%', opacity: 0.12 }} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+              </svg>
+          </div>
 
-            {/* Mid depth layer — AI network, film, play (desktop only) */}
-            <div ref={iconsMid} aria-hidden="true" className="hidden md:block" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', willChange: 'transform' }}>
+          {/* Mid depth layer — AI network, film, play (desktop only) */}
+          <div ref={iconsMid} aria-hidden="true" className="hidden md:block" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', willChange: 'transform', zIndex: 0 }}>
               {/* 4-point sparkle / AI magic */}
-              <svg style={{ position: 'absolute', left: '9%', top: '42%', opacity: 0.32 }} width="58" height="58" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round">
+              <svg style={{ position: 'absolute', left: '9%', top: '42%', opacity: 0.32 }} width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round">
                 <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M19.07 4.93l-2.12 2.12M7.05 16.95l-2.12 2.12"/>
                 <circle cx="12" cy="12" r="2"/>
               </svg>
               {/* Film clapperboard / video AI */}
-              <svg style={{ position: 'absolute', left: '20%', top: '8%', opacity: 0.24, transform: 'rotate(7deg)' }} width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+              <svg style={{ position: 'absolute', left: '20%', top: '8%', opacity: 0.24, transform: 'rotate(7deg)' }} width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="2" y="7" width="20" height="15" rx="1.5"/>
                 <polyline points="17 2 22 7 2 7 7 2 17 2"/>
                 <line x1="7" y1="2" x2="7" y2="7"/>
@@ -233,17 +284,17 @@ export default function Home() {
                 <line x1="17" y1="2" x2="17" y2="7"/>
               </svg>
               {/* Brush / creative AI */}
-              <svg style={{ position: 'absolute', left: '27%', top: '58%', opacity: 0.18, transform: 'rotate(-10deg)' }} width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+              <svg style={{ position: 'absolute', left: '27%', top: '58%', opacity: 0.18, transform: 'rotate(-10deg)' }} width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M16 3l5 5L7 22H2v-5L16 3z"/>
                 <line x1="14" y1="5" x2="19" y2="10"/>
               </svg>
               {/* Play circle / video generation */}
-              <svg style={{ position: 'absolute', right: '8%', top: '48%', opacity: 0.28 }} width="58" height="58" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+              <svg style={{ position: 'absolute', right: '8%', top: '48%', opacity: 0.28 }} width="76" height="76" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10"/>
                 <polygon points="10 8 16 12 10 16 10 8"/>
               </svg>
               {/* Neural network nodes */}
-              <svg style={{ position: 'absolute', right: '19%', top: '10%', opacity: 0.22, transform: 'rotate(-3deg)' }} width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round">
+              <svg style={{ position: 'absolute', right: '19%', top: '10%', opacity: 0.22, transform: 'rotate(-3deg)' }} width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round">
                 <circle cx="12" cy="5" r="2"/>
                 <circle cx="5" cy="19" r="2"/>
                 <circle cx="19" cy="19" r="2"/>
@@ -255,43 +306,126 @@ export default function Home() {
                 <line x1="19" y1="13.5" x2="19" y2="17"/>
                 <line x1="7" y1="19" x2="17" y2="19"/>
               </svg>
-              {/* Lightning / fast AI */}
-              <svg style={{ position: 'absolute', right: '26%', top: '55%', opacity: 0.17, transform: 'rotate(5deg)' }} width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+              {/* Lightning */}
+              <svg style={{ position: 'absolute', right: '26%', top: '55%', opacity: 0.17, transform: 'rotate(5deg)' }} width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
                 <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
               </svg>
-            </div>
+              {/* Scissors / edit */}
+              <svg style={{ position: 'absolute', left: '13%', top: '72%', opacity: 0.16, transform: 'rotate(12deg)' }} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/>
+                <line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/>
+              </svg>
+              {/* Music note */}
+              <svg style={{ position: 'absolute', left: '31%', top: '15%', opacity: 0.15, transform: 'rotate(-8deg)' }} width="58" height="58" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+              </svg>
+              {/* Grid */}
+              <svg style={{ position: 'absolute', right: '13%', top: '78%', opacity: 0.14 }} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+              </svg>
+              {/* Compass */}
+              <svg style={{ position: 'absolute', right: '32%', top: '18%', opacity: 0.14, transform: 'rotate(4deg)' }} width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+              </svg>
+              {/* Zap small — just below text left-center */}
+              <svg style={{ position: 'absolute', left: '40%', top: '46%', opacity: 0.18, transform: 'rotate(-5deg)' }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+              </svg>
+              {/* Filter — just below text right-center */}
+              <svg style={{ position: 'absolute', right: '40%', top: '48%', opacity: 0.16 }} width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+              </svg>
+              {/* Layers small — below text center */}
+              <svg style={{ position: 'absolute', left: '46%', top: '56%', opacity: 0.15, transform: 'rotate(4deg)' }} width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="12 2 22 8.5 12 15 2 8.5"/>
+                <polyline points="2 15.5 12 22 22 15.5"/>
+                <polyline points="2 11.5 12 18 22 11.5"/>
+              </svg>
+              {/* Headphones */}
+              <svg style={{ position: 'absolute', left: '34%', top: '88%', opacity: 0.15, transform: 'rotate(-6deg)' }} width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 18v-6a9 9 0 0 1 18 0v6"/>
+                <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>
+              </svg>
+              {/* Send / arrow */}
+              <svg style={{ position: 'absolute', right: '38%', top: '80%', opacity: 0.14, transform: 'rotate(-10deg)' }} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+              </svg>
+              {/* Video camera */}
+              <svg style={{ position: 'absolute', left: '46%', top: '65%', opacity: 0.13, transform: 'rotate(5deg)' }} width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/>
+              </svg>
+              {/* Radio waves */}
+              <svg style={{ position: 'absolute', right: '20%', top: '88%', opacity: 0.13 }} width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/>
+              </svg>
+          </div>
 
-            {/* Near depth layer — fastest, largest (desktop only) */}
-            <div ref={iconsNear} aria-hidden="true" className="hidden md:block" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', willChange: 'transform' }}>
+          {/* Near depth layer — fastest, largest (desktop only) */}
+          <div ref={iconsNear} aria-hidden="true" className="hidden md:block" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', willChange: 'transform', zIndex: 0 }}>
               {/* Magic wand / AI generation */}
-              <svg style={{ position: 'absolute', left: '3%', top: '36%', opacity: 0.42, transform: 'rotate(15deg)' }} width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="0.85" strokeLinecap="round" strokeLinejoin="round">
+              <svg style={{ position: 'absolute', left: '3%', top: '36%', opacity: 0.42, transform: 'rotate(15deg)' }} width="82" height="82" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="0.85" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M15 4l5 5L7 22H2v-5L15 4z"/>
                 <path d="M3 6l1-1M5 3l-1 1M20 2l1 1M4 12l1 1"/>
               </svg>
               {/* Infinity / unlimited AI */}
-              <svg style={{ position: 'absolute', left: '22%', top: '22%', opacity: 0.3 }} width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1.2" strokeLinecap="round">
+              <svg style={{ position: 'absolute', left: '22%', top: '22%', opacity: 0.3 }} width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1.2" strokeLinecap="round">
                 <path d="M12 12c-2-2.5-4-4-6-4a4 4 0 0 0 0 8c2 0 4-1.5 6-4zm0 0c2 2.5 4 4 6 4a4 4 0 0 0 0-8c-2 0-4 1.5-6 4z"/>
               </svg>
               {/* Small sparkle near center-left */}
-              <svg style={{ position: 'absolute', left: '28%', top: '50%', opacity: 0.26 }} width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1.3" strokeLinecap="round">
+              <svg style={{ position: 'absolute', left: '28%', top: '50%', opacity: 0.26 }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1.3" strokeLinecap="round">
                 <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M19.07 4.93l-2.12 2.12M7.05 16.95l-2.12 2.12"/>
               </svg>
               {/* Waveform large / audio */}
-              <svg style={{ position: 'absolute', right: '2%', top: '24%', opacity: 0.45, transform: 'rotate(-14deg)' }} width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="0.85" strokeLinecap="round">
+              <svg style={{ position: 'absolute', right: '2%', top: '24%', opacity: 0.45, transform: 'rotate(-14deg)' }} width="88" height="88" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="0.85" strokeLinecap="round">
                 <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
               </svg>
               {/* Sparkle near center-right */}
-              <svg style={{ position: 'absolute', right: '22%', top: '54%', opacity: 0.32 }} width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1.2" strokeLinecap="round">
+              <svg style={{ position: 'absolute', right: '22%', top: '54%', opacity: 0.32 }} width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1.2" strokeLinecap="round">
                 <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M19.07 4.93l-2.12 2.12M7.05 16.95l-2.12 2.12"/>
               </svg>
               {/* CPU small near center-right */}
-              <svg style={{ position: 'absolute', right: '27%', top: '28%', opacity: 0.22, transform: 'rotate(-8deg)' }} width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round">
+              <svg style={{ position: 'absolute', right: '27%', top: '28%', opacity: 0.22, transform: 'rotate(-8deg)' }} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="8" y="8" width="8" height="8"/>
                 <rect x="5" y="5" width="14" height="14" rx="1.5"/>
                 <path d="M9 5V3M12 5V3M15 5V3M9 21v-2M12 21v-2M15 21v-2M3 9h2M3 12h2M3 15h2M19 9h2M19 12h2M19 15h2"/>
               </svg>
-            </div>
+              {/* Feather — below text left-center large */}
+              <svg style={{ position: 'absolute', left: '32%', top: '44%', opacity: 0.22, transform: 'rotate(-12deg)' }} width="66" height="66" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="0.9" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/><line x1="16" y1="8" x2="2" y2="22"/><line x1="17.5" y1="15" x2="9" y2="15"/>
+              </svg>
+              {/* Hash / tag — below text right-center */}
+              <svg style={{ position: 'absolute', right: '32%', top: '46%', opacity: 0.18 }} width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/>
+                <line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/>
+              </svg>
+              {/* Activity / pulse — center below text */}
+              <svg style={{ position: 'absolute', left: '44%', top: '52%', opacity: 0.2 }} width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              </svg>
+              {/* Aperture */}
+              <svg style={{ position: 'absolute', left: '18%', top: '70%', opacity: 0.28, transform: 'rotate(12deg)' }} width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="0.9" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="14.31" y1="8" x2="20.05" y2="17.94"/><line x1="9.69" y1="8" x2="21.17" y2="8"/>
+                <line x1="7.38" y1="12" x2="13.12" y2="2.06"/><line x1="9.69" y1="16" x2="3.95" y2="6.06"/>
+                <line x1="14.31" y1="16" x2="2.83" y2="16"/><line x1="16.62" y1="12" x2="10.88" y2="21.94"/>
+              </svg>
+              {/* Large sparkle bottom center */}
+              <svg style={{ position: 'absolute', left: '52%', top: '78%', opacity: 0.24 }} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="1.1" strokeLinecap="round">
+                <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M19.07 4.93l-2.12 2.12M7.05 16.95l-2.12 2.12"/>
+              </svg>
+              {/* Zap bottom right */}
+              <svg style={{ position: 'absolute', right: '8%', top: '70%', opacity: 0.3, transform: 'rotate(6deg)' }} width="78" height="78" viewBox="0 0 24 24" fill="none" stroke="rgba(200,170,255,1)" strokeWidth="0.85" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+              </svg>
+          </div>
 
+          {/* Hero text */}
+          <section
+            ref={heroRef}
+            className="relative w-full flex flex-col items-center justify-center text-center"
+            style={{ height: 'calc(44vh - 60px)', marginBottom: '20px', willChange: 'transform, opacity', zIndex: 1 }}
+          >
             {/* Mobile icons — varied sizes, scattered close to text */}
             <div aria-hidden="true" className="md:hidden" style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
               {/* Magic wand — large, left side near middle */}
@@ -364,6 +498,14 @@ export default function Home() {
             </div>
 
             <style>{`
+              @media (min-width: 768px) {
+                .hero-wrapper {
+                  min-height: calc(100vh - 60px);
+                  display: flex;
+                  flex-direction: column;
+                  justify-content: space-between;
+                }
+              }
               @keyframes wordIn {
                 0%   { opacity: 0; transform: translateY(32px) scale(0.88) skewY(4deg); filter: blur(12px); }
                 60%  { filter: blur(0px); }
@@ -398,11 +540,11 @@ export default function Home() {
             `}</style>
 
             <h1 style={{ fontWeight: 700, lineHeight: 1.1, marginBottom: '12px', color: '#fff' }}>
-              <span className="font-clash" style={{ display: 'block', fontSize: 'clamp(22px, 3.2vw, 38px)', letterSpacing: '-0.01em', background: 'linear-gradient(135deg, #e8e0ff 0%, #c4b0ff 50%, #a080ff 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+              <span className="font-clash" style={{ display: 'block', fontSize: 'clamp(24px, 3.6vw, 44px)', letterSpacing: '-0.01em', background: 'linear-gradient(135deg, #e8e0ff 0%, #c4b0ff 50%, #a080ff 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
                 {t('heroLine1')}
               </span>
               {/* Animated cycling word — Syne 800, inline-grid for zero layout shift */}
-              <span className="font-clash" style={{ display: 'inline-grid', fontSize: 'clamp(54px, 9vw, 100px)', fontWeight: 700, letterSpacing: '-0.04em', padding: '6px 20px', overflow: 'visible' }}>
+              <span className="font-clash" style={{ display: 'inline-grid', fontSize: 'clamp(60px, 10vw, 112px)', fontWeight: 700, letterSpacing: '-0.04em', padding: '6px 20px', overflow: 'visible' }}>
                 {cycleWords.map((word, i) => (
                   <span
                     key={word}
@@ -422,7 +564,7 @@ export default function Home() {
                   </span>
                 ))}
               </span>
-              <span className="font-clash" style={{ display: 'block', fontSize: 'clamp(22px, 3.2vw, 38px)', letterSpacing: '-0.01em', background: 'linear-gradient(135deg, #e8e0ff 0%, #c4b0ff 50%, #a080ff 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+              <span className="font-clash" style={{ display: 'block', fontSize: 'clamp(24px, 3.6vw, 44px)', letterSpacing: '-0.01em', background: 'linear-gradient(135deg, #e8e0ff 0%, #c4b0ff 50%, #a080ff 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
                 {t('heroLine3')}{' '}
                 <span style={{ background: 'linear-gradient(135deg, #c4b0ff 0%, #9b7eff 40%, #6b4ef5 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
                   keyo.studio

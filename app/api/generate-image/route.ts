@@ -277,24 +277,20 @@ export async function POST(request: NextRequest) {
     }
 
     if (aiModel.provider === 'bytedance') {
-      // BytePlus / VolcEngine — Seedream image generation
-      const sizeMatrix: Record<string, Record<string, string>> = {
-        '1:1':   { '1K': '1024x1024', '2K': '1536x1536', '4K': '2048x2048' },
-        '4:3':   { '1K': '1024x768',  '2K': '1536x1152', '4K': '2048x1536' },
-        '3:4':   { '1K': '768x1024',  '2K': '1152x1536', '4K': '1536x2048' },
-        '16:9':  { '1K': '1280x720',  '2K': '1920x1080', '4K': '2560x1440' },
-        '9:16':  { '1K': '720x1280',  '2K': '1080x1920', '4K': '1440x2560' },
-        '3:2':   { '1K': '1024x682',  '2K': '1536x1024', '4K': '2048x1365' },
-        '2:3':   { '1K': '682x1024',  '2K': '1024x1536', '4K': '1365x2048' },
-        '21:9':  { '1K': '1280x549',  '2K': '1920x823',  '4K': '2560x1097' },
-        '5:4':   { '1K': '1024x819',  '2K': '1280x1024', '4K': '2048x1638' },
-        '4:5':   { '1K': '819x1024',  '2K': '1024x1280', '4K': '1638x2048' },
-        'auto':  { '1K': '1024x1024', '2K': '1536x1536', '4K': '2048x2048' },
+      // BytePlus ModelArk (ap-southeast-1) — Seedream image generation
+      // Size: pixel dimensions for aspect ratio control; resolution maps to quality tier
+      const multiplier: Record<string, number> = { '1K': 1, '2K': 1.5, '4K': 2 }
+      const m = multiplier[resolution] ?? 1
+      const baseMap: Record<string, [number, number]> = {
+        '1:1':  [1024, 1024], '4:3': [1024, 768],  '3:4':  [768, 1024],
+        '16:9': [1280, 720],  '9:16': [720, 1280], '3:2':  [1024, 682],
+        '2:3':  [682, 1024],  '21:9': [1280, 549], '5:4':  [1024, 819],
+        '4:5':  [819, 1024],  'auto': [1024, 1024],
       }
-      const ratioSizes = sizeMatrix[aspectRatio] ?? sizeMatrix['4:3']
-      const image_size = ratioSizes[resolution] ?? ratioSizes['1K']
+      const [bw, bh] = baseMap[aspectRatio] ?? baseMap['4:3']
+      const image_size = `${Math.round(bw * m)}x${Math.round(bh * m)}`
 
-      const bdRes = await fetch('https://api.byteplus.com/v1/images/generations', {
+      const bdRes = await fetch('https://ark.ap-southeast.bytepluses.com/api/v3/images/generations', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ model: aiModel.model_id, prompt, image_size }),

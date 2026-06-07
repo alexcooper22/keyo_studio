@@ -3,7 +3,7 @@ import { auth } from '@clerk/nextjs/server';
 import * as jose from 'jose';
 import { supabaseAdmin } from '../../../lib/supabase';
 import { rateLimit } from '../../../lib/rateLimit';
-import { getModelById, getCreditCost } from '../../../lib/models'
+import { getModelById, getCreditCost, resolveApiKey } from '../../../lib/models'
 
 export const maxDuration = 60;
 export const dynamic = 'force-dynamic';
@@ -65,39 +65,58 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: `Not enough credits. This video requires ${creditCost} credits.` }, { status: 403 });
   }
 
-  if (aiModel.provider !== 'kling') {
-    return NextResponse.json({ error: `Provider "${aiModel.provider}" not yet implemented for video` }, { status: 501 });
+  let apiKey: string | undefined;
+  if (aiModel.provider === 'bytedance') {
+    ({ apiKey } = resolveApiKey(aiModel));
   }
 
   try {
-    const token = await generateKlingToken();
+    let taskId: string | null = null;
 
-    const endpoint = startFrame || endFrame ? 'image2video' : 'text2video';
-    const response = await fetch(`https://api.klingai.com/v1/videos/${endpoint}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        model_name: aiModel.model_id,
-        prompt,
-        duration,
-        aspect_ratio: aspectRatio,
-        mode,
-        cfg_scale: quality === '1080p' ? 0.5 : undefined,
-        enable_audio: audio,
-        ...(startFrame && { image: startFrame }),
-        ...(endFrame && { image_tail: endFrame }),
-      }),
-    });
+    if (aiModel.provider === 'kling') {
+      const token = await generateKlingToken();
+      const endpoint = startFrame || endFrame ? 'image2video' : 'text2video';
+      const response = await fetch(`https://api.klingai.com/v1/videos/${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({
+          model_name: aiModel.model_id,
+          prompt,
+          duration,
+          aspect_ratio: aspectRatio,
+          mode,
+          cfg_scale: quality === '1080p' ? 0.5 : undefined,
+          enable_audio: audio,
+          ...(startFrame && { image: startFrame }),
+          ...(endFrame && { image_tail: endFrame }),
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) return NextResponse.json({ error: data }, { status: response.status });
+      taskId = data.data?.task_id;
 
-    const data = await response.json();
-    if (!response.ok) return NextResponse.json({ error: data }, { status: response.status });
+    } else if (aiModel.provider === 'bytedance') {
+      const response = await fetch('https://ark.ap-southeast.bytepluses.com/api/v3/contents/generations/tasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+        body: JSON.stringify({
+          model: aiModel.model_id,
+          content: [{ type: 'text', text: prompt }],
+          ratio: aspectRatio,
+          resolution: quality,
+          duration,
+          generate_audio: audio,
+        }),
+        signal: AbortSignal.timeout(30_000),
+      });
+      const data = await response.json();
+      if (!response.ok) return NextResponse.json({ error: data?.message ?? 'ByteDance error' }, { status: response.status });
+      taskId = data.id ?? data.task_id ?? null;
 
-    const taskId = data.data?.task_id;
+    } else {
+      return NextResponse.json({ error: `Provider "${aiModel.provider}" not yet implemented for video` }, { status: 501 });
+    }
 
-    // Save task and deduct credits
     if (taskId) {
       await supabaseAdmin.from('generated_videos').insert({
         clerk_id: userId,
@@ -106,25 +125,21 @@ export async function POST(req: NextRequest) {
         duration,
         aspect_ratio: aspectRatio,
         mode,
-        status: 'processing'
+        model: aiModel.name,
+        provider: aiModel.provider,
+        status: 'processing',
       });
 
-      // Deduct credits atomically — .gte guard prevents overdraft in race conditions
       const { data: updatedSub } = await supabaseAdmin
         .from('user_subscriptions')
-        .update({
-          credits_remaining: subscription.credits_remaining - creditCost,
-          updated_at: new Date().toISOString()
-        })
+        .update({ credits_remaining: subscription.credits_remaining - creditCost, updated_at: new Date().toISOString() })
         .eq('clerk_id', userId)
         .eq('status', 'active')
         .gte('credits_remaining', creditCost)
         .select('credits_remaining')
         .maybeSingle();
 
-      if (!updatedSub) {
-        return NextResponse.json({ error: 'Insufficient credits' }, { status: 403 });
-      }
+      if (!updatedSub) return NextResponse.json({ error: 'Insufficient credits' }, { status: 403 });
     }
 
     return NextResponse.json({ taskId, remainingCredits: subscription.credits_remaining - creditCost });

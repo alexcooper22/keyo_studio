@@ -28,9 +28,41 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid taskId' }, { status: 400 });
   }
 
-  try {
-    const token = await generateKlingToken();
+  // Look up provider from DB
+  const { data: videoRecord } = await supabaseAdmin
+    .from('generated_videos')
+    .select('provider')
+    .eq('task_id', taskId)
+    .maybeSingle();
 
+  const provider = videoRecord?.provider ?? 'kling';
+
+  try {
+    if (provider === 'bytedance') {
+      const bdApiKey = process.env.BYTE_DANCE_API_KEY;
+      if (!bdApiKey) return NextResponse.json({ error: 'ByteDance API key not configured' }, { status: 500 });
+
+      const response = await fetch(
+        `https://ark.ap-southeast.bytepluses.com/api/v3/contents/generations/tasks/${taskId}`,
+        { headers: { 'Authorization': `Bearer ${bdApiKey}` } }
+      );
+      const data = await response.json();
+      if (!response.ok) return NextResponse.json({ error: 'Failed to check video status' }, { status: 502 });
+
+      const status = data.status; // queued | running | succeeded | failed
+      const videoUrl = data.content?.video_url ?? null;
+
+      if (status === 'succeeded' && videoUrl) {
+        await supabaseAdmin.from('generated_videos').update({ status: 'succeed', video_url: videoUrl }).eq('task_id', taskId);
+      } else if (status === 'failed') {
+        await supabaseAdmin.from('generated_videos').update({ status: 'failed' }).eq('task_id', taskId);
+      }
+
+      return NextResponse.json({ status: status === 'succeeded' ? 'succeed' : status, videoUrl, duration: null });
+    }
+
+    // Default: Kling
+    const token = await generateKlingToken();
     const response = await fetch(`https://api.klingai.com/v1/videos/text2video/${taskId}`, {
       headers: { 'Authorization': `Bearer ${token}` },
     });
@@ -43,22 +75,12 @@ export async function GET(req: NextRequest) {
     const videoUrl = task?.task_result?.videos?.[0]?.url ?? null;
 
     if (status === 'succeed' && videoUrl) {
-      await supabaseAdmin
-        .from('generated_videos')
-        .update({ status: 'succeed', video_url: videoUrl })
-        .eq('task_id', taskId);
+      await supabaseAdmin.from('generated_videos').update({ status: 'succeed', video_url: videoUrl }).eq('task_id', taskId);
     } else if (status === 'failed') {
-      await supabaseAdmin
-        .from('generated_videos')
-        .update({ status: 'failed' })
-        .eq('task_id', taskId);
+      await supabaseAdmin.from('generated_videos').update({ status: 'failed' }).eq('task_id', taskId);
     }
 
-    return NextResponse.json({
-      status,
-      videoUrl,
-      duration: task?.task_result?.videos?.[0]?.duration ?? null,
-    });
+    return NextResponse.json({ status, videoUrl, duration: task?.task_result?.videos?.[0]?.duration ?? null });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to check video status' }, { status: 500 });
   }
