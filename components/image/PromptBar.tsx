@@ -78,6 +78,8 @@ export default function PromptBar({
   const t = useTranslations('image');
   const selectedModel = models.find(m => m.id === selectedModelId);
   const availableQualities = new Set(selectedModel?.pricing.map(p => p.quality) ?? qualityOptions.map(q => q.value));
+  // All active providers now support image input
+  const supportsImageInput = ['google', 'alibaba', 'bytedance', 'openai', 'kling'].includes(selectedModel?.provider ?? '');
 
   useEffect(() => {
     if (!availableQualities.has(quality)) {
@@ -174,8 +176,8 @@ export default function PromptBar({
       >
         <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={onImageUpload} />
 
-        {/* Uploaded images preview */}
-        {uploadedImages.length > 0 && (
+        {/* Uploaded images preview — only for models that support image input */}
+        {supportsImageInput && uploadedImages.length > 0 && (
           <div className="flex items-center gap-2.5 px-4 pt-4 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
             {uploadedImages.map((img, idx) => (
               <div key={idx} className="relative flex-shrink-0 group/thumb" style={{ width: '72px', height: '72px' }}>
@@ -245,24 +247,26 @@ export default function PromptBar({
           {/* Toolbar */}
           <div className="flex items-center gap-1 flex-nowrap overflow-hidden">
 
-            {/* Upload */}
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="flex items-center justify-center transition-colors"
-              style={{
-                width: '30px', height: '30px', borderRadius: '8px',
-                background: 'rgba(255,255,255,0.05)',
-                border: '0.5px solid rgba(255,255,255,0.08)',
-                color: 'rgba(255,255,255,0.4)',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.8)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)'; }}
-              onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.4)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; }}
-              title="Attach image"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-              </svg>
-            </button>
+            {/* Upload — only for models that support image input */}
+            {supportsImageInput && (
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="flex items-center justify-center transition-colors"
+                style={{
+                  width: '30px', height: '30px', borderRadius: '8px',
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '0.5px solid rgba(255,255,255,0.08)',
+                  color: 'rgba(255,255,255,0.4)',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.8)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)'; }}
+                onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.4)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; }}
+                title="Attach image"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+              </button>
+            )}
 
             {/* Clear — only when there's text */}
             {prompt.length > 0 && (
