@@ -9,6 +9,13 @@ import { useAuth } from '@/context/AuthContext';
 import { useUser } from '@clerk/nextjs';
 import { useTranslations } from 'next-intl';
 
+const parseAR = (ratio: string) => {
+  const [w, h] = ratio.split(':').map(Number);
+  return (w || 4) / (h || 3);
+};
+
+const ROW_H = 320;
+
 const compressImage = (file: File): Promise<Blob> => {
   return new Promise((resolve) => {
     const url = URL.createObjectURL(file);
@@ -376,36 +383,42 @@ export default function ImageDashboard() {
         )}
 
         {generatedImages.length === 0 && loadingCount === 0 && (
-          <div className="columns-2 md:columns-3 lg:columns-4 gap-1">
-            {[1,2,3,4,5,6,7,8].map(i => (
-              <div key={i} className="break-inside-avoid mb-1 aspect-square relative overflow-hidden" style={{ background: 'var(--bg-card)', border: '0.5px solid rgba(83,47,207,0.08)', opacity: 0.4 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+            {[4/3, 16/9, 1, 4/3, 3/4, 16/9, 1, 4/3].map((r, i) => (
+              <div key={i} style={{ flex: `${r} 1 ${r * ROW_H}px`, height: ROW_H, background: 'var(--bg-card)', border: '0.5px solid rgba(83,47,207,0.08)', opacity: 0.4, overflow: 'hidden', position: 'relative' }}>
                 <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 50%, rgba(83,47,207,0.06) 0%, transparent 70%)' }} />
               </div>
             ))}
+            <div style={{ flex: '999 0 0', height: ROW_H }} />
           </div>
         )}
 
-        <div className="columns-2 md:columns-3 lg:columns-4 gap-1">
-          {Array.from({ length: loadingCount }).map((_, idx) => (
-            <div key={`loading-${idx}`} className="break-inside-avoid mb-1 relative overflow-hidden" style={{ aspectRatio: aspectRatio.replace(':', '/'), background: 'linear-gradient(135deg, rgba(83,47,207,0.12) 0%, #111111 100%)', border: '0.5px solid rgba(83,47,207,0.25)' }}>
-              <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 30%, rgba(83,47,207,0.15) 0%, transparent 65%)' }} />
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-                <div className="w-8 h-8 rounded-full animate-spin" style={{ border: '2px solid rgba(120,80,255,0.8)', borderTopColor: 'transparent' }} />
-                <span className="font-clash text-xs uppercase tracking-widest" style={{ color: 'rgba(120,80,255,0.7)', letterSpacing: '1px' }}>Generating...</span>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+          {Array.from({ length: loadingCount }).map((_, idx) => {
+            const r = parseAR(aspectRatio);
+            return (
+              <div key={`loading-${idx}`} style={{ flex: `${r} 1 ${r * ROW_H}px`, height: ROW_H, position: 'relative', overflow: 'hidden', background: 'linear-gradient(135deg, rgba(83,47,207,0.12) 0%, #111111 100%)', border: '0.5px solid rgba(83,47,207,0.25)' }}>
+                <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 30%, rgba(83,47,207,0.15) 0%, transparent 65%)' }} />
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+                  <div className="w-8 h-8 rounded-full animate-spin" style={{ border: '2px solid rgba(120,80,255,0.8)', borderTopColor: 'transparent' }} />
+                  <span className="font-clash text-xs uppercase tracking-widest" style={{ color: 'rgba(120,80,255,0.7)', letterSpacing: '1px' }}>Generating...</span>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
 
           {generatedImages.map((img, i) => {
             const isLiked = likedImages.has(img.url);
+            const r = parseAR(img.aspectRatio || '4:3');
             return (
               <div
                 key={img.url}
-                className="break-inside-avoid mb-1 relative overflow-hidden group cursor-pointer"
+                className="group"
+                style={{ flex: `${r} 1 ${r * ROW_H}px`, height: ROW_H, position: 'relative', overflow: 'hidden', cursor: 'pointer' }}
                 onClick={() => setSelectedFullImage(img)}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={img.url} alt={`Generated ${i}`} className="w-full h-auto block" />
+                <img src={img.url} alt={`Generated ${i}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                 {isLiked && (
                   <div className="absolute top-3 right-3 z-20 pointer-events-none group-hover:opacity-0 transition-opacity">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--accent)" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /></svg>
@@ -435,6 +448,10 @@ export default function ImageDashboard() {
               </div>
             );
           })}
+
+          {(generatedImages.length > 0 || loadingCount > 0) && (
+            <div style={{ flex: '999 0 0', height: ROW_H }} />
+          )}
         </div>
       </main>
 
