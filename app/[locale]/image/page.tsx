@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import Navbar from '@/components/layout/Navbar';
 import PromptBar from '@/components/image/PromptBar';
 import { fetchModelsWithCache } from '@/lib/modelCache';
@@ -8,6 +9,7 @@ import Lightbox, { type ImageDetails } from '@/components/image/Lightbox';
 import { useAuth } from '@/context/AuthContext';
 import { useUser } from '@clerk/nextjs';
 import { useTranslations } from 'next-intl';
+import { useLocale } from 'next-intl';
 
 const parseAR = (ratio: string) => {
   const [w, h] = ratio.split(':').map(Number);
@@ -41,6 +43,8 @@ export default function ImageDashboard() {
   const t = useTranslations('image');
   const { setShowModal } = useAuth();
   const { isLoaded, isSignedIn, user } = useUser();
+  const router = useRouter();
+  const locale = useLocale();
 
   const [prompt, setPrompt] = useState('');
   const [loadingCount, setLoadingCount] = useState(0);
@@ -273,6 +277,22 @@ export default function ImageDashboard() {
     }
   };
 
+  const handleAnimate = (img: ImageDetails) => {
+    localStorage.setItem('video_start_frame', img.url);
+    setSelectedFullImage(null);
+    router.push(`/${locale}/video`);
+  };
+
+  const handleCopyToPrompt = (p: string) => {
+    setPrompt(p);
+    setSelectedFullImage(null);
+  };
+
+  const handleAddReference = (url: string) => {
+    setUploadedImages(prev => [...prev, { url }]);
+    setSelectedFullImage(null);
+  };
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const files = Array.from(e.target.files);
@@ -464,6 +484,9 @@ export default function ImageDashboard() {
           onNavigate={setSelectedFullImage}
           onDownload={handleDownload}
           onDelete={handleDeleteImage}
+          onAnimate={handleAnimate}
+          onCopyToPrompt={handleCopyToPrompt}
+          onAddReference={handleAddReference}
         />
       )}
 

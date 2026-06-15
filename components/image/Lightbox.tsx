@@ -19,11 +19,17 @@ interface LightboxProps {
   onNavigate: (image: ImageDetails) => void;
   onDownload: (url: string) => void;
   onDelete?: (image: ImageDetails) => void;
+  onAnimate?: (image: ImageDetails) => void;
+  onCopyToPrompt?: (prompt: string) => void;
+  onAddReference?: (url: string) => void;
 }
 
-export default function Lightbox({ image, allImages, user, onClose, onNavigate, onDownload, onDelete }: LightboxProps) {
+export default function Lightbox({ image, allImages, user, onClose, onNavigate, onDownload, onDelete, onAnimate, onCopyToPrompt, onAddReference }: LightboxProps) {
   const [copied, setCopied] = useState(false);
+  const [promptCopied, setPromptCopied] = useState(false);
+  const [refAdded, setRefAdded] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [mobileImgFullscreen, setMobileImgFullscreen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const currentIndex = allImages.findIndex(img => img.url === image.url);
   const hasPrev = currentIndex > 0;
@@ -47,7 +53,7 @@ export default function Lightbox({ image, allImages, user, onClose, onNavigate, 
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [image, allImages, onClose, onNavigate]);
 
-  useEffect(() => { setConfirmingDelete(false); }, [image.url]);
+  useEffect(() => { setConfirmingDelete(false); setPromptCopied(false); setRefAdded(false); setMobileImgFullscreen(false); }, [image.url]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(image.prompt);
@@ -121,84 +127,177 @@ export default function Lightbox({ image, allImages, user, onClose, onNavigate, 
 
       <div style={{ flex: 1 }} />
 
-      {/* Download */}
-      <button onClick={() => onDownload(image.url)}
-        style={{ width: '100%', padding: '11px', borderRadius: '10px', cursor: 'pointer', background: 'rgba(255,255,255,0.05)', border: '0.5px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.55)', fontSize: '13px', fontFamily: 'var(--font-dm)', fontWeight: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'all 0.15s' }}
-        onMouseEnter={e => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(83,47,207,0.2), rgba(120,80,255,0.12))'; e.currentTarget.style.borderColor = 'rgba(100,65,220,0.4)'; e.currentTarget.style.color = 'rgba(200,170,255,0.9)'; }}
-        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'rgba(255,255,255,0.55)'; }}>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Download image
-      </button>
+      {/* Action buttons */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
 
-      {/* Delete */}
-      {onDelete && (
-        confirmingDelete ? (
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button onClick={() => setConfirmingDelete(false)}
-              style={{ flex: 1, padding: '10px', borderRadius: '10px', cursor: 'pointer', background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)', fontSize: '12px', fontFamily: 'var(--font-dm)', fontWeight: 500, transition: 'all 0.15s' }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'rgba(255,255,255,0.7)'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.color = 'rgba(255,255,255,0.4)'; }}>
-              Cancel
-            </button>
-            <button onClick={() => { onDelete(image); setConfirmingDelete(false); }}
-              style={{ flex: 1, padding: '10px', borderRadius: '10px', cursor: 'pointer', background: 'rgba(220,50,50,0.12)', border: '0.5px solid rgba(220,50,50,0.3)', color: 'rgba(255,100,100,0.9)', fontSize: '12px', fontFamily: 'var(--font-dm)', fontWeight: 500, transition: 'all 0.15s' }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(220,50,50,0.22)'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(220,50,50,0.12)'; }}>
-              Delete
-            </button>
-          </div>
-        ) : (
-          <button onClick={() => setConfirmingDelete(true)}
-            style={{ width: '100%', padding: '10px', borderRadius: '10px', cursor: 'pointer', background: 'rgba(255,255,255,0.03)', border: '0.5px solid rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.25)', fontSize: '12px', fontFamily: 'var(--font-dm)', fontWeight: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '7px', transition: 'all 0.15s' }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(220,50,50,0.1)'; e.currentTarget.style.borderColor = 'rgba(220,50,50,0.25)'; e.currentTarget.style.color = 'rgba(255,100,100,0.7)'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = 'rgba(255,255,255,0.25)'; }}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-            Delete image
+        {/* Animate — full width, accent */}
+        {onAnimate && (
+          <button
+            onClick={() => onAnimate(image)}
+            style={{ width: '100%', padding: '11px', borderRadius: '10px', cursor: 'pointer', background: 'linear-gradient(135deg, rgba(83,47,207,0.9) 0%, rgba(110,65,230,0.85) 100%)', border: 'none', color: 'rgba(255,255,255,0.92)', fontSize: '13px', fontFamily: 'var(--font-dm)', fontWeight: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'all 0.15s', boxShadow: '0 2px 12px rgba(83,47,207,0.35)' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(100,60,230,1) 0%, rgba(130,80,255,0.95) 100%)'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(83,47,207,0.5)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(83,47,207,0.9) 0%, rgba(110,65,230,0.85) 100%)'; e.currentTarget.style.boxShadow = '0 2px 12px rgba(83,47,207,0.35)'; }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+            Animate
           </button>
-        )
-      )}
+        )}
+
+        {/* Copy prompt + Reference — 2 cols */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+          {onCopyToPrompt && (
+            <button
+              onClick={() => { onCopyToPrompt(image.prompt); setPromptCopied(true); setTimeout(() => setPromptCopied(false), 2000); }}
+              style={{ padding: '10px 8px', borderRadius: '10px', cursor: 'pointer', background: promptCopied ? 'rgba(83,47,207,0.15)' : 'rgba(255,255,255,0.05)', border: promptCopied ? '0.5px solid rgba(120,80,255,0.4)' : '0.5px solid rgba(255,255,255,0.1)', color: promptCopied ? 'rgba(180,150,255,0.9)' : 'rgba(255,255,255,0.55)', fontSize: '12px', fontFamily: 'var(--font-dm)', fontWeight: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', transition: 'all 0.15s' }}
+              onMouseEnter={e => { if (!promptCopied) { e.currentTarget.style.background = 'rgba(255,255,255,0.09)'; e.currentTarget.style.color = 'rgba(255,255,255,0.85)'; } }}
+              onMouseLeave={e => { if (!promptCopied) { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'rgba(255,255,255,0.55)'; } }}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+              {promptCopied ? '✓ Pasted' : 'Copy prompt'}
+            </button>
+          )}
+          {onAddReference && (
+            <button
+              onClick={() => { onAddReference(image.url); setRefAdded(true); setTimeout(() => setRefAdded(false), 2000); }}
+              style={{ padding: '10px 8px', borderRadius: '10px', cursor: 'pointer', background: refAdded ? 'rgba(83,47,207,0.15)' : 'rgba(255,255,255,0.05)', border: refAdded ? '0.5px solid rgba(120,80,255,0.4)' : '0.5px solid rgba(255,255,255,0.1)', color: refAdded ? 'rgba(180,150,255,0.9)' : 'rgba(255,255,255,0.55)', fontSize: '12px', fontFamily: 'var(--font-dm)', fontWeight: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', transition: 'all 0.15s' }}
+              onMouseEnter={e => { if (!refAdded) { e.currentTarget.style.background = 'rgba(255,255,255,0.09)'; e.currentTarget.style.color = 'rgba(255,255,255,0.85)'; } }}
+              onMouseLeave={e => { if (!refAdded) { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'rgba(255,255,255,0.55)'; } }}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              {refAdded ? '✓ Added' : 'Reference'}
+            </button>
+          )}
+        </div>
+
+        {/* Download */}
+        <button onClick={() => onDownload(image.url)}
+          style={{ width: '100%', padding: '11px', borderRadius: '10px', cursor: 'pointer', background: 'rgba(255,255,255,0.05)', border: '0.5px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.55)', fontSize: '13px', fontFamily: 'var(--font-dm)', fontWeight: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'all 0.15s' }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.09)'; e.currentTarget.style.color = 'rgba(255,255,255,0.85)'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'rgba(255,255,255,0.55)'; }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download image
+        </button>
+
+        {/* Delete */}
+        {onDelete && (
+          confirmingDelete ? (
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button onClick={() => setConfirmingDelete(false)}
+                style={{ flex: 1, padding: '10px', borderRadius: '10px', cursor: 'pointer', background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)', fontSize: '12px', fontFamily: 'var(--font-dm)', fontWeight: 500, transition: 'all 0.15s' }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'rgba(255,255,255,0.7)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.color = 'rgba(255,255,255,0.4)'; }}>
+                Cancel
+              </button>
+              <button onClick={() => { onDelete(image); setConfirmingDelete(false); }}
+                style={{ flex: 1, padding: '10px', borderRadius: '10px', cursor: 'pointer', background: 'rgba(220,50,50,0.12)', border: '0.5px solid rgba(220,50,50,0.3)', color: 'rgba(255,100,100,0.9)', fontSize: '12px', fontFamily: 'var(--font-dm)', fontWeight: 500, transition: 'all 0.15s' }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(220,50,50,0.22)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(220,50,50,0.12)'; }}>
+                Delete
+              </button>
+            </div>
+          ) : (
+            <button onClick={() => setConfirmingDelete(true)}
+              style={{ width: '100%', padding: '10px', borderRadius: '10px', cursor: 'pointer', background: 'rgba(255,255,255,0.03)', border: '0.5px solid rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.25)', fontSize: '12px', fontFamily: 'var(--font-dm)', fontWeight: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '7px', transition: 'all 0.15s' }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(220,50,50,0.1)'; e.currentTarget.style.borderColor = 'rgba(220,50,50,0.25)'; e.currentTarget.style.color = 'rgba(255,100,100,0.7)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = 'rgba(255,255,255,0.25)'; }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+              Delete image
+            </button>
+          )
+        )}
+      </div>
     </div>
   );
 
   if (isMobile) {
     return (
-      <div style={{ position: 'fixed', inset: 0, zIndex: 1000, background: '#0a0a0e', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
+      <div style={{ position: 'fixed', inset: 0, zIndex: 1000, background: '#0a0a0e', display: 'flex', flexDirection: 'column', overflowY: mobileImgFullscreen ? 'hidden' : 'auto' }}>
         {/* Top accent line */}
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '1px', background: 'linear-gradient(90deg, transparent 5%, rgba(120,80,255,0.5) 40%, rgba(83,47,207,0.75) 50%, rgba(120,80,255,0.5) 60%, transparent 95%)', zIndex: 1 }} />
+        {!mobileImgFullscreen && (
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '1px', background: 'linear-gradient(90deg, transparent 5%, rgba(120,80,255,0.5) 40%, rgba(83,47,207,0.75) 50%, rgba(120,80,255,0.5) 60%, transparent 95%)', zIndex: 1 }} />
+        )}
 
-        {/* Image area */}
-        <div style={{ position: 'relative', width: '100%', background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '280px', maxHeight: '55vh', flexShrink: 0 }}>
-          <img src={image.url} alt="Full view" style={{ maxWidth: '100%', maxHeight: '55vh', objectFit: 'contain' }} />
+        {/* Image area — tappable to go fullscreen */}
+        <div
+          style={{
+            position: 'relative',
+            width: '100%',
+            background: '#000',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+            transition: 'height 0.3s ease',
+            height: mobileImgFullscreen ? '100dvh' : undefined,
+            minHeight: mobileImgFullscreen ? undefined : '280px',
+            maxHeight: mobileImgFullscreen ? undefined : '55vh',
+          }}
+          onClick={() => !mobileImgFullscreen && setMobileImgFullscreen(true)}
+        >
+          <img
+            src={image.url}
+            alt="Full view"
+            style={{
+              maxWidth: '100%',
+              maxHeight: mobileImgFullscreen ? '100dvh' : '55vh',
+              objectFit: 'contain',
+              cursor: mobileImgFullscreen ? 'default' : 'zoom-in',
+              display: 'block',
+            }}
+          />
 
-          {/* Nav arrows over image */}
+          {/* Nav arrows */}
           {hasPrev && (
-            <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }}>
+            <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', zIndex: 2 }}>
               {navBtn(() => onNavigate(allImages[currentIndex - 1]), prevArrow)}
             </div>
           )}
           {hasNext && (
-            <div style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)' }}>
+            <div style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', zIndex: 2 }}>
               {navBtn(() => onNavigate(allImages[currentIndex + 1]), nextArrow)}
             </div>
           )}
 
           {/* Counter */}
           {allImages.length > 1 && (
-            <div style={{ position: 'absolute', bottom: '10px', left: '50%', transform: 'translateX(-50%)', background: 'rgba(0,0,0,0.6)', borderRadius: '20px', padding: '4px 12px', color: 'rgba(255,255,255,0.5)', fontSize: '11px', fontFamily: 'var(--font-dm)' }}>
+            <div style={{ position: 'absolute', bottom: '10px', left: '50%', transform: 'translateX(-50%)', background: 'rgba(0,0,0,0.6)', borderRadius: '20px', padding: '4px 12px', color: 'rgba(255,255,255,0.5)', fontSize: '11px', fontFamily: 'var(--font-dm)', zIndex: 2 }}>
               {currentIndex + 1} / {allImages.length}
             </div>
           )}
 
-          {/* Glass close button */}
-          <button onClick={onClose} style={{ position: 'absolute', top: '10px', right: '10px', width: '36px', height: '36px', borderRadius: '10px', border: '0.5px solid rgba(255,255,255,0.3)', cursor: 'pointer', background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 12px rgba(0,0,0,0.4)' }}>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          </button>
+          {/* Top-right buttons: collapse (when fullscreen) or close */}
+          <div style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '8px', zIndex: 2 }}>
+            {mobileImgFullscreen && (
+              <button
+                onClick={e => { e.stopPropagation(); setMobileImgFullscreen(false); }}
+                style={{ width: '36px', height: '36px', borderRadius: '10px', border: '0.5px solid rgba(255,255,255,0.25)', cursor: 'pointer', background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                title="Show info"
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="10" y1="14" x2="3" y2="21"/><line x1="21" y1="3" x2="14" y2="10"/></svg>
+              </button>
+            )}
+            <button
+              onClick={e => { e.stopPropagation(); onClose(); }}
+              style={{ width: '36px', height: '36px', borderRadius: '10px', border: '0.5px solid rgba(255,255,255,0.25)', cursor: 'pointer', background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+
+          {/* Tap hint — only visible briefly when NOT fullscreen */}
+          {!mobileImgFullscreen && (
+            <div style={{ position: 'absolute', bottom: '36px', left: '50%', transform: 'translateX(-50%)', color: 'rgba(255,255,255,0.3)', fontSize: '10px', fontFamily: 'var(--font-dm)', pointerEvents: 'none', whiteSpace: 'nowrap' }}>
+              tap to expand
+            </div>
+          )}
         </div>
 
-        {/* Info panel */}
-        <div style={{ flex: 1, padding: '20px 20px 32px', display: 'flex', flexDirection: 'column' }}>
-          {infoPanel}
-        </div>
+        {/* Info panel — hidden when fullscreen */}
+        {!mobileImgFullscreen && (
+          <div style={{ flex: 1, padding: '20px 20px 32px', display: 'flex', flexDirection: 'column' }}>
+            {infoPanel}
+          </div>
+        )}
       </div>
     );
   }

@@ -67,6 +67,7 @@ export default function PromptBar({
   const qualityButtonRef = useRef<HTMLButtonElement>(null);
 
   const [isFocused, setIsFocused] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
   const [modelPopupPos, setModelPopupPos] = useState({ bottom: 0, left: 0 });
   const [showRatioDropdown, setShowRatioDropdown] = useState(false);
@@ -95,6 +96,13 @@ export default function PromptBar({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (!previewUrl) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setPreviewUrl(null); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [previewUrl]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -168,25 +176,31 @@ export default function PromptBar({
 
         {/* Uploaded images preview */}
         {uploadedImages.length > 0 && (
-          <div className="flex items-center gap-2 px-4 pt-3 overflow-x-auto">
+          <div className="flex items-center gap-2.5 px-4 pt-4 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
             {uploadedImages.map((img, idx) => (
-              <div key={idx} className="relative flex-shrink-0" style={{ width: '52px', height: '52px' }}>
+              <div key={idx} className="relative flex-shrink-0 group/thumb" style={{ width: '72px', height: '72px' }}>
                 <img
                   src={img.url}
                   alt="Uploaded preview"
-                  className={`w-full h-full object-cover ${img.uploading ? 'opacity-40' : ''}`}
-                  style={{ borderRadius: '8px', border: '0.5px solid rgba(255,255,255,0.1)' }}
+                  className="w-full h-full object-cover"
+                  style={{
+                    borderRadius: '10px',
+                    border: '0.5px solid rgba(255,255,255,0.12)',
+                    opacity: img.uploading ? 0.4 : 1,
+                    transition: 'opacity 0.2s',
+                    cursor: img.uploading ? 'default' : 'zoom-in',
+                  }}
+                  onClick={() => { if (!img.uploading) setPreviewUrl(img.url); }}
                 />
-                {img.uploading && (
+                {img.uploading ? (
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   </div>
-                )}
-                {!img.uploading && (
+                ) : (
                   <button
                     onClick={() => onRemoveImage(idx)}
-                    className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full flex items-center justify-center text-white/70 hover:text-white transition-colors"
-                    style={{ background: 'rgba(20,20,28,0.95)', border: '0.5px solid rgba(255,255,255,0.15)', fontSize: '10px' }}
+                    className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center text-white transition-all opacity-0 group-hover/thumb:opacity-100"
+                    style={{ background: 'rgba(14,14,20,0.95)', border: '0.5px solid rgba(255,255,255,0.18)', fontSize: '13px', lineHeight: 1 }}
                   >
                     ×
                   </button>
@@ -532,6 +546,38 @@ export default function PromptBar({
         </div>
       </div>{/* end card */}
       </div>{/* end orbit wrapper */}
+
+      {/* Fullscreen image preview */}
+      {previewUrl && (
+        <Portal>
+          <div
+            className="fixed inset-0 z-[200] flex items-center justify-center"
+            style={{ background: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
+            onClick={() => setPreviewUrl(null)}
+          >
+            <button
+              onClick={() => setPreviewUrl(null)}
+              className="absolute top-5 right-5 w-9 h-9 rounded-full flex items-center justify-center text-white/60 hover:text-white transition-colors"
+              style={{ background: 'rgba(255,255,255,0.08)', border: '0.5px solid rgba(255,255,255,0.15)', fontSize: '18px' }}
+            >
+              ×
+            </button>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={previewUrl}
+              alt="Preview"
+              onClick={e => e.stopPropagation()}
+              style={{
+                maxWidth: '90vw',
+                maxHeight: '90vh',
+                borderRadius: '12px',
+                boxShadow: '0 24px 80px rgba(0,0,0,0.7)',
+                objectFit: 'contain',
+              }}
+            />
+          </div>
+        </Portal>
+      )}
     </div>
   );
 }
