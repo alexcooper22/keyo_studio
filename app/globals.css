@@ -12,7 +12,7 @@
   --border: 0.5px solid #1e1e1e;
   --border-hover: rgba(255, 255, 255, 0.15);
   --text: #ffffff;
-  --text-secondary: #777777;
+  --text-secondary: #aaaaaa;
 
   /* Border radius */
   --radius-card: 14px;
@@ -26,8 +26,8 @@
   /* Legacy aliases */
   --bg2: #111111;
   --bg3: #161616;
-  --muted: #777777;
-  --muted2: #777777;
+  --muted: #aaaaaa;
+  --muted2: #aaaaaa;
   --accent2: #532fcf;
   --purple: #532fcf;
 }

@@ -40,6 +40,10 @@ export default function VideoDashboard() {
   const [endFrame, setEndFrame] = useState<string | null>(null);
   const startFrameRef = useRef<HTMLInputElement>(null);
   const endFrameRef = useRef<HTMLInputElement>(null);
+  const mobileStartFrameRef = useRef<HTMLInputElement>(null);
+  const mobileEndFrameRef = useRef<HTMLInputElement>(null);
+  const [mobileShowOptions, setMobileShowOptions] = useState(false);
+  const [mobileShowModelMenu, setMobileShowModelMenu] = useState(false);
 
   // Restore settings from localStorage on mount
   useEffect(() => {
@@ -404,14 +408,18 @@ export default function VideoDashboard() {
         }
         @media (max-width: 767px) {
           .mobile-locked { overflow: hidden; height: 100vh; }
+          .video-layout { padding-bottom: 0 !important; }
+          .feed { padding-bottom: calc(240px + env(safe-area-inset-bottom, 0px)) !important; }
+          .mobile-action-bar { display: flex !important; }
         }
+        .mobile-action-bar { display: none; }
       `}</style>
 
       <div className="video-layout flex flex-col md:flex-row" style={{ padding: '0 16px 80px', gap: '12px', alignItems: 'stretch' }}>
 
         {/* MOBILE HERO — unauthenticated only */}
         {isLoaded && !isSignedIn && (
-          <div className="flex md:hidden flex-col items-center justify-start text-center relative px-6" style={{ minHeight: 'calc(100vh - 94px)', overflow: 'hidden', paddingTop: '15vh' }}>
+          <div className="flex md:hidden flex-col items-center justify-start text-center relative px-6" style={{ minHeight: 'calc(100vh - 94px)', overflow: 'hidden', paddingTop: '15vh', paddingBottom: '80px' }}>
             <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 70% 55% at 50% 50%, rgba(60,80,160,0.28) 0%, rgba(40,55,120,0.1) 45%, transparent 70%)', pointerEvents: 'none' }} />
 
             {[['top-0 left-0', 'border-t border-l', '-translate-x-px -translate-y-px'],
@@ -672,8 +680,8 @@ export default function VideoDashboard() {
           {videos.map(v => (
             <div key={v.id} style={{ width: '100%', background: 'var(--bg-card)', border: 'var(--border)', borderRadius: 'var(--radius-card)', overflow: 'hidden', flexShrink: 0, display: 'flex' }}>
               {/* Video */}
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ position: 'relative' }}
+              <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+                <div style={{ position: 'relative', minHeight: '160px' }}
                   onMouseEnter={e => {
                     const el = e.currentTarget.querySelector('.video-actions') as HTMLElement;
                     const dl = e.currentTarget.querySelector('.download-btn') as HTMLElement;
@@ -687,7 +695,7 @@ export default function VideoDashboard() {
                     if (dl && likedVideos.has(v.id)) dl.style.display = 'none';
                   }}
                 >
-                  <video src={v.videoUrl} controls loop style={{ width: '100%', display: 'block', maxHeight: '80vh', objectFit: 'contain', background: '#000' }} />
+                  <video src={v.videoUrl} controls loop style={{ width: '100%', display: 'block', maxHeight: '80vh', minHeight: '160px', objectFit: 'contain', background: '#000' }} />
 
                   {/* Delete confirmation overlay */}
                   {confirmingDeleteId === v.id && (
@@ -713,22 +721,35 @@ export default function VideoDashboard() {
                     </button>
                   </div>
                 </div>
+                {/* Mobile action bar — inside video container, always below video */}
+                <div className="mobile-action-bar" style={{ borderTop: '0.5px solid rgba(255,255,255,0.06)', padding: '10px 12px', gap: '8px', alignItems: 'center' }}>
+                  <button onClick={() => setPrompt(v.prompt)} className="font-dm" style={{ flex: 1, padding: '9px 10px', borderRadius: '8px', background: 'rgba(83,47,207,0.08)', border: '0.5px solid rgba(83,47,207,0.25)', color: 'rgba(160,120,255,0.85)', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontWeight: 500 }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    Use prompt
+                  </button>
+                  <button onClick={() => downloadVideo(v.videoUrl, v.id)} style={{ width: '38px', height: '38px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '0.5px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'rgba(255,255,255,0.5)', flexShrink: 0 }}>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  </button>
+                  {confirmingDeleteId === v.id ? (
+                    <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
+                      <button onClick={() => setConfirmingDeleteId(null)} className="font-dm" style={{ padding: '0 12px', height: '38px', borderRadius: '8px', fontSize: '12px', background: 'rgba(255,255,255,0.06)', border: '0.5px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.45)', cursor: 'pointer' }}>Cancel</button>
+                      <button onClick={() => { setConfirmingDeleteId(null); deleteVideo(v.id); }} className="font-dm" style={{ padding: '0 12px', height: '38px', borderRadius: '8px', fontSize: '12px', background: 'rgba(180,30,30,0.8)', border: 'none', color: '#fff', cursor: 'pointer' }}>Delete</button>
+                    </div>
+                  ) : (
+                    <button onClick={() => setConfirmingDeleteId(v.id)} style={{ width: '38px', height: '38px', borderRadius: '8px', background: 'rgba(255,40,40,0.08)', border: '0.5px solid rgba(255,40,40,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'rgba(255,80,80,0.6)', flexShrink: 0 }}>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+                    </button>
+                  )}
+                </div>
               </div>
-              {/* Info sidebar — hidden on mobile */}
+              {/* Info sidebar — desktop only */}
               <div className="video-sidebar" style={{ padding: '14px', gap: '10px' }}>
                 <div style={{ fontSize: '11px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '5px', fontWeight: 600 }}>
                   <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: 'var(--accent)' }}></div>
                   {v.model ?? 'Kling 3.0'}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '6px' }}>
-                  <div style={{ fontSize: '11px', color: 'var(--text-secondary)', lineHeight: '1.6', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical' as const, flex: 1 }}>{v.prompt}</div>
-                  <div
-                    onClick={() => navigator.clipboard.writeText(v.prompt)}
-                    title="Copy prompt"
-                    style={{ flexShrink: 0, cursor: 'pointer', color: 'var(--text-secondary)', padding: '2px' }}
-                  >
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                  </div>
+                <div style={{ fontSize: '11px', color: 'var(--text-secondary)', lineHeight: '1.6', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical' as const }}>
+                  {v.prompt}
                 </div>
                 <div style={{ height: '0.5px', background: '#1a1a1a' }}></div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', fontSize: '11px', color: 'var(--text-secondary)' }}>
@@ -736,8 +757,48 @@ export default function VideoDashboard() {
                   <span>◷ {v.duration || 5}s</span>
                   <span>▭ {v.aspectRatio || '9:16'}</span>
                 </div>
-                <div style={{ marginTop: 'auto', fontSize: '10px', color: 'var(--text-secondary)' }}>
-                  {v.createdAt.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {/* Use prompt */}
+                  <button
+                    onClick={() => { setPrompt(v.prompt); }}
+                    className="font-dm"
+                    style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', background: 'rgba(83,47,207,0.08)', border: '0.5px solid rgba(83,47,207,0.25)', color: 'rgba(160,120,255,0.85)', fontSize: '11px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 500, transition: 'all 0.15s' }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(83,47,207,0.15)'; e.currentTarget.style.borderColor = 'rgba(83,47,207,0.4)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'rgba(83,47,207,0.08)'; e.currentTarget.style.borderColor = 'rgba(83,47,207,0.25)'; }}
+                  >
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    Use prompt
+                  </button>
+                  {/* Download */}
+                  <button
+                    onClick={() => downloadVideo(v.videoUrl, v.id)}
+                    className="font-dm"
+                    style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.5)', fontSize: '11px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 500, transition: 'all 0.15s' }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; e.currentTarget.style.color = 'rgba(255,255,255,0.8)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.color = 'rgba(255,255,255,0.5)'; }}
+                  >
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Download
+                  </button>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>
+                    {v.createdAt.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                  </span>
+                  {/* Delete */}
+                  {confirmingDeleteId === v.id ? (
+                    <div style={{ display: 'flex', gap: '5px' }}>
+                      <button onClick={() => setConfirmingDeleteId(null)} className="font-dm" style={{ padding: '3px 8px', borderRadius: '6px', fontSize: '10px', background: 'rgba(255,255,255,0.06)', border: '0.5px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.45)', cursor: 'pointer' }}>Cancel</button>
+                      <button onClick={() => { setConfirmingDeleteId(null); deleteVideo(v.id); }} className="font-dm" style={{ padding: '3px 8px', borderRadius: '6px', fontSize: '10px', background: 'rgba(180,30,30,0.7)', border: 'none', color: '#fff', cursor: 'pointer' }}>Delete</button>
+                    </div>
+                  ) : (
+                    <button onClick={() => setConfirmingDeleteId(v.id)} style={{ width: '22px', height: '22px', borderRadius: '6px', background: 'rgba(255,40,40,0.08)', border: '0.5px solid rgba(255,40,40,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'rgba(255,80,80,0.6)', flexShrink: 0, transition: 'all 0.15s' }}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,40,40,0.18)'; e.currentTarget.style.color = 'rgba(255,80,80,1)'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,40,40,0.08)'; e.currentTarget.style.color = 'rgba(255,80,80,0.6)'; }}
+                    >
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+                    </button>
+                  )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -745,6 +806,130 @@ export default function VideoDashboard() {
         </div>
 
       </div>
+      {/* MOBILE PROMPT BAR — same style as images PromptBar */}
+      <div className="md:hidden fixed left-0 right-0 z-[110] px-3 pb-3 pointer-events-none" style={{ bottom: 'calc(65px + env(safe-area-inset-bottom, 0px))' }}>
+        {/* Purple glow */}
+        <div aria-hidden className="pointer-events-none absolute left-1/2 -translate-x-1/2" style={{ bottom: 0, width: '100%', height: '180px', zIndex: -1 }}>
+          <div style={{ position: 'absolute', bottom: 0, left: '10%', right: '10%', height: '160px', background: 'radial-gradient(ellipse at 50% 100%, rgba(83,47,207,0.2) 0%, rgba(83,47,207,0.05) 45%, transparent 70%)', pointerEvents: 'none' }} />
+        </div>
+
+        <div className={`pointer-events-auto prompt-bar-orbit${isGenerating ? ' prompt-bar-loading' : ''}`}>
+          <div style={{ background: 'rgba(10,10,14,0.97)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderRadius: '14px', overflow: 'hidden', boxShadow: '0 -1px 0 rgba(255,255,255,0.04) inset' }}>
+
+            {/* Frames preview strip (when options open) */}
+            {mobileShowOptions && (
+              <div style={{ padding: '12px 12px 0', display: 'flex', flexDirection: 'column', gap: '10px', borderBottom: '0.5px solid rgba(255,255,255,0.06)' }}>
+                {/* Frames */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                  {(['start', 'end'] as const).map(type => {
+                    const frame = type === 'start' ? startFrame : endFrame;
+                    const ref = type === 'start' ? mobileStartFrameRef : mobileEndFrameRef;
+                    return (
+                      <div key={type} style={{ position: 'relative', height: '64px' }}>
+                        <input ref={ref} type="file" accept="image/*" style={{ display: 'none' }} onChange={e => e.target.files?.[0] && handleFrameUpload(e.target.files[0], type)} />
+                        <div onClick={() => ref.current?.click()} style={{ background: 'rgba(255,255,255,0.03)', border: `0.5px solid ${frame ? 'rgba(83,47,207,0.5)' : 'rgba(255,255,255,0.07)'}`, borderRadius: '10px', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', cursor: 'pointer', overflow: 'hidden' }}>
+                          {frame ? (
+                            <img src={frame} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          ) : (
+                            <>
+                              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                              <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.28)', fontFamily: 'var(--font-dm)' }}>{type === 'start' ? t('startFrame') : t('endFrame')}</span>
+                            </>
+                          )}
+                        </div>
+                        {frame && <div onClick={() => type === 'start' ? setStartFrame(null) : setEndFrame(null)} style={{ position: 'absolute', top: '4px', right: '4px', width: '18px', height: '18px', background: 'rgba(10,10,14,0.85)', border: '0.5px solid rgba(255,255,255,0.15)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '11px', color: 'rgba(255,255,255,0.7)' }}>×</div>}
+                      </div>
+                    );
+                  })}
+                </div>
+                {/* Model selector in options */}
+                <div onClick={() => setMobileShowModelMenu(v => !v)} style={{ background: mobileShowModelMenu ? 'rgba(83,47,207,0.1)' : 'rgba(255,255,255,0.03)', border: mobileShowModelMenu ? '0.5px solid rgba(83,47,207,0.35)' : '0.5px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '8px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: 'rgba(120,80,255,0.8)', flexShrink: 0 }} />
+                    <span style={{ fontSize: '12px', fontFamily: 'var(--font-dm)', fontWeight: 500, color: 'rgba(255,255,255,0.75)' }}>{videoModels.find(m => m.id === selectedVideoModelId)?.name ?? t('loading')}</span>
+                  </div>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                {mobileShowModelMenu && (
+                  <div style={{ background: 'rgba(12,12,18,0.99)', border: '0.5px solid rgba(255,255,255,0.1)', borderRadius: '10px', overflow: 'hidden' }}>
+                    {videoModels.map(m => (
+                      <button key={m.id} onClick={() => { setSelectedVideoModelId(m.id); setMobileShowModelMenu(false); }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', textAlign: 'left', padding: '10px 14px', background: selectedVideoModelId === m.id ? 'rgba(83,47,207,0.12)' : 'none', border: 'none', cursor: 'pointer' }}>
+                        <span style={{ fontSize: '12px', fontFamily: 'var(--font-dm)', fontWeight: 500, color: selectedVideoModelId === m.id ? 'rgba(160,120,255,0.9)' : 'rgba(255,255,255,0.75)' }}>{m.name}</span>
+                        {selectedVideoModelId === m.id && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(160,120,255,0.9)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {error && <div style={{ fontSize: '11px', color: '#ef4444', fontFamily: 'var(--font-dm)', paddingBottom: '2px' }}>{error}</div>}
+                <div style={{ height: '4px' }} />
+              </div>
+            )}
+
+            {/* Textarea */}
+            <div style={{ padding: '14px 14px 8px' }}>
+              <textarea
+                value={prompt}
+                onChange={e => setPrompt(e.target.value)}
+                placeholder={t('promptPlaceholder')}
+                rows={1}
+                onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (!isSignedIn) { setShowModal(true); } else { handleGenerate(); } } }}
+                onInput={e => { const el = e.currentTarget; el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 120) + 'px'; }}
+                style={{ width: '100%', background: 'transparent', border: 'none', outline: 'none', resize: 'none', fontSize: '16px', lineHeight: '1.6', minHeight: '40px', maxHeight: '120px', overflowY: 'auto', color: 'rgba(255,255,255,0.9)', fontFamily: 'var(--font-dm)' }}
+              />
+            </div>
+
+            {/* Bottom toolbar */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 10px 10px', gap: '6px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flexWrap: 'nowrap', overflow: 'hidden' }}>
+
+                {/* Frames toggle */}
+                <button onClick={() => setMobileShowOptions(v => !v)} style={{ height: '30px', padding: '0 10px', borderRadius: '8px', background: mobileShowOptions ? 'rgba(83,47,207,0.15)' : 'rgba(255,255,255,0.05)', border: mobileShowOptions ? '0.5px solid rgba(83,47,207,0.4)' : '0.5px solid rgba(255,255,255,0.08)', color: mobileShowOptions ? 'rgba(160,120,255,0.9)' : 'rgba(255,255,255,0.45)', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', fontFamily: 'var(--font-dm)', cursor: 'pointer', flexShrink: 0 }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                  {(startFrame || endFrame) && <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: 'rgba(120,80,255,0.9)', display: 'inline-block' }} />}
+                </button>
+
+                {/* Duration */}
+                <button onClick={() => setDuration(d => d <= 3 ? 10 : d - 1)} style={{ height: '30px', padding: '0 10px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '0.5px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.45)', fontSize: '11px', fontFamily: 'var(--font-dm)', cursor: 'pointer', flexShrink: 0 }}>
+                  ◷ {duration}s
+                </button>
+
+                {/* Aspect ratio */}
+                <button onClick={() => { const opts = ['9:16','16:9','1:1'] as const; const i = opts.indexOf(aspectRatio as any); setAspectRatio(opts[(i + 1) % opts.length]); }} style={{ height: '30px', padding: '0 10px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '0.5px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.45)', fontSize: '11px', fontFamily: 'var(--font-dm)', cursor: 'pointer', flexShrink: 0 }}>
+                  {aspectRatio}
+                </button>
+
+                {/* Quality */}
+                <button onClick={() => setQuality(q => q === '720p' ? '1080p' : '720p')} style={{ height: '30px', padding: '0 10px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '0.5px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.45)', fontSize: '11px', fontFamily: 'var(--font-dm)', cursor: 'pointer', flexShrink: 0 }}>
+                  {quality}
+                </button>
+
+                {/* Audio */}
+                <button onClick={() => setAudioEnabled(v => !v)} style={{ height: '30px', padding: '0 10px', borderRadius: '8px', background: audioEnabled ? 'rgba(83,47,207,0.15)' : 'rgba(255,255,255,0.05)', border: audioEnabled ? '0.5px solid rgba(83,47,207,0.4)' : '0.5px solid rgba(255,255,255,0.08)', color: audioEnabled ? 'rgba(160,120,255,0.9)' : 'rgba(255,255,255,0.4)', display: 'flex', alignItems: 'center', fontSize: '11px', cursor: 'pointer', flexShrink: 0 }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>{audioEnabled ? <><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></> : <line x1="23" y1="9" x2="17" y2="15"/>}</svg>
+                </button>
+              </div>
+
+              {/* Generate */}
+              <button
+                onClick={() => { if (!isSignedIn) { setShowModal(true); return; } handleGenerate(); }}
+                disabled={isGenerating || (!!isSignedIn && (!prompt.trim() || !selectedVideoModelId || (creditCount !== null && creditCount < videoCreditCost)))}
+                className={`flex-shrink-0 flex items-center gap-1.5 font-dm font-[500] ${isSignedIn && creditCount !== null && creditCount <= 0 ? 'generate-btn-empty' : 'generate-btn'}`}
+                style={{ height: '32px', padding: '0 14px', borderRadius: '50px', fontSize: '12px', border: 'none', color: '#fff', cursor: 'pointer' }}
+              >
+                {isGenerating ? (
+                  <div style={{ width: '12px', height: '12px', border: '1.5px solid rgba(255,255,255,0.35)', borderTop: '1.5px solid #fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                ) : (
+                  <>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg>
+                    {isSignedIn ? `${t('generate')} · ${videoCreditCost}` : t('tryForFree')}
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
       `}</style>
