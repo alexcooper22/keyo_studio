@@ -31,11 +31,12 @@ export async function GET(req: NextRequest) {
   // Look up provider from DB
   const { data: videoRecord } = await supabaseAdmin
     .from('generated_videos')
-    .select('provider')
+    .select('provider, task_type')
     .eq('task_id', taskId)
     .maybeSingle();
 
   const provider = videoRecord?.provider ?? 'kling';
+  const taskType = videoRecord?.task_type ?? 'text2video';
 
   try {
     if (provider === 'bytedance') {
@@ -63,7 +64,10 @@ export async function GET(req: NextRequest) {
 
     // Default: Kling
     const token = await generateKlingToken();
-    const response = await fetch(`https://api.klingai.com/v1/videos/text2video/${taskId}`, {
+    const klingPath = taskType === 'motion-control'
+      ? `https://api.klingai.com/v1/videos/motion-control/${taskId}`
+      : `https://api.klingai.com/v1/videos/text2video/${taskId}`;
+    const response = await fetch(klingPath, {
       headers: { 'Authorization': `Bearer ${token}` },
     });
 
