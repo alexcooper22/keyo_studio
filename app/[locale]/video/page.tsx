@@ -190,6 +190,9 @@ export default function VideoDashboard() {
       else setMcCharacterImageUrl(publicUrl);
     } catch (err) {
       console.error('MC upload failed', err);
+      if (type === 'motionVideo') setMcMotionVideoUrl(null);
+      else setMcCharacterImageUrl(null);
+      setMcError('Upload failed. Please try again.');
     }
   };
 
@@ -903,23 +906,23 @@ export default function VideoDashboard() {
               <div style={{ borderTop: '0.5px solid rgba(255,255,255,0.06)', padding: '10px 12px' }}>
                 <button
                   onClick={handleMcGenerate}
-                  disabled={isMcGenerating || !mcMotionVideoUrl || !mcCharacterImageUrl || (creditCount !== null && creditCount < mcCreditCost)}
+                  disabled={isMcGenerating || !mcMotionVideoUrl || !mcCharacterImageUrl || creditCount === null || creditCount < mcCreditCost}
                   style={{
-                    background: (creditCount !== null && creditCount < mcCreditCost) ? 'rgba(255,255,255,0.04)' : isMcGenerating ? 'rgba(83,47,207,0.5)' : 'linear-gradient(135deg, #7c5cf0 0%, #9b7eff 100%)',
-                    border: (creditCount !== null && creditCount < mcCreditCost) ? '0.5px solid rgba(255,255,255,0.08)' : 'none',
+                    background: (creditCount === null || creditCount < mcCreditCost) ? 'rgba(255,255,255,0.04)' : isMcGenerating ? 'rgba(83,47,207,0.5)' : 'linear-gradient(135deg, #7c5cf0 0%, #9b7eff 100%)',
+                    border: (creditCount === null || creditCount < mcCreditCost) ? '0.5px solid rgba(255,255,255,0.08)' : 'none',
                     borderRadius: '11px', padding: '13px', fontSize: '13px', fontWeight: 700,
                     fontFamily: 'var(--font-dm)', letterSpacing: '0.1px',
-                    color: (creditCount !== null && creditCount < mcCreditCost) ? 'rgba(255,255,255,0.25)' : '#fff',
+                    color: (creditCount === null || creditCount < mcCreditCost) ? 'rgba(255,255,255,0.25)' : '#fff',
                     cursor: (isMcGenerating || !mcMotionVideoUrl || !mcCharacterImageUrl) ? 'not-allowed' : 'pointer',
                     opacity: isMcGenerating ? 0.85 : 1, width: '100%',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '7px',
-                    boxShadow: isMcGenerating || (creditCount !== null && creditCount < mcCreditCost) ? 'none' : '0 4px 20px rgba(83,47,207,0.4), inset 0 1px 0 rgba(255,255,255,0.15)',
+                    boxShadow: isMcGenerating || (creditCount === null || creditCount < mcCreditCost) ? 'none' : '0 4px 20px rgba(83,47,207,0.4), inset 0 1px 0 rgba(255,255,255,0.15)',
                     transition: 'opacity 0.2s',
                   }}
                 >
                   {isMcGenerating ? (
                     <><div style={{ width: '13px', height: '13px', border: '1.5px solid rgba(255,255,255,0.35)', borderTop: '1.5px solid #fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />{status || 'Generating...'}</>
-                  ) : (creditCount !== null && creditCount < mcCreditCost) ? (
+                  ) : (creditCount === null || creditCount < mcCreditCost) ? (
                     <>No Credits</>
                   ) : (
                     <><span style={{ fontSize: '10px', color: 'rgba(220,200,255,0.9)' }}>✦</span>Generate<span style={{ color: 'rgba(200,170,255,0.7)', fontSize: '11px', fontWeight: 500 }}>· {mcCreditCost}</span></>
