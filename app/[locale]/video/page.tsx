@@ -906,17 +906,22 @@ export default function VideoDashboard() {
               <div style={{ borderTop: '0.5px solid rgba(255,255,255,0.06)', padding: '10px 12px' }}>
                 <button
                   onClick={handleMcGenerate}
-                  disabled={isMcGenerating || !mcMotionVideoUrl || !mcCharacterImageUrl || creditCount === null || creditCount < mcCreditCost}
+                  disabled={
+                    isMcGenerating ||
+                    !mcMotionVideoUrl || mcMotionVideoUrl.startsWith('blob:') ||
+                    !mcCharacterImageUrl || mcCharacterImageUrl.startsWith('blob:') ||
+                    creditCount === null || creditCount < mcCreditCost
+                  }
                   style={{
-                    background: (creditCount === null || creditCount < mcCreditCost) ? 'rgba(255,255,255,0.04)' : isMcGenerating ? 'rgba(83,47,207,0.5)' : 'linear-gradient(135deg, #7c5cf0 0%, #9b7eff 100%)',
-                    border: (creditCount === null || creditCount < mcCreditCost) ? '0.5px solid rgba(255,255,255,0.08)' : 'none',
+                    background: (creditCount === null || creditCount < mcCreditCost || !mcMotionVideoUrl || mcMotionVideoUrl.startsWith('blob:') || !mcCharacterImageUrl || mcCharacterImageUrl.startsWith('blob:')) ? 'rgba(255,255,255,0.04)' : isMcGenerating ? 'rgba(83,47,207,0.5)' : 'linear-gradient(135deg, #7c5cf0 0%, #9b7eff 100%)',
+                    border: (creditCount === null || creditCount < mcCreditCost || !mcMotionVideoUrl || mcMotionVideoUrl.startsWith('blob:') || !mcCharacterImageUrl || mcCharacterImageUrl.startsWith('blob:')) ? '0.5px solid rgba(255,255,255,0.08)' : 'none',
                     borderRadius: '11px', padding: '13px', fontSize: '13px', fontWeight: 700,
                     fontFamily: 'var(--font-dm)', letterSpacing: '0.1px',
-                    color: (creditCount === null || creditCount < mcCreditCost) ? 'rgba(255,255,255,0.25)' : '#fff',
-                    cursor: (isMcGenerating || !mcMotionVideoUrl || !mcCharacterImageUrl) ? 'not-allowed' : 'pointer',
+                    color: (creditCount === null || creditCount < mcCreditCost || !mcMotionVideoUrl || mcMotionVideoUrl.startsWith('blob:') || !mcCharacterImageUrl || mcCharacterImageUrl.startsWith('blob:')) ? 'rgba(255,255,255,0.25)' : '#fff',
+                    cursor: (isMcGenerating || !mcMotionVideoUrl || mcMotionVideoUrl.startsWith('blob:') || !mcCharacterImageUrl || mcCharacterImageUrl.startsWith('blob:')) ? 'not-allowed' : 'pointer',
                     opacity: isMcGenerating ? 0.85 : 1, width: '100%',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '7px',
-                    boxShadow: isMcGenerating || (creditCount === null || creditCount < mcCreditCost) ? 'none' : '0 4px 20px rgba(83,47,207,0.4), inset 0 1px 0 rgba(255,255,255,0.15)',
+                    boxShadow: isMcGenerating || (creditCount === null || creditCount < mcCreditCost || !mcMotionVideoUrl || mcMotionVideoUrl.startsWith('blob:') || !mcCharacterImageUrl || mcCharacterImageUrl.startsWith('blob:')) ? 'none' : '0 4px 20px rgba(83,47,207,0.4), inset 0 1px 0 rgba(255,255,255,0.15)',
                     transition: 'opacity 0.2s',
                   }}
                 >
