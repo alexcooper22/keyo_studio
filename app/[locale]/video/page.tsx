@@ -42,6 +42,17 @@ export default function VideoDashboard() {
   const endFrameRef = useRef<HTMLInputElement>(null);
   const mobileStartFrameRef = useRef<HTMLInputElement>(null);
   const mobileEndFrameRef = useRef<HTMLInputElement>(null);
+  const [activeTab, setActiveTab] = useState<'create' | 'motion-control'>('create');
+  const [mcMotionVideoUrl, setMcMotionVideoUrl] = useState<string | null>(null);
+  const [mcCharacterImageUrl, setMcCharacterImageUrl] = useState<string | null>(null);
+  const [mcCharacterOrientation, setMcCharacterOrientation] = useState<'image' | 'video'>('image');
+  const [mcQuality, setMcQuality] = useState<'720p' | '1080p'>('720p');
+  const [mcPrompt, setMcPrompt] = useState('');
+  const [isMcGenerating, setIsMcGenerating] = useState(false);
+  const [mcError, setMcError] = useState<string | null>(null);
+  const mcPollRef = useRef<NodeJS.Timeout | null>(null);
+  const mcMotionVideoRef = useRef<HTMLInputElement>(null);
+  const mcCharacterImageRef = useRef<HTMLInputElement>(null);
   const [mobileShowOptions, setMobileShowOptions] = useState(false);
   const [mobileShowModelMenu, setMobileShowModelMenu] = useState(false);
 
@@ -158,6 +169,96 @@ export default function VideoDashboard() {
       console.error('Upload failed', err);
     }
   };
+  const handleMcUpload = async (file: File, type: 'motionVideo' | 'characterImage') => {
+    const preview = URL.createObjectURL(file);
+    if (type === 'motionVideo') setMcMotionVideoUrl(preview);
+    else setMcCharacterImageUrl(preview);
+
+    try {
+      const res = await fetch('/api/upload-frame', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileName: file.name, fileType: file.type }),
+      });
+      const { signedUrl, publicUrl } = await res.json();
+      await fetch(signedUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': file.type },
+        body: file,
+      });
+      if (type === 'motionVideo') setMcMotionVideoUrl(publicUrl);
+      else setMcCharacterImageUrl(publicUrl);
+    } catch (err) {
+      console.error('MC upload failed', err);
+    }
+  };
+
+  const handleMcGenerate = async () => {
+    if (!mcMotionVideoUrl || !mcCharacterImageUrl || isMcGenerating) return;
+    const mcModel = videoModels.find(m => m.name === 'Kling Motion Control');
+    if (!mcModel) return;
+
+    setIsMcGenerating(true);
+    setMcError(null);
+    setStatus('Submitting...');
+
+    try {
+      const perSecond = mcModel.pricing.find(p => p.quality === mcQuality)?.credits ?? (mcQuality === '1080p' ? 4 : 3);
+      const res = await fetch('/api/generate-motion-control', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          characterImageUrl: mcCharacterImageUrl,
+          motionVideoUrl: mcMotionVideoUrl,
+          characterOrientation: mcCharacterOrientation,
+          quality: mcQuality,
+          modelId: mcModel.id,
+          prompt: mcPrompt,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed');
+
+      const taskId = data.taskId;
+      setStatus('Processing...');
+      if (data.remainingCredits !== undefined) setCreditCount(data.remainingCredits);
+
+      mcPollRef.current = setInterval(async () => {
+        try {
+          const check = await fetch(`/api/check-video?taskId=${taskId}`);
+          const result = await check.json();
+          if (result.status === 'succeed' && result.videoUrl) {
+            clearInterval(mcPollRef.current!);
+            const newVideo: VideoItem = {
+              id: taskId,
+              videoUrl: result.videoUrl,
+              prompt: mcPrompt || 'Motion Control',
+              createdAt: new Date(),
+              quality: mcQuality,
+              model: mcModel.name,
+            };
+            setVideos(prev => [newVideo, ...prev]);
+            setIsMcGenerating(false);
+            setStatus('');
+            window.dispatchEvent(new Event('credits-updated'));
+            if (feedRef.current) feedRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+          } else if (result.status === 'failed') {
+            clearInterval(mcPollRef.current!);
+            setMcError('Generation failed. Please try again.');
+            setIsMcGenerating(false);
+            setStatus('');
+          }
+        } catch (err) {
+          console.error('MC polling error:', err);
+        }
+      }, 5000);
+    } catch (err: any) {
+      setMcError(err.message);
+      setIsMcGenerating(false);
+      setStatus('');
+    }
+  };
+
   const fetchVideoModels = async () => {
     try {
       const models = await fetchModelsWithCache('video');
@@ -277,6 +378,12 @@ export default function VideoDashboard() {
     }
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (mcPollRef.current) clearInterval(mcPollRef.current);
+    };
+  }, []);
+
   const handleGenerate = async () => {
     if (!prompt.trim() || isGenerating) return;
     if (!selectedVideoModelId) return;
@@ -349,6 +456,9 @@ export default function VideoDashboard() {
   const selectedVideoModel = videoModels.find(m => m.id === selectedVideoModelId);
   const perSecond = selectedVideoModel?.pricing.find(p => p.quality === quality)?.credits ?? (quality === '1080p' ? 4 : 3);
   const videoCreditCost = (perSecond + (audioEnabled ? 1 : 0)) * duration;
+  const mcModel = videoModels.find(m => m.name === 'Kling Motion Control');
+  const mcPerSecond = mcModel?.pricing.find(p => p.quality === mcQuality)?.credits ?? (mcQuality === '1080p' ? 4 : 3);
+  const mcCreditCost = mcPerSecond * 5;
 
   const videoHero = (
     <>
@@ -459,6 +569,35 @@ export default function VideoDashboard() {
           {/* Divider */}
           <div style={{ height: '0.5px', background: 'rgba(255,255,255,0.06)' }} />
 
+          {/* Tab bar */}
+          <div style={{ display: 'flex', borderBottom: '0.5px solid rgba(255,255,255,0.06)' }}>
+            {(['create', 'motion-control'] as const).map(tab => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                style={{
+                  flex: 1,
+                  padding: '10px 4px',
+                  background: 'none',
+                  border: 'none',
+                  borderBottom: activeTab === tab ? '1.5px solid rgba(120,80,255,0.8)' : '1.5px solid transparent',
+                  color: activeTab === tab ? 'rgba(160,120,255,0.95)' : 'rgba(255,255,255,0.28)',
+                  fontSize: '11px',
+                  fontFamily: 'var(--font-dm)',
+                  fontWeight: activeTab === tab ? 600 : 400,
+                  letterSpacing: '0.3px',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s',
+                  marginBottom: '-0.5px',
+                }}
+              >
+                {tab === 'create' ? 'Create Video' : 'Motion Control'}
+              </button>
+            ))}
+          </div>
+
+          {activeTab === 'create' && (
+            <>
           <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, overflowY: 'auto' }}>
 
             {/* Model card */}
@@ -640,6 +779,155 @@ export default function VideoDashboard() {
               )}
             </button>
           </div>
+            </>
+          )}
+
+          {activeTab === 'motion-control' && (
+            <>
+              {/* Hidden file inputs */}
+              <input ref={mcMotionVideoRef} type="file" accept="video/mp4,video/webm" style={{ display: 'none' }}
+                onChange={e => e.target.files?.[0] && handleMcUpload(e.target.files[0], 'motionVideo')} />
+              <input ref={mcCharacterImageRef} type="file" accept="image/*" style={{ display: 'none' }}
+                onChange={e => e.target.files?.[0] && handleMcUpload(e.target.files[0], 'characterImage')} />
+
+              <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, overflowY: 'auto' }}>
+
+                {/* Upload boxes */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+                  {/* Motion video upload */}
+                  <div style={{ position: 'relative', aspectRatio: '1' }}>
+                    <div
+                      onClick={() => mcMotionVideoRef.current?.click()}
+                      style={{ background: '#0c0c14', border: `0.5px solid ${mcMotionVideoUrl && !mcMotionVideoUrl.startsWith('blob:') ? 'rgba(83,47,207,0.5)' : 'rgba(255,255,255,0.07)'}`, borderRadius: '10px', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '5px', cursor: 'pointer', overflow: 'hidden', position: 'relative', transition: 'border-color 0.15s' }}
+                    >
+                      {mcMotionVideoUrl ? (
+                        <video src={mcMotionVideoUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} muted />
+                      ) : (
+                        <>
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+                          <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.25)', fontFamily: 'var(--font-dm)', textAlign: 'center', lineHeight: 1.4, padding: '0 4px' }}>Add motion to copy</span>
+                          <span style={{ fontSize: '8px', color: 'rgba(255,255,255,0.15)', fontFamily: 'var(--font-dm)' }}>3–30s video</span>
+                        </>
+                      )}
+                    </div>
+                    {mcMotionVideoUrl && (
+                      <div onClick={() => setMcMotionVideoUrl(null)} style={{ position: 'absolute', top: '5px', right: '5px', width: '18px', height: '18px', background: 'rgba(10,10,14,0.85)', border: '0.5px solid rgba(255,255,255,0.15)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '11px', color: 'rgba(255,255,255,0.7)', zIndex: 10 }}>×</div>
+                    )}
+                  </div>
+
+                  {/* Character image upload */}
+                  <div style={{ position: 'relative', aspectRatio: '1' }}>
+                    <div
+                      onClick={() => mcCharacterImageRef.current?.click()}
+                      style={{ background: '#0c0c14', border: `0.5px solid ${mcCharacterImageUrl && !mcCharacterImageUrl.startsWith('blob:') ? 'rgba(83,47,207,0.5)' : 'rgba(255,255,255,0.07)'}`, borderRadius: '10px', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '5px', cursor: 'pointer', overflow: 'hidden', position: 'relative', transition: 'border-color 0.15s' }}
+                    >
+                      {mcCharacterImageUrl ? (
+                        <img src={mcCharacterImageUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" />
+                      ) : (
+                        <>
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                          <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.25)', fontFamily: 'var(--font-dm)', textAlign: 'center', lineHeight: 1.4, padding: '0 4px' }}>Add your character</span>
+                          <span style={{ fontSize: '8px', color: 'rgba(255,255,255,0.15)', fontFamily: 'var(--font-dm)' }}>Face + body visible</span>
+                        </>
+                      )}
+                    </div>
+                    {mcCharacterImageUrl && (
+                      <div onClick={() => setMcCharacterImageUrl(null)} style={{ position: 'absolute', top: '5px', right: '5px', width: '18px', height: '18px', background: 'rgba(10,10,14,0.85)', border: '0.5px solid rgba(255,255,255,0.15)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '11px', color: 'rgba(255,255,255,0.7)', zIndex: 10 }}>×</div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Model label */}
+                <div style={{ background: 'rgba(255,255,255,0.03)', border: '0.5px solid rgba(255,255,255,0.07)', borderRadius: '10px', padding: '9px 12px' }}>
+                  <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.28)', fontFamily: 'var(--font-dm)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '3px' }}>Model</div>
+                  <div style={{ fontSize: '12px', fontFamily: 'var(--font-dm)', fontWeight: 500, color: 'rgba(255,255,255,0.75)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: 'rgba(120,80,255,0.8)', flexShrink: 0 }} />
+                    Kling Motion Control
+                  </div>
+                </div>
+
+                {/* Quality selector */}
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  {(['720p', '1080p'] as const).map(q => (
+                    <button
+                      key={q}
+                      onClick={() => setMcQuality(q)}
+                      style={{ flex: 1, padding: '7px 4px', background: mcQuality === q ? 'rgba(83,47,207,0.1)' : 'rgba(255,255,255,0.04)', border: mcQuality === q ? '0.5px solid rgba(83,47,207,0.35)' : '0.5px solid rgba(255,255,255,0.08)', borderRadius: '8px', fontSize: '11px', color: mcQuality === q ? 'rgba(160,120,255,0.9)' : 'rgba(255,255,255,0.45)', cursor: 'pointer', fontFamily: 'var(--font-dm)', transition: 'all 0.15s' }}
+                    >
+                      ◇ {q}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Scene control mode */}
+                <div style={{ background: 'rgba(255,255,255,0.03)', border: '0.5px solid rgba(255,255,255,0.07)', borderRadius: '10px', padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ fontSize: '11px', fontFamily: 'var(--font-dm)', color: 'rgba(255,255,255,0.45)', letterSpacing: '0.2px' }}>Scene control mode</span>
+                    <div
+                      onClick={() => setMcCharacterOrientation(v => v === 'image' ? 'video' : 'image')}
+                      style={{ width: '32px', height: '18px', background: mcCharacterOrientation === 'video' ? 'rgba(83,47,207,0.8)' : 'rgba(255,255,255,0.1)', borderRadius: '20px', position: 'relative', cursor: 'pointer', transition: 'background 0.2s' }}
+                    >
+                      <div style={{ width: '14px', height: '14px', background: 'white', borderRadius: '50%', position: 'absolute', left: mcCharacterOrientation === 'video' ? '16px' : '2px', top: '2px', transition: 'left 0.2s' }} />
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '6px' }}>
+                    {(['video', 'image'] as const).map(mode => (
+                      <button
+                        key={mode}
+                        onClick={() => setMcCharacterOrientation(mode)}
+                        style={{ flex: 1, padding: '6px 4px', background: mcCharacterOrientation === mode ? 'rgba(83,47,207,0.12)' : 'rgba(255,255,255,0.03)', border: mcCharacterOrientation === mode ? '0.5px solid rgba(83,47,207,0.35)' : '0.5px solid rgba(255,255,255,0.07)', borderRadius: '7px', fontSize: '11px', color: mcCharacterOrientation === mode ? 'rgba(160,120,255,0.9)' : 'rgba(255,255,255,0.3)', cursor: 'pointer', fontFamily: 'var(--font-dm)', transition: 'all 0.15s', textTransform: 'capitalize' }}
+                      >
+                        {mode === 'video' ? 'Video' : 'Image'}
+                      </button>
+                    ))}
+                  </div>
+                  <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.2)', fontFamily: 'var(--font-dm)', lineHeight: 1.4 }}>
+                    {mcCharacterOrientation === 'video'
+                      ? 'Background from motion video (up to 30s)'
+                      : 'Background from character image (up to 10s)'}
+                  </span>
+                </div>
+
+                {/* Optional prompt */}
+                <textarea
+                  value={mcPrompt}
+                  onChange={e => setMcPrompt(e.target.value)}
+                  placeholder="Optional prompt..."
+                  style={{ background: 'rgba(10,10,14,0.97)', border: '0.5px solid rgba(255,255,255,0.07)', borderRadius: '10px', padding: '10px 12px', fontSize: '13px', color: 'rgba(255,255,255,0.85)', minHeight: '60px', resize: 'none', outline: 'none', width: '100%', fontFamily: 'var(--font-dm)', boxSizing: 'border-box', lineHeight: 1.6 }}
+                />
+
+                {mcError && <div style={{ fontSize: '11px', color: '#ef4444', fontFamily: 'var(--font-dm)' }}>{mcError}</div>}
+              </div>
+
+              {/* MC Footer */}
+              <div style={{ borderTop: '0.5px solid rgba(255,255,255,0.06)', padding: '10px 12px' }}>
+                <button
+                  onClick={handleMcGenerate}
+                  disabled={isMcGenerating || !mcMotionVideoUrl || !mcCharacterImageUrl || (creditCount !== null && creditCount < mcCreditCost)}
+                  style={{
+                    background: (creditCount !== null && creditCount < mcCreditCost) ? 'rgba(255,255,255,0.04)' : isMcGenerating ? 'rgba(83,47,207,0.5)' : 'linear-gradient(135deg, #7c5cf0 0%, #9b7eff 100%)',
+                    border: (creditCount !== null && creditCount < mcCreditCost) ? '0.5px solid rgba(255,255,255,0.08)' : 'none',
+                    borderRadius: '11px', padding: '13px', fontSize: '13px', fontWeight: 700,
+                    fontFamily: 'var(--font-dm)', letterSpacing: '0.1px',
+                    color: (creditCount !== null && creditCount < mcCreditCost) ? 'rgba(255,255,255,0.25)' : '#fff',
+                    cursor: (isMcGenerating || !mcMotionVideoUrl || !mcCharacterImageUrl) ? 'not-allowed' : 'pointer',
+                    opacity: isMcGenerating ? 0.85 : 1, width: '100%',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '7px',
+                    boxShadow: isMcGenerating || (creditCount !== null && creditCount < mcCreditCost) ? 'none' : '0 4px 20px rgba(83,47,207,0.4), inset 0 1px 0 rgba(255,255,255,0.15)',
+                    transition: 'opacity 0.2s',
+                  }}
+                >
+                  {isMcGenerating ? (
+                    <><div style={{ width: '13px', height: '13px', border: '1.5px solid rgba(255,255,255,0.35)', borderTop: '1.5px solid #fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />{status || 'Generating...'}</>
+                  ) : (creditCount !== null && creditCount < mcCreditCost) ? (
+                    <>No Credits</>
+                  ) : (
+                    <><span style={{ fontSize: '10px', color: 'rgba(220,200,255,0.9)' }}>✦</span>Generate<span style={{ color: 'rgba(200,170,255,0.7)', fontSize: '11px', fontWeight: 500 }}>· {mcCreditCost}</span></>
+                  )}
+                </button>
+              </div>
+            </>
+          )}
         </div>
 
         {/* CENTER PANEL — scrollable feed */}
