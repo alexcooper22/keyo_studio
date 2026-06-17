@@ -3,7 +3,8 @@ import { auth } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '../../../lib/supabase';
 import { isAllowedMime, sanitizeFileName } from '../../../lib/rateLimit';
 
-const ALLOWED_EXTENSIONS = new Set(['jpg', 'jpeg', 'png', 'webp']);
+const ALLOWED_IMAGE_EXT = new Set(['jpg', 'jpeg', 'png', 'webp']);
+const ALLOWED_VIDEO_EXT = new Set(['mp4', 'webm']);
 
 export async function POST(req: NextRequest) {
   const { userId } = await auth();
@@ -14,19 +15,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing params' }, { status: 400 });
   }
 
-  // Validate MIME type
   if (!isAllowedMime(fileType)) {
     return NextResponse.json({ error: 'File type not allowed' }, { status: 400 });
   }
 
-  // Sanitize filename and validate extension
   const safeName = sanitizeFileName(fileName);
   const ext = safeName.split('.').pop()?.toLowerCase() ?? '';
-  if (!ALLOWED_EXTENSIONS.has(ext)) {
+  const isVideo = ALLOWED_VIDEO_EXT.has(ext);
+  const isImage = ALLOWED_IMAGE_EXT.has(ext);
+
+  if (!isVideo && !isImage) {
     return NextResponse.json({ error: 'File extension not allowed' }, { status: 400 });
   }
 
-  const storagePath = `${userId}/frames/${Date.now()}.${ext}`;
+  const folder = isVideo ? 'motionvideos' : 'frames';
+  const storagePath = `${userId}/${folder}/${Date.now()}.${ext}`;
 
   const { data, error } = await supabaseAdmin.storage
     .from('user-images')
