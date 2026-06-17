@@ -30,14 +30,19 @@ export async function POST(req: NextRequest) {
   const { allowed } = rateLimit(`gen-mc:${userId}`, 5, 60_000);
   if (!allowed) return NextResponse.json({ error: 'Too many requests. Please wait a moment.' }, { status: 429 });
 
-  const {
-    characterImageUrl,
-    motionVideoUrl,
-    characterOrientation = 'image',
-    quality = '720p',
-    modelId,
-    prompt = '',
-  } = await req.json();
+  let characterImageUrl: string, motionVideoUrl: string, modelId: string;
+  let characterOrientation = 'image', quality = '720p', prompt = '';
+  try {
+    const body = await req.json();
+    characterImageUrl = body.characterImageUrl;
+    motionVideoUrl = body.motionVideoUrl;
+    characterOrientation = body.characterOrientation ?? 'image';
+    quality = body.quality ?? '720p';
+    modelId = body.modelId;
+    prompt = body.prompt ?? '';
+  } catch {
+    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
+  }
 
   if (!characterImageUrl) return NextResponse.json({ error: 'characterImageUrl required' }, { status: 400 });
   if (!motionVideoUrl) return NextResponse.json({ error: 'motionVideoUrl required' }, { status: 400 });
