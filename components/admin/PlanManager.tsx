@@ -62,7 +62,7 @@ export default function PlanManager() {
     }
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
+        <div className="plan-form-grid3">
           {[
             { label: 'Name', key: 'name' },
             { label: 'Price (USD)', key: 'price_usd' },
@@ -78,7 +78,7 @@ export default function PlanManager() {
           <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '10px', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Description</p>
           <input style={inputStyle} value={form.description} onChange={e => setForm((f: any) => ({ ...f, description: e.target.value }))} />
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
+        <div className="plan-form-grid3">
           {[
             { label: 'CTA Text', key: 'cta_text' },
             { label: 'CTA Style (outline/primary)', key: 'cta_style' },
@@ -119,6 +119,18 @@ export default function PlanManager() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '32px', paddingTop: '24px', borderTop: '0.5px solid rgba(255,255,255,0.06)' }}>
+      <style>{`
+        .plans-table-header { display: grid; grid-template-columns: 70px 1fr 90px 100px 90px 44px; padding: 10px 18px; background: rgba(255,255,255,0.02); border-bottom: 0.5px solid rgba(255,255,255,0.06); }
+        .plan-row { display: grid; grid-template-columns: 70px 1fr 90px 100px 90px 44px; padding: 14px 18px; align-items: center; background: transparent; transition: background 0.15s; }
+        .plan-mobile-card { display: none; }
+        .plan-form-grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+        @media (max-width: 767px) {
+          .plans-table-header { display: none; }
+          .plan-row { display: none; }
+          .plan-mobile-card { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; }
+          .plan-form-grid3 { grid-template-columns: 1fr 1fr !important; }
+        }
+      `}</style>
       <h3 style={{ color: 'white', fontSize: '15px', fontWeight: 700, margin: 0 }}>{t('title')}</h3>
 
       {/* Edit modal */}
@@ -151,46 +163,77 @@ export default function PlanManager() {
         <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: '13px', textAlign: 'center', padding: '20px 0' }}>{t('loading')}</div>
       ) : (
         <div style={{ borderRadius: '14px', border: '0.5px solid rgba(255,255,255,0.07)', overflow: 'hidden' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '70px 1fr 90px 100px 90px 44px', padding: '10px 18px', background: 'rgba(255,255,255,0.02)', borderBottom: '0.5px solid rgba(255,255,255,0.06)' }}>
+          {/* Desktop header */}
+          <div className="plans-table-header">
             {['ID', 'Plan', 'Price', 'Credits', 'Featured', ''].map(h => (
               <span key={h} style={{ color: 'rgba(255,255,255,0.2)', fontSize: '10px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.7px', paddingLeft: h === 'Plan' ? '12px' : 0 }}>{h}</span>
             ))}
           </div>
           {plans.map((plan, i) => (
-            <div
-              key={plan.id}
-              style={{ display: 'grid', gridTemplateColumns: '70px 1fr 90px 100px 90px 44px', padding: '14px 18px', borderBottom: i < plans.length - 1 ? '0.5px solid rgba(255,255,255,0.04)' : 'none', alignItems: 'center', background: 'transparent', transition: 'background 0.15s' }}
-              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.018)')}
-              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-            >
-              <span style={{ color: 'rgba(160,130,255,0.7)', fontSize: '10px', fontFamily: 'monospace', background: 'rgba(83,47,207,0.1)', borderRadius: '5px', padding: '3px 7px', display: 'inline-block', letterSpacing: '0.3px' }}>{plan.id}</span>
-              <div style={{ paddingLeft: '12px' }}>
-                <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '13px', fontWeight: 600, margin: 0, letterSpacing: '-0.1px' }}>{plan.name}</p>
-                <p style={{ color: 'rgba(255,255,255,0.25)', fontSize: '11px', margin: '3px 0 0' }}>{plan.description}</p>
+            <div key={plan.id} style={{ borderBottom: i < plans.length - 1 ? '0.5px solid rgba(255,255,255,0.04)' : 'none' }}>
+              {/* Desktop row */}
+              <div
+                className="plan-row"
+                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.018)')}
+                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+              >
+                <span style={{ color: 'rgba(160,130,255,0.7)', fontSize: '10px', fontFamily: 'monospace', background: 'rgba(83,47,207,0.1)', borderRadius: '5px', padding: '3px 7px', display: 'inline-block', letterSpacing: '0.3px' }}>{plan.id}</span>
+                <div style={{ paddingLeft: '12px' }}>
+                  <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '13px', fontWeight: 600, margin: 0 }}>{plan.name}</p>
+                  <p style={{ color: 'rgba(255,255,255,0.25)', fontSize: '11px', margin: '3px 0 0' }}>{plan.description}</p>
+                </div>
+                <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: '14px', fontWeight: 600 }}>${plan.price_usd}<span style={{ color: 'rgba(255,255,255,0.25)', fontSize: '11px', fontWeight: 400 }}>/mo</span></span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <span style={{ color: 'rgba(160,120,255,0.9)', fontSize: '13px', fontWeight: 600 }}>{plan.credits.toLocaleString()}</span>
+                  <span style={{ color: 'rgba(255,255,255,0.25)', fontSize: '10px' }}>cr</span>
+                </div>
+                <div>
+                  {plan.featured ? (
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'rgba(83,47,207,0.15)', border: '0.5px solid rgba(120,80,255,0.25)', borderRadius: '20px', padding: '3px 8px', fontSize: '10px', color: 'rgba(160,120,255,0.9)', fontWeight: 600 }}>
+                      <span style={{ fontSize: '8px' }}>✦</span> Popular
+                    </span>
+                  ) : <span style={{ color: 'rgba(255,255,255,0.15)', fontSize: '12px' }}>—</span>}
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <button
+                    style={{ background: 'none', border: '0.5px solid rgba(255,255,255,0.07)', borderRadius: '8px', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'rgba(255,255,255,0.35)', transition: 'all 0.15s' }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = 'rgba(255,255,255,0.8)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = 'rgba(255,255,255,0.35)'; }}
+                    onClick={() => setEditPlan(plan)}
+                  >
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  </button>
+                </div>
               </div>
-              <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: '14px', fontWeight: 600, letterSpacing: '-0.3px' }}>${plan.price_usd}<span style={{ color: 'rgba(255,255,255,0.25)', fontSize: '11px', fontWeight: 400 }}>/mo</span></span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <span style={{ color: 'rgba(160,120,255,0.9)', fontSize: '13px', fontWeight: 600 }}>{plan.credits.toLocaleString()}</span>
-                <span style={{ color: 'rgba(255,255,255,0.25)', fontSize: '10px' }}>cr</span>
-              </div>
-              <div>
-                {plan.featured ? (
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'rgba(83,47,207,0.15)', border: '0.5px solid rgba(120,80,255,0.25)', borderRadius: '20px', padding: '3px 8px', fontSize: '10px', color: 'rgba(160,120,255,0.9)', fontWeight: 600 }}>
-                    <span style={{ fontSize: '8px' }}>✦</span> Popular
-                  </span>
-                ) : (
-                  <span style={{ color: 'rgba(255,255,255,0.15)', fontSize: '12px' }}>—</span>
-                )}
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'center' }}>
-                <button
-                  style={{ background: 'none', border: '0.5px solid rgba(255,255,255,0.07)', borderRadius: '8px', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'rgba(255,255,255,0.35)', transition: 'all 0.15s' }}
-                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = 'rgba(255,255,255,0.8)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = 'rgba(255,255,255,0.35)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'; }}
-                  onClick={() => setEditPlan(plan)}
-                >
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                </button>
+
+              {/* Mobile card */}
+              <div className="plan-mobile-card">
+                {/* Row 1: name + featured badge + edit */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ flex: 1, fontSize: '14px', fontWeight: 700, color: 'rgba(255,255,255,0.92)' }}>{plan.name}</span>
+                  {plan.featured && (
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', background: 'rgba(83,47,207,0.15)', border: '0.5px solid rgba(120,80,255,0.25)', borderRadius: '20px', padding: '2px 7px', fontSize: '9px', color: 'rgba(160,120,255,0.9)', fontWeight: 700, flexShrink: 0 }}>
+                      ✦ Popular
+                    </span>
+                  )}
+                  <button
+                    style={{ background: 'none', border: '0.5px solid rgba(255,255,255,0.08)', borderRadius: '7px', width: '26px', height: '26px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'rgba(255,255,255,0.35)', flexShrink: 0 }}
+                    onClick={() => setEditPlan(plan)}
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  </button>
+                </div>
+                {/* Row 2: description */}
+                <p style={{ margin: 0, fontSize: '12px', color: 'rgba(255,255,255,0.32)', lineHeight: 1.4 }}>{plan.description}</p>
+                {/* Row 3: id badge · price · credits */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                  <span style={{ color: 'rgba(160,130,255,0.7)', fontSize: '10px', fontFamily: 'monospace', background: 'rgba(83,47,207,0.1)', borderRadius: '5px', padding: '2px 6px', letterSpacing: '0.3px' }}>{plan.id}</span>
+                  <span style={{ color: 'rgba(255,255,255,0.12)', fontSize: '11px' }}>·</span>
+                  <span style={{ fontSize: '14px', fontWeight: 700, color: 'rgba(255,255,255,0.88)', letterSpacing: '-0.3px' }}>${plan.price_usd}<span style={{ fontSize: '11px', fontWeight: 400, color: 'rgba(255,255,255,0.3)' }}>/mo</span></span>
+                  <span style={{ color: 'rgba(255,255,255,0.12)', fontSize: '11px' }}>·</span>
+                  <span style={{ fontSize: '13px', fontWeight: 700, color: 'rgba(160,120,255,0.9)' }}>{plan.credits.toLocaleString()}</span>
+                  <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)' }}>cr</span>
+                </div>
               </div>
             </div>
           ))}

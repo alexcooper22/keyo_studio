@@ -202,6 +202,20 @@ body {
   transition: transform 0.14s ease, box-shadow 0.14s ease, opacity 0.14s ease;
 }
 
+@media (max-width: 767px) {
+  .img-masonry-feed > .img-masonry-item {
+    flex: 0 0 100% !important;
+    height: auto !important;
+  }
+  .img-masonry-feed > .img-masonry-item img {
+    width: 100%;
+    height: auto !important;
+    max-height: 75vh;
+    object-fit: cover;
+  }
+  .img-masonry-filler { display: none !important; }
+}
+
 .generate-btn::after {
   content: '';
   position: absolute;

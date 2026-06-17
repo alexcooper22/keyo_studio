@@ -197,6 +197,30 @@ export default function ModelManager() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <style>{`
+        .models-table { border-radius: 16px; border: 0.5px solid rgba(255,255,255,0.08); overflow: hidden; background: #0a0a0f; }
+        .models-header { display: grid; grid-template-columns: 1fr 110px 80px 150px 44px; padding: 12px 20px; background: rgba(255,255,255,0.025); border-bottom: 0.5px solid rgba(255,255,255,0.07); }
+        .model-row { display: grid; grid-template-columns: 1fr 110px 80px 150px 44px; padding: 14px 20px; align-items: center; background: transparent; transition: background 0.15s; }
+        .model-row:hover { background: rgba(255,255,255,0.025); }
+        .model-col-meta { display: none; }
+        .model-mobile-row1 { display: none; }
+        .model-mobile-row2 { display: none; }
+        @media (max-width: 767px) {
+          .models-header { display: none; }
+          .model-row { display: flex; flex-direction: column; gap: 3px; padding: 13px 16px; align-items: stretch; }
+          .model-col-name { display: none !important; }
+          .model-col-category { display: none; }
+          .model-col-status { display: none; }
+          .model-col-pricing { display: none; }
+          .model-col-menu-desktop { display: none !important; }
+          .model-mobile-row1 { display: flex; align-items: center; gap: 8px; }
+          .model-mobile-row2 { display: flex; align-items: center; gap: 5px; }
+          .pricing-row-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 6px !important; }
+          .pricing-row-grid .pricing-unit { grid-column: 1 / 3; }
+          .pricing-add-grid { grid-template-columns: 1fr 1fr !important; }
+          .pricing-add-btn { grid-column: 1 / 3 !important; }
+        }
+      `}</style>
 
       {/* Context menu */}
       {openMenuId && menuPos && (
@@ -349,7 +373,7 @@ export default function ModelManager() {
             {/* Add row form */}
             <div style={{ background: 'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.07)', borderRadius: '12px', padding: '16px' }}>
               <p style={{ color: 'rgba(255,255,255,0.25)', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px', margin: '0 0 12px' }}>{t('addPricingRow')}</p>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1.6fr 1fr 72px', gap: '8px', alignItems: 'flex-end' }}>
+              <div className="pricing-add-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1.6fr 1fr 72px', gap: '8px', alignItems: 'flex-end' }}>
                 {[
                   { label: 'Quality', key: 'quality', placeholder: '1K' },
                   { label: 'Credits', key: 'credits', placeholder: '2' },
@@ -370,6 +394,7 @@ export default function ModelManager() {
                   <input style={{ ...inputStyle, padding: '7px 10px' }} placeholder="0.067" value={addPricingForm.cost_usd} onChange={e => setAddPricingForm(f => ({ ...f, cost_usd: e.target.value }))} />
                 </div>
                 <button
+                  className="pricing-add-btn"
                   style={{ ...btnPrimary, padding: '8px 0', width: '100%', borderRadius: '8px', fontSize: '13px' }}
                   onClick={addPricing}
                 >+</button>
@@ -394,9 +419,9 @@ export default function ModelManager() {
       {loading ? (
         <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: '13px', padding: '20px 0', textAlign: 'center' }}>{t('loading')}</div>
       ) : (
-        <div style={{ borderRadius: '16px', border: '0.5px solid rgba(255,255,255,0.08)', overflow: 'hidden', background: '#0a0a0f' }}>
+        <div className="models-table">
           {/* Header */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 110px 80px 150px 44px', padding: '12px 20px', background: 'rgba(255,255,255,0.025)', borderBottom: '0.5px solid rgba(255,255,255,0.07)' }}>
+          <div className="models-header">
             {[['MODEL', ''], ['CATEGORY', ''], ['STATUS', ''], ['PRICING', ''], ['', '']].map(([h], idx) => (
               <span key={idx} style={{ color: 'rgba(255,255,255,0.28)', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.9px' }}>{h}</span>
             ))}
@@ -463,48 +488,24 @@ export default function ModelManager() {
                 );
               })()}
 
-              {providerModels.map((model, i) => (
-                <div
-                  key={model.id}
-                  style={{
-                    display: 'grid', gridTemplateColumns: '1fr 110px 80px 150px 44px',
-                    padding: '14px 20px',
-                    borderBottom: i < providerModels.length - 1 ? '0.5px solid rgba(255,255,255,0.05)' : 'none',
-                    alignItems: 'center', background: 'transparent', transition: 'background 0.15s',
-                  }}
-                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.025)')}
-                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-                >
-                  {/* Model name + ID */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                    <span style={{ color: 'rgba(255,255,255,0.92)', fontSize: '14px', fontWeight: 600, letterSpacing: '-0.2px' }}>{model.name}</span>
-                    <span style={{
-                      display: 'inline-block', width: 'fit-content',
-                      color: 'rgba(255,255,255,0.35)', fontSize: '11px', fontFamily: 'monospace',
-                      background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.07)',
-                      borderRadius: '5px', padding: '2px 7px',
-                    }}>{model.model_id}</span>
-                  </div>
-
-                  {/* Category badge */}
-                  <div>
-                    <span style={{
-                      display: 'inline-flex', alignItems: 'center', gap: '5px',
-                      fontSize: '11px', fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase',
-                      padding: '4px 10px', borderRadius: '20px',
-                      background: model.category === 'image' ? 'rgba(83,47,207,0.18)' : 'rgba(0,130,220,0.18)',
-                      border: model.category === 'image' ? '0.5px solid rgba(130,90,255,0.35)' : '0.5px solid rgba(0,160,255,0.35)',
-                      color: model.category === 'image' ? 'rgba(180,145,255,0.95)' : 'rgba(90,190,255,0.95)',
-                    }}>
-                      {model.category === 'image'
-                        ? <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
-                        : <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
-                      }
-                      {model.category}
-                    </span>
-                  </div>
-
-                  {/* Toggle */}
+              {providerModels.map((model, i) => {
+                const categoryBadge = (
+                  <span style={{
+                    display: 'inline-flex', alignItems: 'center', gap: '5px',
+                    fontSize: '11px', fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase',
+                    padding: '4px 10px', borderRadius: '20px',
+                    background: model.category === 'image' ? 'rgba(83,47,207,0.18)' : 'rgba(0,130,220,0.18)',
+                    border: model.category === 'image' ? '0.5px solid rgba(130,90,255,0.35)' : '0.5px solid rgba(0,160,255,0.35)',
+                    color: model.category === 'image' ? 'rgba(180,145,255,0.95)' : 'rgba(90,190,255,0.95)',
+                  }}>
+                    {model.category === 'image'
+                      ? <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+                      : <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+                    }
+                    {model.category}
+                  </span>
+                );
+                const toggleBtn = (
                   <button
                     onClick={() => toggleEnabled(model)}
                     style={{
@@ -516,8 +517,8 @@ export default function ModelManager() {
                   >
                     <span style={{ position: 'absolute', top: '3px', left: model.enabled ? '20px' : '3px', width: '16px', height: '16px', borderRadius: '50%', background: 'white', transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.3)' }} />
                   </button>
-
-                  {/* Pricing button */}
+                );
+                const pricingBtn = (
                   <button
                     onClick={() => setPricingModel(model)}
                     style={{
@@ -533,25 +534,87 @@ export default function ModelManager() {
                     <span style={{ opacity: 0.55, fontSize: '11px' }}>rows</span>
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                   </button>
+                );
+                const menuBtn = (
+                  <button
+                    style={{ background: 'none', border: '0.5px solid rgba(255,255,255,0.08)', borderRadius: '8px', width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'rgba(255,255,255,0.35)', fontSize: '16px', transition: 'all 0.15s' }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = 'rgba(255,255,255,0.8)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = 'rgba(255,255,255,0.35)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; }}
+                    onClick={e => {
+                      if (openMenuId === model.id) { closeMenu(); return }
+                      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+                      setMenuPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right })
+                      setOpenMenuId(model.id)
+                    }}
+                  >⋯</button>
+                );
+                return (
+                  <div
+                    key={model.id}
+                    className="model-row"
+                    style={{ borderBottom: i < providerModels.length - 1 ? '0.5px solid rgba(255,255,255,0.05)' : 'none' }}
+                  >
+                    {/* Name + ID — desktop col 1 */}
+                    <div className="model-col-name" style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                      <span style={{ color: 'rgba(255,255,255,0.92)', fontSize: '14px', fontWeight: 600, letterSpacing: '-0.2px' }}>{model.name}</span>
+                      <span style={{
+                        display: 'inline-block', width: 'fit-content',
+                        color: 'rgba(255,255,255,0.35)', fontSize: '11px', fontFamily: 'monospace',
+                        background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.07)',
+                        borderRadius: '5px', padding: '2px 7px',
+                      }}>{model.model_id}</span>
+                    </div>
 
-                  {/* Menu button */}
-                  <div style={{ display: 'flex', justifyContent: 'center' }}>
-                    <button
-                      style={{ background: 'none', border: '0.5px solid rgba(255,255,255,0.08)', borderRadius: '8px', width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'rgba(255,255,255,0.35)', fontSize: '16px', transition: 'all 0.15s' }}
-                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = 'rgba(255,255,255,0.8)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)'; }}
-                      onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = 'rgba(255,255,255,0.35)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; }}
-                      onClick={e => {
-                        if (openMenuId === model.id) { closeMenu(); return }
-                        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-                        setMenuPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right })
-                        setOpenMenuId(model.id)
-                      }}
-                    >
-                      ⋯
-                    </button>
+                    {/* Category — desktop */}
+                    <div className="model-col-category">{categoryBadge}</div>
+
+                    {/* Toggle — desktop */}
+                    <div className="model-col-status">{toggleBtn}</div>
+
+                    {/* Pricing — desktop */}
+                    <div className="model-col-pricing">{pricingBtn}</div>
+
+                    {/* Menu — desktop */}
+                    <div className="model-col-menu-desktop" style={{ display: 'flex', justifyContent: 'center' }}>{menuBtn}</div>
+
+                    {/* ── Mobile card ── */}
+                    {/* Row 1: name + toggle + ⋯ */}
+                    <div className="model-mobile-row1">
+                      <span style={{ flex: 1, minWidth: 0, fontSize: '14px', fontWeight: 600, color: 'rgba(255,255,255,0.92)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{model.name}</span>
+                      <button
+                        onClick={() => toggleEnabled(model)}
+                        style={{ width: '38px', height: '21px', borderRadius: '11px', border: 'none', cursor: 'pointer', background: model.enabled ? 'linear-gradient(135deg, #7c5cf0, #5c3dd8)' : 'rgba(255,255,255,0.1)', position: 'relative', transition: 'background 0.2s', flexShrink: 0, boxShadow: model.enabled ? '0 0 8px rgba(100,70,230,0.4)' : 'none' }}
+                      >
+                        <span style={{ position: 'absolute', top: '2.5px', left: model.enabled ? '19px' : '2.5px', width: '16px', height: '16px', borderRadius: '50%', background: 'white', transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.3)' }} />
+                      </button>
+                      <button
+                        style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.22)', cursor: 'pointer', padding: '4px 2px', fontSize: '18px', lineHeight: 1, flexShrink: 0, letterSpacing: '1px' }}
+                        onClick={e => {
+                          if (openMenuId === model.id) { closeMenu(); return }
+                          const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+                          setMenuPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right })
+                          setOpenMenuId(model.id)
+                        }}
+                      >⋯</button>
+                    </div>
+                    {/* Row 2: model_id · category · pricing */}
+                    <div className="model-mobile-row2">
+                      <span style={{ fontFamily: 'monospace', fontSize: '10.5px', color: 'rgba(255,255,255,0.25)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '130px' }}>{model.model_id}</span>
+                      <span style={{ color: 'rgba(255,255,255,0.12)', fontSize: '10px', flexShrink: 0 }}>·</span>
+                      <span style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase', color: model.category === 'image' ? 'rgba(160,120,255,0.8)' : 'rgba(70,175,255,0.8)', flexShrink: 0 }}>{model.category}</span>
+                      <span style={{ color: 'rgba(255,255,255,0.12)', fontSize: '10px', flexShrink: 0 }}>·</span>
+                      <button
+                        onClick={() => setPricingModel(model)}
+                        style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '3px', color: 'rgba(255,255,255,0.38)', fontSize: '10.5px', flexShrink: 0 }}
+                      >
+                        <span style={{ fontWeight: 600, color: 'rgba(255,255,255,0.5)' }}>{model.model_pricing?.length ?? 0}</span>
+                        {t('pricing')}
+                        <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ))}
           {models.length === 0 && (

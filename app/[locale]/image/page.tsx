@@ -395,7 +395,7 @@ export default function ImageDashboard() {
     <div className="min-h-screen bg-[var(--bg)] pb-[200px] md:pb-[120px] relative" style={{ paddingTop: '64px' }}>
       <Navbar />
 
-      <main className="w-full pt-4 md:pt-6 px-4 md:px-8 relative z-10">
+      <main className="w-full pt-4 md:pt-6 md:px-8 relative z-10">
         {error && (
           <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 font-dm text-sm">
             {error}
@@ -413,11 +413,11 @@ export default function ImageDashboard() {
           </div>
         )}
 
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+        <div className="img-masonry-feed" style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
           {Array.from({ length: loadingCount }).map((_, idx) => {
             const r = parseAR(aspectRatio);
             return (
-              <div key={`loading-${idx}`} style={{ flex: `${r} 1 ${r * ROW_H}px`, height: ROW_H, position: 'relative', overflow: 'hidden', background: 'linear-gradient(135deg, rgba(83,47,207,0.12) 0%, #111111 100%)', border: '0.5px solid rgba(83,47,207,0.25)' }}>
+              <div key={`loading-${idx}`} className="img-masonry-item" style={{ flex: `${r} 1 ${r * ROW_H}px`, height: ROW_H, position: 'relative', overflow: 'hidden', background: 'linear-gradient(135deg, rgba(83,47,207,0.12) 0%, #111111 100%)', border: '0.5px solid rgba(83,47,207,0.25)' }}>
                 <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 30%, rgba(83,47,207,0.15) 0%, transparent 65%)' }} />
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
                   <div className="w-8 h-8 rounded-full animate-spin" style={{ border: '2px solid rgba(120,80,255,0.8)', borderTopColor: 'transparent' }} />
@@ -433,7 +433,7 @@ export default function ImageDashboard() {
             return (
               <div
                 key={img.url}
-                className="group"
+                className="group img-masonry-item"
                 style={{ flex: `${r} 1 ${r * ROW_H}px`, height: ROW_H, position: 'relative', overflow: 'hidden', cursor: 'pointer' }}
                 onClick={() => setSelectedFullImage(img)}
               >
@@ -470,7 +470,7 @@ export default function ImageDashboard() {
           })}
 
           {(generatedImages.length > 0 || loadingCount > 0) && (
-            <div style={{ flex: '999 0 0', height: ROW_H }} />
+            <div className="img-masonry-filler" style={{ flex: '999 0 0', height: ROW_H }} />
           )}
         </div>
       </main>

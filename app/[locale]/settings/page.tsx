@@ -45,6 +45,7 @@ function SettingsContent() {
   const searchParams = useSearchParams();
   const t = useTranslations('settings');
   const [activeSection, setActiveSection] = useState<Section>('Personal Profile');
+  const [mobileView, setMobileView] = useState<'list' | 'section'>('list');
   const [isAdminUser, setIsAdminUser] = useState(false);
   const [subscription, setSubscription] = useState<{ plan: string | null; credits: number; hasSubscription: boolean } | null>(null);
   const isMounted = useRef(false);
@@ -88,6 +89,128 @@ function SettingsContent() {
   const email = user?.emailAddresses?.[0]?.emailAddress ?? '';
   const username = user?.username || email.split('@')[0] || 'user';
 
+  const sectionContent = (
+    <>
+      {activeSection === 'Personal Profile' && (
+        <div className="flex flex-col gap-4">
+          <div className="rounded-2xl p-5 md:p-6" style={{ background: 'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.07)' }}>
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0"
+                style={{ background: 'linear-gradient(135deg, rgba(83,47,207,0.9) 0%, rgba(140,90,255,0.8) 100%)', border: '1px solid rgba(120,80,255,0.4)', boxShadow: '0 0 24px rgba(83,47,207,0.3)' }}>
+                <span className="font-syne font-[800] text-white" style={{ fontSize: initials.length > 1 ? '18px' : '22px' }}>{initials}</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <h2 className="font-clash font-[700] text-[18px] text-white truncate">{displayName}</h2>
+                <p className="font-dm text-[12px]" style={{ color: 'var(--text-secondary)' }}>{t('profile.personalAccount')}</p>
+              </div>
+            </div>
+            <div className="flex flex-col divide-y" style={{ borderColor: 'rgba(255,255,255,0.04)' }}>
+              {[
+                { label: t('profile.username'), value: username },
+                { label: t('profile.email'), value: email },
+              ].map((field, idx) => (
+                <div key={idx} className="py-3">
+                  <p className="font-dm text-[10px] font-[700] uppercase tracking-[0.5px] mb-1" style={{ color: 'rgba(255,255,255,0.25)' }}>{field.label}</p>
+                  <p className="font-dm text-[14px] text-white break-all">{field.value}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="rounded-2xl p-5 md:p-6" style={{ background: 'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.07)' }}>
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-2">
+                <span style={{ color: 'rgba(120,80,255,0.8)', fontSize: '9px' }}>✦</span>
+                <span className="font-dm text-[11px] font-[700] uppercase tracking-[0.5px]" style={{ color: 'rgba(255,255,255,0.3)' }}>{t('credits.label')}</span>
+              </div>
+              <Link href="/pricing" className="px-3 py-1 rounded-full font-dm text-[11px] font-[500] transition-all"
+                style={{ background: 'rgba(83,47,207,0.1)', border: '0.5px solid rgba(83,47,207,0.3)', color: 'rgba(170,140,255,0.9)' }}>
+                {t('credits.topUp')}
+              </Link>
+            </div>
+            <div className="w-full h-1.5 rounded-full overflow-hidden mb-2" style={{ background: 'rgba(255,255,255,0.06)' }}>
+              <div className="h-full rounded-full" style={{ width: '100%', background: 'linear-gradient(90deg, #532fcf, #9b7eff)' }} />
+            </div>
+            <p className="font-dm text-[12px]" style={{ color: 'var(--text-secondary)' }}>{t('credits.usageComingSoon')}</p>
+          </div>
+        </div>
+      )}
+
+      {activeSection === 'Subscription' && (
+        <div className="rounded-2xl p-5 md:p-6" style={{ background: 'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.07)' }}>
+          <p className="font-dm text-[10px] font-[700] uppercase tracking-[0.5px] mb-4" style={{ color: 'rgba(255,255,255,0.25)' }}>{t('subscription.currentPlan')}</p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <p className="font-clash font-[700] text-[22px] text-white">
+                {subscription?.hasSubscription && subscription.plan
+                  ? subscription.plan.charAt(0).toUpperCase() + subscription.plan.slice(1) + ' ' + t('subscription.planSuffix')
+                  : t('subscription.freePlan')}
+              </p>
+              <p className="font-dm text-[13px] mt-1" style={{ color: 'var(--text-secondary)' }}>
+                {subscription?.hasSubscription
+                  ? t('subscription.creditsRemaining', { credits: subscription.credits.toLocaleString() })
+                  : t('subscription.limitedFeatures')}
+              </p>
+            </div>
+            {subscription?.hasSubscription ? (
+              <Link href="/pricing" className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl font-dm font-[700] text-[14px] transition-all hover:brightness-110 active:scale-95 whitespace-nowrap"
+                style={{ background: 'rgba(255,255,255,0.06)', border: '0.5px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.7)' }}>
+                {t('subscription.managePlan')}
+              </Link>
+            ) : (
+              <Link href="/pricing" className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl font-dm font-[700] text-[14px] text-white transition-all hover:brightness-110 active:scale-95 whitespace-nowrap"
+                style={{ background: 'linear-gradient(135deg, #c4b0ff 0%, #9b7eff 40%, #6b4ef5 100%)' }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="white"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg>
+                {t('subscription.upgrade')}
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
+
+      {activeSection === 'Promo Code' && (
+        <div className="rounded-2xl p-5 md:p-6" style={{ background: 'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.07)' }}>
+          <p className="font-dm text-[10px] font-[700] uppercase tracking-[0.5px] mb-4" style={{ color: 'rgba(255,255,255,0.25)' }}>{t('promoCode.redeemCode')}</p>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <input type="text" placeholder={t('promoCode.placeholder')}
+              className="flex-1 rounded-xl px-4 py-2.5 font-dm text-[14px] text-white outline-none transition-all"
+              style={{ background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.1)', color: 'white' }}
+              onFocus={e => (e.currentTarget.style.borderColor = 'rgba(120,80,255,0.5)')}
+              onBlur={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)')}
+            />
+            <button className="px-6 py-2.5 rounded-xl font-dm font-[700] text-[14px] text-white transition-all hover:brightness-110 active:scale-95"
+              style={{ background: 'linear-gradient(135deg, #c4b0ff 0%, #9b7eff 40%, #6b4ef5 100%)' }}>
+              {t('promoCode.apply')}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {activeSection === 'Models' && isAdminUser && (
+        <div className="rounded-2xl p-4 md:p-6" style={{ background: 'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.07)' }}>
+          <ModelManager />
+          <PlanManager />
+        </div>
+      )}
+
+      {['Gifts', 'Referrals', 'Credits Usage'].includes(activeSection) && (
+        <div className="rounded-2xl p-10 md:p-16 flex flex-col items-center text-center" style={{ background: 'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.07)' }}>
+          <div className="inline-flex items-center gap-1.5 mb-5" style={{ background: 'rgba(83,47,207,0.1)', border: '0.5px solid rgba(83,47,207,0.3)', borderRadius: '20px', padding: '4px 12px' }}>
+            <span style={{ color: 'rgba(120,80,255,0.8)', fontSize: '9px' }}>✦</span>
+            <span className="font-dm font-[500] text-[11px] uppercase tracking-[0.8px]" style={{ color: 'rgba(120,80,255,0.7)' }}>{t('comingSoon.badge')}</span>
+          </div>
+          <h2 className="font-clash font-[700] text-[22px] text-white mb-2">{t(`sections.${sectionKeys[activeSection]}`)}</h2>
+          <p className="font-dm text-[13px] max-w-[260px]" style={{ color: 'var(--text-secondary)' }}>{t('comingSoon.description')}</p>
+        </div>
+      )}
+    </>
+  );
+
+  const sidebarGroups = [
+    { key: 'account', label: t('groups.account'), filter: (s: typeof sections[0]) => s.group === 'account' },
+    { key: 'workspace', label: t('groups.workspace'), filter: (s: typeof sections[0]) => s.group === 'workspace' },
+    ...(isAdminUser ? [{ key: 'admin', label: t('groups.admin'), filter: (s: typeof sections[0]) => s.group === 'admin' }] : []),
+  ];
+
   return (
     <div className="min-h-screen text-white" style={{ background: 'var(--bg)', fontFamily: 'var(--font-dm)' }}>
       <Navbar />
@@ -106,40 +229,89 @@ function SettingsContent() {
         background: 'radial-gradient(ellipse at center, rgba(83,47,207,0.1) 0%, transparent 70%)',
       }} />
 
-      {/* ── Mobile tab bar ── */}
-      <div className="md:hidden fixed top-[60px] left-0 right-0 z-40 overflow-x-auto no-scrollbar"
-        style={{ background: 'rgba(8,8,8,0.95)', borderBottom: '0.5px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
-        <div className="flex items-center gap-1 px-3 py-2" style={{ minWidth: 'max-content' }}>
-          {sections.filter(s => s.group !== 'admin' || isAdminUser).map(s => (
-            <button
-              key={s.name}
-              onClick={() => setActiveSection(s.name)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full whitespace-nowrap font-dm text-[12px] font-[500] transition-all"
-              style={{
-                background: activeSection === s.name ? 'rgba(83,47,207,0.15)' : 'transparent',
-                border: activeSection === s.name ? '0.5px solid rgba(83,47,207,0.4)' : '0.5px solid transparent',
-                color: activeSection === s.name ? 'rgba(170,140,255,0.95)' : 'rgba(255,255,255,0.35)',
-              }}
-            >
-              {icons[s.name]}
-              {t(`sections.${sectionKeys[s.name]}`)}
-              {s.badge && (
-                <span className="text-[8px] font-bold px-1 py-0.5 rounded" style={{ background: 'rgba(83,47,207,0.2)', color: 'rgba(120,80,255,0.9)' }}>
-                  {s.badge}
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
+      {/* ── Mobile list view ── */}
+      <div className="md:hidden relative z-10" style={{ paddingTop: '60px', paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 0px))' }}>
+        {mobileView === 'list' ? (
+          <div>
+            {/* User card */}
+            <div style={{ padding: '20px 16px 12px', borderBottom: '0.5px solid rgba(255,255,255,0.06)' }}>
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0"
+                  style={{ background: 'linear-gradient(135deg, rgba(83,47,207,0.9) 0%, rgba(140,90,255,0.8) 100%)', border: '1px solid rgba(120,80,255,0.4)', boxShadow: '0 0 20px rgba(83,47,207,0.25)' }}>
+                  <span className="font-syne font-[800] text-white" style={{ fontSize: initials.length > 1 ? '12px' : '14px' }}>{initials}</span>
+                </div>
+                <div className="min-w-0">
+                  <p className="font-clash font-[700] text-[16px] text-white truncate">{displayName}</p>
+                  <p className="font-dm text-[12px] truncate" style={{ color: 'var(--text-secondary)' }}>{email}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Section groups */}
+            {sidebarGroups.map(group => (
+              <div key={group.key}>
+                <p className="px-4 pt-5 pb-2 font-dm text-[11px] font-[700] uppercase tracking-[0.7px]" style={{ color: 'rgba(255,255,255,0.25)' }}>
+                  {group.label}
+                </p>
+                <div style={{ background: 'rgba(255,255,255,0.02)', borderTop: '0.5px solid rgba(255,255,255,0.06)', borderBottom: '0.5px solid rgba(255,255,255,0.06)' }}>
+                  {sections.filter(group.filter).map((s, i, arr) => (
+                    <button
+                      key={s.name}
+                      onClick={() => { setActiveSection(s.name); setMobileView('section'); }}
+                      className="w-full flex items-center justify-between px-4 font-dm text-[14px] transition-all active:bg-white/5"
+                      style={{
+                        height: '50px',
+                        borderBottom: i < arr.length - 1 ? '0.5px solid rgba(255,255,255,0.05)' : 'none',
+                        color: 'rgba(255,255,255,0.85)',
+                      }}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+                          style={{ background: 'rgba(83,47,207,0.12)', border: '0.5px solid rgba(83,47,207,0.2)' }}>
+                          <span style={{ color: 'rgba(150,110,255,0.85)' }}>{icons[s.name]}</span>
+                        </div>
+                        <span>{t(`sections.${sectionKeys[s.name]}`)}</span>
+                        {s.badge && (
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(83,47,207,0.2)', color: 'rgba(140,100,255,0.95)' }}>{s.badge}</span>
+                        )}
+                      </div>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div>
+            {/* Section header with back */}
+            <div className="flex items-center gap-3 px-4 py-3" style={{ borderBottom: '0.5px solid rgba(255,255,255,0.06)' }}>
+              <button
+                onClick={() => setMobileView('list')}
+                className="flex items-center gap-1 font-dm text-[14px] transition-all active:opacity-60"
+                style={{ color: 'rgba(150,110,255,0.9)', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0' }}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+                Settings
+              </button>
+              <span style={{ color: 'rgba(255,255,255,0.15)' }}>/</span>
+              <span className="font-dm text-[14px] font-[600] text-white">{t(`sections.${sectionKeys[activeSection]}`)}</span>
+            </div>
+            {/* Section content */}
+            <div className="px-4 pt-5">
+              {sectionContent}
+            </div>
+          </div>
+        )}
       </div>
 
-      <div className="relative z-10 flex max-w-[1200px] mx-auto" style={{ paddingTop: '60px', minHeight: '100vh' }}>
+      {/* ── Desktop layout ── */}
+      <div className="hidden md:flex relative z-10 max-w-[1200px] mx-auto" style={{ paddingTop: '60px', minHeight: '100vh' }}>
 
-        {/* ── Desktop sidebar ── */}
-        <aside className="hidden md:flex w-[240px] flex-shrink-0 flex-col py-8 px-4"
+        {/* Desktop sidebar */}
+        <aside className="w-[240px] flex-shrink-0 flex flex-col py-8 px-4"
           style={{ borderRight: '0.5px solid rgba(255,255,255,0.05)', position: 'sticky', top: '60px', height: 'calc(100vh - 60px)', overflowY: 'auto' }}>
 
-          {/* User snippet */}
           <div className="flex items-center gap-3 px-3 mb-8">
             <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
               style={{ background: 'linear-gradient(135deg, rgba(83,47,207,0.9) 0%, rgba(140,90,255,0.8) 100%)', border: '1px solid rgba(120,80,255,0.3)' }}>
@@ -148,49 +320,10 @@ function SettingsContent() {
             <span className="font-dm text-[13px] font-[500] text-white truncate">{displayName}</span>
           </div>
 
-          {/* Account group */}
-          <div className="mb-6">
-            <p className="px-3 mb-2 font-dm text-[10px] font-[700] uppercase tracking-[0.6px]" style={{ color: 'rgba(255,255,255,0.25)' }}>{t('groups.account')}</p>
-            {sections.filter(s => s.group === 'account').map(s => (
-              <button key={s.name} onClick={() => setActiveSection(s.name)}
-                className="w-full flex items-center justify-between px-3 py-2 rounded-xl font-dm text-[13px] font-[500] transition-all mb-0.5"
-                style={{
-                  background: activeSection === s.name ? 'rgba(83,47,207,0.1)' : 'transparent',
-                  color: activeSection === s.name ? 'rgba(170,140,255,0.95)' : 'rgba(255,255,255,0.4)',
-                }}>
-                <div className="flex items-center gap-2.5">
-                  {icons[s.name]}
-                  {t(`sections.${sectionKeys[s.name]}`)}
-                </div>
-                {s.badge && (
-                  <span className="text-[8px] font-bold px-1.5 py-0.5 rounded" style={{ background: 'rgba(83,47,207,0.15)', color: 'rgba(120,80,255,0.9)' }}>{s.badge}</span>
-                )}
-              </button>
-            ))}
-          </div>
-
-          {/* Workspace group */}
-          <div className="mb-6">
-            <p className="px-3 mb-2 font-dm text-[10px] font-[700] uppercase tracking-[0.6px]" style={{ color: 'rgba(255,255,255,0.25)' }}>{t('groups.workspace')}</p>
-            {sections.filter(s => s.group === 'workspace').map(s => (
-              <button key={s.name} onClick={() => setActiveSection(s.name)}
-                className="w-full flex items-center justify-between px-3 py-2 rounded-xl font-dm text-[13px] font-[500] transition-all mb-0.5"
-                style={{
-                  background: activeSection === s.name ? 'rgba(83,47,207,0.1)' : 'transparent',
-                  color: activeSection === s.name ? 'rgba(170,140,255,0.95)' : 'rgba(255,255,255,0.4)',
-                }}>
-                <div className="flex items-center gap-2.5">
-                  {icons[s.name]}
-                  {t(`sections.${sectionKeys[s.name]}`)}
-                </div>
-              </button>
-            ))}
-          </div>
-
-          {isAdminUser && (
-            <div className="mb-6">
-              <p className="px-3 mb-2 font-dm text-[10px] font-[700] uppercase tracking-[0.6px]" style={{ color: 'rgba(255,255,255,0.25)' }}>{t('groups.admin')}</p>
-              {sections.filter(s => s.group === 'admin').map(s => (
+          {sidebarGroups.map(group => (
+            <div key={group.key} className="mb-6">
+              <p className="px-3 mb-2 font-dm text-[10px] font-[700] uppercase tracking-[0.6px]" style={{ color: 'rgba(255,255,255,0.25)' }}>{group.label}</p>
+              {sections.filter(group.filter).map(s => (
                 <button key={s.name} onClick={() => setActiveSection(s.name)}
                   className="w-full flex items-center justify-between px-3 py-2 rounded-xl font-dm text-[13px] font-[500] transition-all mb-0.5"
                   style={{
@@ -201,12 +334,14 @@ function SettingsContent() {
                     {icons[s.name]}
                     {t(`sections.${sectionKeys[s.name]}`)}
                   </div>
+                  {s.badge && (
+                    <span className="text-[8px] font-bold px-1.5 py-0.5 rounded" style={{ background: 'rgba(83,47,207,0.15)', color: 'rgba(120,80,255,0.9)' }}>{s.badge}</span>
+                  )}
                 </button>
               ))}
             </div>
-          )}
+          ))}
 
-          {/* Discord card */}
           <div className="mt-auto">
             <div className="rounded-xl p-4" style={{ background: 'rgba(88,101,242,0.08)', border: '0.5px solid rgba(88,101,242,0.2)' }}>
               <div className="flex items-center gap-2 mb-2">
@@ -226,141 +361,11 @@ function SettingsContent() {
           </div>
         </aside>
 
-        {/* ── Main content ── */}
-        <main className="flex-1 px-4 md:px-8 pb-[100px] md:pb-16" style={{ paddingTop: '52px' }}>
-
-          {/* Personal Profile */}
-          {activeSection === 'Personal Profile' && (
-            <div className="flex flex-col gap-4">
-              <div className="rounded-2xl p-5 md:p-6" style={{ background: 'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.07)' }}>
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0"
-                    style={{ background: 'linear-gradient(135deg, rgba(83,47,207,0.9) 0%, rgba(140,90,255,0.8) 100%)', border: '1px solid rgba(120,80,255,0.4)', boxShadow: '0 0 24px rgba(83,47,207,0.3)' }}>
-                    <span className="font-syne font-[800] text-white" style={{ fontSize: initials.length > 1 ? '18px' : '22px' }}>{initials}</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h2 className="font-clash font-[700] text-[18px] text-white truncate">{displayName}</h2>
-                    <p className="font-dm text-[12px]" style={{ color: 'var(--text-secondary)' }}>{t('profile.personalAccount')}</p>
-                  </div>
-                </div>
-
-                <div className="flex flex-col divide-y" style={{ borderColor: 'rgba(255,255,255,0.04)' }}>
-                  {[
-                    { label: t('profile.username'), value: username },
-                    { label: t('profile.email'), value: email },
-                  ].map((field, idx) => (
-                    <div key={idx} className="py-3">
-                      <p className="font-dm text-[10px] font-[700] uppercase tracking-[0.5px] mb-1" style={{ color: 'rgba(255,255,255,0.25)' }}>{field.label}</p>
-                      <p className="font-dm text-[14px] text-white break-all">{field.value}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="rounded-2xl p-5 md:p-6" style={{ background: 'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.07)' }}>
-                <div className="flex items-center justify-between mb-5">
-                  <div className="flex items-center gap-2">
-                    <span style={{ color: 'rgba(120,80,255,0.8)', fontSize: '9px' }}>✦</span>
-                    <span className="font-dm text-[11px] font-[700] uppercase tracking-[0.5px]" style={{ color: 'rgba(255,255,255,0.3)' }}>{t('credits.label')}</span>
-                  </div>
-                  <Link href="/pricing"
-                    className="px-3 py-1 rounded-full font-dm text-[11px] font-[500] transition-all"
-                    style={{ background: 'rgba(83,47,207,0.1)', border: '0.5px solid rgba(83,47,207,0.3)', color: 'rgba(170,140,255,0.9)' }}>
-                    {t('credits.topUp')}
-                  </Link>
-                </div>
-                <div className="w-full h-1.5 rounded-full overflow-hidden mb-2" style={{ background: 'rgba(255,255,255,0.06)' }}>
-                  <div className="h-full rounded-full" style={{ width: '100%', background: 'linear-gradient(90deg, #532fcf, #9b7eff)' }} />
-                </div>
-                <p className="font-dm text-[12px]" style={{ color: 'var(--text-secondary)' }}>{t('credits.usageComingSoon')}</p>
-              </div>
-            </div>
-          )}
-
-          {/* Subscription */}
-          {activeSection === 'Subscription' && (
-            <div className="rounded-2xl p-5 md:p-6" style={{ background: 'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.07)' }}>
-              <p className="font-dm text-[10px] font-[700] uppercase tracking-[0.5px] mb-4" style={{ color: 'rgba(255,255,255,0.25)' }}>{t('subscription.currentPlan')}</p>
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <p className="font-clash font-[700] text-[22px] text-white">
-                    {subscription?.hasSubscription && subscription.plan
-                      ? subscription.plan.charAt(0).toUpperCase() + subscription.plan.slice(1) + ' ' + t('subscription.planSuffix')
-                      : t('subscription.freePlan')}
-                  </p>
-                  <p className="font-dm text-[13px] mt-1" style={{ color: 'var(--text-secondary)' }}>
-                    {subscription?.hasSubscription
-                      ? t('subscription.creditsRemaining', { credits: subscription.credits.toLocaleString() })
-                      : t('subscription.limitedFeatures')}
-                  </p>
-                </div>
-                {subscription?.hasSubscription ? (
-                  <Link href="/pricing"
-                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl font-dm font-[700] text-[14px] transition-all hover:brightness-110 active:scale-95 whitespace-nowrap"
-                    style={{ background: 'rgba(255,255,255,0.06)', border: '0.5px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.7)' }}>
-                    {t('subscription.managePlan')}
-                  </Link>
-                ) : (
-                  <Link href="/pricing"
-                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl font-dm font-[700] text-[14px] text-white transition-all hover:brightness-110 active:scale-95 whitespace-nowrap"
-                    style={{ background: 'linear-gradient(135deg, #c4b0ff 0%, #9b7eff 40%, #6b4ef5 100%)' }}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="white"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg>
-                    {t('subscription.upgrade')}
-                  </Link>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Promo Code */}
-          {activeSection === 'Promo Code' && (
-            <div className="rounded-2xl p-5 md:p-6" style={{ background: 'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.07)' }}>
-              <p className="font-dm text-[10px] font-[700] uppercase tracking-[0.5px] mb-4" style={{ color: 'rgba(255,255,255,0.25)' }}>{t('promoCode.redeemCode')}</p>
-              <div className="flex flex-col sm:flex-row gap-2">
-                <input
-                  type="text"
-                  placeholder={t('promoCode.placeholder')}
-                  className="flex-1 rounded-xl px-4 py-2.5 font-dm text-[14px] text-white outline-none transition-all"
-                  style={{ background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.1)', color: 'white' }}
-                  onFocus={e => (e.currentTarget.style.borderColor = 'rgba(120,80,255,0.5)')}
-                  onBlur={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)')}
-                />
-                <button
-                  className="px-6 py-2.5 rounded-xl font-dm font-[700] text-[14px] text-white transition-all hover:brightness-110 active:scale-95"
-                  style={{ background: 'linear-gradient(135deg, #c4b0ff 0%, #9b7eff 40%, #6b4ef5 100%)' }}>
-                  {t('promoCode.apply')}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {activeSection === 'Models' && isAdminUser && (
-            <div className="rounded-2xl p-5 md:p-6" style={{ background: 'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.07)' }}>
-              <ModelManager />
-              <PlanManager />
-            </div>
-          )}
-
-          {/* Coming soon */}
-          {['Gifts', 'Referrals', 'Credits Usage'].includes(activeSection) && (
-            <div className="rounded-2xl p-10 md:p-16 flex flex-col items-center text-center" style={{ background: 'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.07)' }}>
-              <div className="inline-flex items-center gap-1.5 mb-5" style={{ background: 'rgba(83,47,207,0.1)', border: '0.5px solid rgba(83,47,207,0.3)', borderRadius: '20px', padding: '4px 12px' }}>
-                <span style={{ color: 'rgba(120,80,255,0.8)', fontSize: '9px' }}>✦</span>
-                <span className="font-dm font-[500] text-[11px] uppercase tracking-[0.8px]" style={{ color: 'rgba(120,80,255,0.7)' }}>{t('comingSoon.badge')}</span>
-              </div>
-              <h2 className="font-clash font-[700] text-[22px] text-white mb-2">{t(`sections.${sectionKeys[activeSection]}`)}</h2>
-              <p className="font-dm text-[13px] max-w-[260px]" style={{ color: 'var(--text-secondary)' }}>
-                {t('comingSoon.description')}
-              </p>
-            </div>
-          )}
+        {/* Desktop main content */}
+        <main className="flex-1 px-8 pb-16" style={{ paddingTop: '52px' }}>
+          {sectionContent}
         </main>
       </div>
-
-      <style jsx global>{`
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-      `}</style>
     </div>
   );
 }
