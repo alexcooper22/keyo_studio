@@ -564,38 +564,22 @@ export async function POST(request: NextRequest) {
 
     console.log("Gemini request:", { model: aiModel.model_id, isEdit, aspectRatio, resolution });
 
-    // Append aspect ratio + resolution hints derived from user DDL selection
-    const ratioLabels: Record<string, string> = {
-      '21:9': 'ultra-wide panoramic 21:9 (much wider than tall)',
-      '16:9': 'wide landscape 16:9 (standard widescreen)',
-      '3:2':  'landscape 3:2',
-      '4:3':  'landscape 4:3',
-      '5:4':  'near-square landscape 5:4',
-      '1:1':  'square 1:1',
-      '4:5':  'near-square portrait 4:5',
-      '3:4':  'portrait 3:4',
-      '2:3':  'tall portrait 2:3',
-      '9:16': 'vertical portrait 9:16 (standard mobile)',
-    };
-    const ratioHint = aspectRatio && aspectRatio !== 'auto' && ratioLabels[aspectRatio]
-      ? ` Important: generate as a ${ratioLabels[aspectRatio]} aspect ratio image.`
-      : '';
-    const resPx: Record<string, string> = { '1K': '1024', '2K': '2048', '4K': '4096' };
-    const resHint = resolution && resPx[resolution]
-      ? ` Target resolution: approximately ${resPx[resolution]}px on the longer side.`
-      : '';
-    if (contents[0]?.parts) {
-      const textPart = contents[0].parts.find((p: any) => p.text);
-      if (textPart) textPart.text = textPart.text + ratioHint + resHint;
-    }
+    // Gemini natively supports aspectRatio and imageSize in imageConfig
+    const geminiAspectSupported = new Set(['1:1', '2:3', '3:2', '3:4', '4:3', '9:16', '16:9', '21:9']);
+    const geminiAR = aspectRatio && geminiAspectSupported.has(aspectRatio) ? aspectRatio : undefined;
+    const geminiSize = (['1K', '2K', '4K'] as const).includes(resolution as any) ? resolution as '1K' | '2K' | '4K' : '1K';
 
     const geminiResponse = await ai.models.generateContent({
       model: aiModel.model_id,
       contents,
       config: {
         responseModalities: isEdit ? ["TEXT", "IMAGE"] : ["IMAGE"],
+        imageConfig: {
+          ...(geminiAR ? { aspectRatio: geminiAR } : {}),
+          imageSize: geminiSize,
+        },
       }
-    });
+    } as any);
 
     // 4. Extract base64 image from response
     let imageBase64: string | null = null;
@@ -617,26 +601,8 @@ export async function POST(request: NextRequest) {
       throw new Error("No image data received");
     }
 
-    // 5. Upscale if 2K/4K requested (Gemini generates at ~1024px natively)
-    const targetPx: Record<string, number> = { '2K': 2048, '4K': 4096 };
-    let imageBuffer: Buffer = Buffer.from(imageBase64, 'base64');
-    if (resolution && targetPx[resolution]) {
-      try {
-        const sharp = (await import('sharp')).default;
-        imageBuffer = Buffer.from(await sharp(imageBuffer)
-          .resize(targetPx[resolution], targetPx[resolution], {
-            fit: 'inside',
-            withoutEnlargement: false,
-            kernel: sharp.kernel.lanczos3,
-          })
-          .png({ quality: 95 })
-          .toBuffer()) as Buffer;
-        imageMimeType = 'image/png';
-      } catch {
-        // sharp not available on this platform — skip upscale, serve native resolution
-      }
-    }
     const ext = imageMimeType.includes('jpeg') ? 'jpg' : 'png';
+    const imageBuffer = Buffer.from(imageBase64, 'base64');
     const fileName = `${userId}/${Date.now()}.${ext}`;
     const bucketName = 'user-images';
 
