@@ -438,19 +438,24 @@ export async function POST(request: NextRequest) {
       // Kling image API is async (task-based) — submit then poll
       const klingToken = await generateKlingToken()
 
-      const klingAspectMap: Record<string, string> = {
+      // Supported aspect ratios — omni also accepts "auto" natively
+      const omniAspectSupported = new Set(['16:9','9:16','1:1','4:3','3:4','3:2','2:3','21:9','auto'])
+      const stdAspectMap: Record<string, string> = {
         '1:1': '1:1', '4:3': '4:3', '3:4': '3:4',
         '16:9': '16:9', '9:16': '9:16', '3:2': '3:2',
         '2:3': '2:3', '21:9': '16:9', '5:4': '4:3',
         '4:5': '3:4', 'auto': '1:1',
       }
-      const klingAR = klingAspectMap[aspectRatio] ?? '1:1'
 
-      // kling-image-v3-omni uses /v1/images/omni-image with native resolution param (1k/2k/4k)
-      const isOmni = aiModel.model_id === 'kling-image-v3-omni'
+      // kling-v3-omni and kling-image-o1 use /v1/images/omni-image with resolution param
+      const isOmni = aiModel.model_id === 'kling-v3-omni' || aiModel.model_id === 'kling-image-o1'
       const submitUrl = isOmni
         ? 'https://api.klingai.com/v1/images/omni-image'
         : 'https://api.klingai.com/v1/images/generations'
+
+      const klingAR = isOmni
+        ? (omniAspectSupported.has(aspectRatio) ? aspectRatio : 'auto')
+        : (stdAspectMap[aspectRatio] ?? '1:1')
 
       const klingPayload: Record<string, any> = {
         model_name: aiModel.model_id,
@@ -462,7 +467,10 @@ export async function POST(request: NextRequest) {
       if (isOmni) {
         klingPayload.resolution = (resolution || '1K').toLowerCase() // "1k", "2k", "4k"
         if (imageUrls && imageUrls.length > 0) {
-          klingPayload.image_list = imageUrls.filter(isSafeUrl).map((url: string) => ({ image: url }))
+          const safeImages = imageUrls.filter(isSafeUrl).slice(0, 10)
+          if (safeImages.length > 0) {
+            klingPayload.image_list = safeImages.map((url: string) => ({ image: url }))
+          }
         }
       } else {
         if (imageUrls && imageUrls.length > 0 && isSafeUrl(imageUrls[0])) {
