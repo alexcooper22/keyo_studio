@@ -3,7 +3,6 @@ import { auth } from "@clerk/nextjs/server";
 import { GoogleGenAI } from "@google/genai";
 import OpenAI, { toFile } from 'openai'
 import * as jose from 'jose'
-import sharp from 'sharp'
 import { supabaseAdmin } from "../../../lib/supabase";
 import { rateLimit, isAllowedImageUrl } from "../../../lib/rateLimit";
 import { getModelById, getCreditCost, resolveApiKey } from '../../../lib/models'
@@ -622,6 +621,7 @@ export async function POST(request: NextRequest) {
     const targetPx: Record<string, number> = { '2K': 2048, '4K': 4096 };
     let imageBuffer: Buffer = Buffer.from(imageBase64, 'base64');
     if (resolution && targetPx[resolution]) {
+      const sharp = (await import('sharp')).default;
       imageBuffer = Buffer.from(await sharp(imageBuffer)
         .resize(targetPx[resolution], targetPx[resolution], {
           fit: 'inside',

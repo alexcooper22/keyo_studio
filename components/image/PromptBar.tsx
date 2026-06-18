@@ -64,7 +64,9 @@ export default function PromptBar({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const modelButtonRef = useRef<HTMLButtonElement>(null);
   const ratioButtonRef = useRef<HTMLButtonElement>(null);
+  const ratioButtonMobileRef = useRef<HTMLButtonElement>(null);
   const qualityButtonRef = useRef<HTMLButtonElement>(null);
+  const qualityButtonMobileRef = useRef<HTMLButtonElement>(null);
 
   const [isFocused, setIsFocused] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -91,7 +93,9 @@ export default function PromptBar({
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (ratioButtonRef.current?.contains(e.target as Node)) return;
+      if (ratioButtonMobileRef.current?.contains(e.target as Node)) return;
       if (qualityButtonRef.current?.contains(e.target as Node)) return;
+      if (qualityButtonMobileRef.current?.contains(e.target as Node)) return;
       setShowRatioDropdown(false);
       setShowQualityModal(false);
     };
@@ -125,8 +129,9 @@ export default function PromptBar({
   };
 
   const handleOpenRatio = () => {
-    if (ratioButtonRef.current) {
-      const rect = ratioButtonRef.current.getBoundingClientRect();
+    const ref = window.innerWidth < 768 ? ratioButtonMobileRef : ratioButtonRef;
+    if (ref.current) {
+      const rect = ref.current.getBoundingClientRect();
       setPopupPosition({ bottom: window.innerHeight - rect.top + 8, left: rect.left + rect.width / 2 });
     }
     setShowQualityModal(false);
@@ -134,8 +139,9 @@ export default function PromptBar({
   };
 
   const handleOpenQuality = () => {
-    if (qualityButtonRef.current) {
-      const rect = qualityButtonRef.current.getBoundingClientRect();
+    const ref = window.innerWidth < 768 ? qualityButtonMobileRef : qualityButtonRef;
+    if (ref.current) {
+      const rect = ref.current.getBoundingClientRect();
       const popupWidth = 140;
       const centered = rect.left + rect.width / 2 - popupWidth / 2;
       const left = Math.max(8, Math.min(centered, window.innerWidth - popupWidth - 8));
@@ -226,7 +232,7 @@ export default function PromptBar({
             onChange={(e) => onPromptChange(e.target.value)}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); onGenerate(); } }}
+            onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (!isLoading) onGenerate(); } }}
             onInput={(e) => {
               const el = e.currentTarget;
               el.style.height = 'auto';
@@ -248,10 +254,48 @@ export default function PromptBar({
         </div>
 
         {/* Bottom toolbar */}
-        <div className="flex items-center justify-between px-3 pb-3 gap-3">
+        <div className="flex flex-col gap-1.5 px-3 pb-3 md:flex-row md:items-center md:justify-between md:gap-3">
+
+          {/* Mobile-only secondary row: aspect ratio + quality */}
+          <div className="flex items-center gap-1.5 md:hidden">
+            <button
+              ref={ratioButtonMobileRef}
+              onClick={(e) => { e.stopPropagation(); handleOpenRatio(); }}
+              className="flex items-center gap-1.5 font-dm transition-colors"
+              style={{
+                height: '28px', padding: '0 10px', borderRadius: '8px',
+                background: showRatioDropdown ? 'rgba(83,47,207,0.15)' : 'rgba(255,255,255,0.05)',
+                border: showRatioDropdown ? '0.5px solid rgba(83,47,207,0.4)' : '0.5px solid rgba(255,255,255,0.08)',
+                color: showRatioDropdown ? 'rgba(160,120,255,0.9)' : 'rgba(255,255,255,0.45)',
+                fontSize: '11px',
+              }}
+            >
+              {aspectRatio}
+            </button>
+            <button
+              ref={qualityButtonMobileRef}
+              onClick={handleOpenQuality}
+              className="flex items-center gap-1.5 font-dm transition-colors"
+              style={{
+                height: '28px', padding: '0 10px', borderRadius: '8px',
+                background: showQualityModal ? 'rgba(83,47,207,0.15)' : 'rgba(255,255,255,0.05)',
+                border: showQualityModal ? '0.5px solid rgba(83,47,207,0.4)' : '0.5px solid rgba(255,255,255,0.08)',
+                color: showQualityModal ? 'rgba(160,120,255,0.9)' : 'rgba(255,255,255,0.45)',
+                fontSize: '11px',
+              }}
+            >
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+              {quality}
+            </button>
+          </div>
+
+          {/* Main row: left controls + generate */}
+          <div className="flex items-center justify-between gap-2 md:flex-1 md:gap-3">
 
           {/* Toolbar */}
-          <div className="flex items-center gap-1 flex-nowrap overflow-hidden">
+          <div className="flex items-center gap-1 flex-nowrap overflow-hidden min-w-0">
 
             {/* Upload — only for models that support image input */}
             {supportsImageInput && (
@@ -268,8 +312,8 @@ export default function PromptBar({
                 onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.4)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; }}
                 title="Attach image"
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
                 </svg>
               </button>
             )}
@@ -302,10 +346,9 @@ export default function PromptBar({
               <button
                 ref={modelButtonRef}
                 onClick={(e) => { e.stopPropagation(); handleOpenModel(); }}
-                className="flex items-center gap-1.5 font-dm transition-colors min-w-0"
+                className="flex items-center gap-1.5 font-dm transition-colors min-w-0 max-w-[120px] md:max-w-[160px]"
                 style={{
                   height: '30px', padding: '0 8px', borderRadius: '8px',
-                  maxWidth: '160px',
                   background: isModelDropdownOpen ? 'rgba(83,47,207,0.15)' : 'rgba(255,255,255,0.05)',
                   border: isModelDropdownOpen ? '0.5px solid rgba(83,47,207,0.4)' : '0.5px solid rgba(255,255,255,0.08)',
                   color: isModelDropdownOpen ? 'rgba(160,120,255,0.9)' : 'rgba(255,255,255,0.45)',
@@ -417,8 +460,8 @@ export default function PromptBar({
               )}
             </div>
 
-            {/* Aspect ratio */}
-            <div>
+            {/* Aspect ratio - desktop only */}
+            <div className="hidden md:block">
               <button
                 ref={ratioButtonRef}
                 onClick={(e) => { e.stopPropagation(); handleOpenRatio(); }}
@@ -435,46 +478,10 @@ export default function PromptBar({
               >
                 {aspectRatio}
               </button>
-              {showRatioDropdown && (
-                <Portal>
-                  <div className="fixed inset-0 z-[40]" onMouseDown={() => setShowRatioDropdown(false)} />
-                  <div
-                    className="fixed z-[50] p-3 w-[155px]"
-                    onMouseDown={(e) => e.stopPropagation()}
-                    style={{
-                      bottom: `${popupPosition.bottom}px`, left: `${popupPosition.left}px`, transform: 'translateX(-50%)',
-                      background: 'rgba(12,12,18,0.98)', border: '0.5px solid rgba(255,255,255,0.1)',
-                      borderRadius: '12px', boxShadow: '0 16px 40px rgba(0,0,0,0.5)',
-                    }}
-                  >
-                    <p className="font-dm text-[10px] mb-2.5 uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.25)' }}>{t('aspectRatio')}</p>
-                    <div className="flex flex-col gap-0.5">
-                      {ratioOptions.map(ratio => (
-                        <button
-                          key={ratio.value}
-                          onClick={() => { onAspectRatioChange(ratio.value); setShowRatioDropdown(false); }}
-                          className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg text-left w-full transition-colors font-dm"
-                          style={{
-                            fontSize: '12px',
-                            background: aspectRatio === ratio.value ? 'rgba(83,47,207,0.12)' : 'none',
-                            color: aspectRatio === ratio.value ? 'rgba(160,120,255,0.9)' : 'rgba(255,255,255,0.45)',
-                          }}
-                          onMouseEnter={e => { if (aspectRatio !== ratio.value) e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
-                          onMouseLeave={e => { if (aspectRatio !== ratio.value) e.currentTarget.style.background = 'none'; }}
-                        >
-                          <div style={{ width: ratio.w * 0.7, height: ratio.h * 0.7, border: aspectRatio === ratio.value ? '1.5px solid rgba(160,120,255,0.7)' : '1.5px solid rgba(255,255,255,0.2)', borderRadius: '2px', flexShrink: 0 }} />
-                          {ratio.label}
-                          {aspectRatio === ratio.value && <span className="ml-auto text-[10px]">✓</span>}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </Portal>
-              )}
             </div>
 
-            {/* Quality */}
-            <div>
+            {/* Quality - desktop only */}
+            <div className="hidden md:block">
               <button
                 ref={qualityButtonRef}
                 onClick={handleOpenQuality}
@@ -494,52 +501,10 @@ export default function PromptBar({
                 </svg>
                 {quality}
               </button>
-              {showQualityModal && (
-                <Portal>
-                  <div className="fixed inset-0 z-[40]" onMouseDown={() => setShowQualityModal(false)} />
-                  <div
-                    className="fixed z-[50] p-3 w-[140px]"
-                    onMouseDown={(e) => e.stopPropagation()}
-                    style={{
-                      bottom: `${qualityPopupPos.bottom}px`, left: `${qualityPopupPos.left}px`,
-                      background: 'rgba(12,12,18,0.98)', border: '0.5px solid rgba(255,255,255,0.1)',
-                      borderRadius: '12px', boxShadow: '0 16px 40px rgba(0,0,0,0.5)',
-                    }}
-                  >
-                    <p className="font-dm text-[10px] mb-2.5 uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.25)' }}>{t('quality')}</p>
-                    <div className="flex flex-col gap-0.5">
-                      {qualityOptions.map(q => {
-                        const available = availableQualities.has(q.value);
-                        return (
-                          <button
-                            key={q.value}
-                            disabled={!available}
-                            onClick={() => { onQualityChange(q.value); setShowQualityModal(false); }}
-                            className="flex items-center justify-between px-2 py-1.5 rounded-lg w-full text-left font-dm"
-                            style={{
-                              fontSize: '12px',
-                              cursor: available ? 'pointer' : 'not-allowed',
-                              opacity: available ? 1 : 0.3,
-                              background: quality === q.value && available ? 'rgba(83,47,207,0.12)' : 'none',
-                              color: quality === q.value && available ? 'rgba(160,120,255,0.9)' : 'rgba(255,255,255,0.45)',
-                              transition: 'background 0.15s',
-                            }}
-                            onMouseEnter={e => { if (available && quality !== q.value) e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
-                            onMouseLeave={e => { if (available && quality !== q.value) e.currentTarget.style.background = 'none'; }}
-                          >
-                            {q.label}
-                            {quality === q.value && available && <span style={{ fontSize: '10px' }}>✓</span>}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </Portal>
-              )}
             </div>
           </div>
 
-          {/* Generate button — bottom right */}
+          {/* Generate button */}
           <button
             onClick={onGenerate}
             disabled={isLoaded && !!isSignedIn && (!prompt.trim() || noCredits)}
@@ -555,6 +520,89 @@ export default function PromptBar({
             <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg>
             {noCredits ? t('noCredits') : `${t('generate')} · ${creditCost}`}
           </button>
+          </div>{/* end main row */}
+
+          {/* Ratio popup portal — rendered once, shared by mobile + desktop buttons */}
+          {showRatioDropdown && (
+            <Portal>
+              <div className="fixed inset-0 z-[40]" onMouseDown={() => setShowRatioDropdown(false)} />
+              <div
+                className="fixed z-[50] p-3 w-[155px]"
+                onMouseDown={(e) => e.stopPropagation()}
+                style={{
+                  bottom: `${popupPosition.bottom}px`, left: `${popupPosition.left}px`, transform: 'translateX(-50%)',
+                  background: 'rgba(12,12,18,0.98)', border: '0.5px solid rgba(255,255,255,0.1)',
+                  borderRadius: '12px', boxShadow: '0 16px 40px rgba(0,0,0,0.5)',
+                }}
+              >
+                <p className="font-dm text-[10px] mb-2.5 uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.25)' }}>{t('aspectRatio')}</p>
+                <div className="flex flex-col gap-0.5">
+                  {ratioOptions.map(ratio => (
+                    <button
+                      key={ratio.value}
+                      onClick={() => { onAspectRatioChange(ratio.value); setShowRatioDropdown(false); }}
+                      className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg text-left w-full transition-colors font-dm"
+                      style={{
+                        fontSize: '12px',
+                        background: aspectRatio === ratio.value ? 'rgba(83,47,207,0.12)' : 'none',
+                        color: aspectRatio === ratio.value ? 'rgba(160,120,255,0.9)' : 'rgba(255,255,255,0.45)',
+                      }}
+                      onMouseEnter={e => { if (aspectRatio !== ratio.value) e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
+                      onMouseLeave={e => { if (aspectRatio !== ratio.value) e.currentTarget.style.background = 'none'; }}
+                    >
+                      <div style={{ width: ratio.w * 0.7, height: ratio.h * 0.7, border: aspectRatio === ratio.value ? '1.5px solid rgba(160,120,255,0.7)' : '1.5px solid rgba(255,255,255,0.2)', borderRadius: '2px', flexShrink: 0 }} />
+                      {ratio.label}
+                      {aspectRatio === ratio.value && <span className="ml-auto text-[10px]">✓</span>}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </Portal>
+          )}
+
+          {/* Quality popup portal — rendered once, shared by mobile + desktop buttons */}
+          {showQualityModal && (
+            <Portal>
+              <div className="fixed inset-0 z-[40]" onMouseDown={() => setShowQualityModal(false)} />
+              <div
+                className="fixed z-[50] p-3 w-[140px]"
+                onMouseDown={(e) => e.stopPropagation()}
+                style={{
+                  bottom: `${qualityPopupPos.bottom}px`, left: `${qualityPopupPos.left}px`,
+                  background: 'rgba(12,12,18,0.98)', border: '0.5px solid rgba(255,255,255,0.1)',
+                  borderRadius: '12px', boxShadow: '0 16px 40px rgba(0,0,0,0.5)',
+                }}
+              >
+                <p className="font-dm text-[10px] mb-2.5 uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.25)' }}>{t('quality')}</p>
+                <div className="flex flex-col gap-0.5">
+                  {qualityOptions.map(q => {
+                    const available = availableQualities.has(q.value);
+                    return (
+                      <button
+                        key={q.value}
+                        disabled={!available}
+                        onClick={() => { onQualityChange(q.value); setShowQualityModal(false); }}
+                        className="flex items-center justify-between px-2 py-1.5 rounded-lg w-full text-left font-dm"
+                        style={{
+                          fontSize: '12px',
+                          cursor: available ? 'pointer' : 'not-allowed',
+                          opacity: available ? 1 : 0.3,
+                          background: quality === q.value && available ? 'rgba(83,47,207,0.12)' : 'none',
+                          color: quality === q.value && available ? 'rgba(160,120,255,0.9)' : 'rgba(255,255,255,0.45)',
+                          transition: 'background 0.15s',
+                        }}
+                        onMouseEnter={e => { if (available && quality !== q.value) e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
+                        onMouseLeave={e => { if (available && quality !== q.value) e.currentTarget.style.background = 'none'; }}
+                      >
+                        {q.label}
+                        {quality === q.value && available && <span style={{ fontSize: '10px' }}>✓</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </Portal>
+          )}
         </div>
       </div>{/* end card */}
       </div>{/* end orbit wrapper */}
