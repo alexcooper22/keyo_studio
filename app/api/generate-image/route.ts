@@ -621,16 +621,20 @@ export async function POST(request: NextRequest) {
     const targetPx: Record<string, number> = { '2K': 2048, '4K': 4096 };
     let imageBuffer: Buffer = Buffer.from(imageBase64, 'base64');
     if (resolution && targetPx[resolution]) {
-      const sharp = (await import('sharp')).default;
-      imageBuffer = Buffer.from(await sharp(imageBuffer)
-        .resize(targetPx[resolution], targetPx[resolution], {
-          fit: 'inside',
-          withoutEnlargement: false,
-          kernel: sharp.kernel.lanczos3,
-        })
-        .png({ quality: 95 })
-        .toBuffer()) as Buffer;
-      imageMimeType = 'image/png';
+      try {
+        const sharp = (await import('sharp')).default;
+        imageBuffer = Buffer.from(await sharp(imageBuffer)
+          .resize(targetPx[resolution], targetPx[resolution], {
+            fit: 'inside',
+            withoutEnlargement: false,
+            kernel: sharp.kernel.lanczos3,
+          })
+          .png({ quality: 95 })
+          .toBuffer()) as Buffer;
+        imageMimeType = 'image/png';
+      } catch {
+        // sharp not available on this platform — skip upscale, serve native resolution
+      }
     }
     const ext = imageMimeType.includes('jpeg') ? 'jpg' : 'png';
     const fileName = `${userId}/${Date.now()}.${ext}`;
