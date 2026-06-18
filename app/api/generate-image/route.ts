@@ -155,15 +155,37 @@ export async function POST(request: NextRequest) {
     if (aiModel.provider === 'openai') {
       const openai = new OpenAI({ apiKey })
 
-      // GPT-image-2 supports only 3 sizes — map aspect ratio to closest
-      const sizeMap: Record<string, '1024x1024' | '1536x1024' | '1024x1536'> = {
-        '1:1':  '1024x1024',
-        '4:3':  '1536x1024', '5:4': '1024x1024',  '3:2':  '1536x1024',
-        '16:9': '1536x1024', '21:9': '1536x1024',
-        '3:4':  '1024x1536', '4:5': '1024x1536',  '2:3':  '1024x1536',
-        '9:16': '1024x1536', 'auto': '1024x1024',
+      // gpt-image-2 supports arbitrary WIDTHxHEIGHT (both dims div by 16, max 3840x2160)
+      // Other OpenAI models support only 3 standard sizes
+      const isGptImage2 = aiModel.model_id.startsWith('gpt-image-2')
+      let size: string
+      if (isGptImage2 && resolution === '2K') {
+        const s2k: Record<string, string> = {
+          '1:1': '2048x2048', '16:9': '2048x1152', '9:16': '1152x2048',
+          '4:3': '2048x1536', '3:4': '1536x2048', '3:2': '2048x1360',
+          '2:3': '1360x2048', '21:9': '2048x880',  '5:4': '2048x1632',
+          '4:5': '1632x2048', 'auto': '2048x2048',
+        }
+        size = s2k[aspectRatio] ?? '2048x2048'
+      } else if (isGptImage2 && resolution === '4K') {
+        const s4k: Record<string, string> = {
+          '1:1': '2880x2880', '16:9': '3840x2160', '9:16': '2160x3840',
+          '4:3': '2880x2160', '3:4': '2160x2880', '3:2': '3360x2240',
+          '2:3': '2240x3360', '21:9': '3360x1440', '5:4': '2880x2304',
+          '4:5': '2304x2880', 'auto': '2880x2880',
+        }
+        size = s4k[aspectRatio] ?? '2880x2880'
+      } else {
+        // Standard sizes for gpt-image-1, dall-e-3, etc.
+        const sizeMap: Record<string, string> = {
+          '1:1':  '1024x1024',
+          '4:3':  '1536x1024', '5:4': '1024x1024',  '3:2':  '1536x1024',
+          '16:9': '1536x1024', '21:9': '1536x1024',
+          '3:4':  '1024x1536', '4:5': '1024x1536',  '2:3':  '1024x1536',
+          '9:16': '1024x1536', 'auto': '1024x1024',
+        }
+        size = sizeMap[aspectRatio] ?? '1024x1024'
       }
-      const size = sizeMap[aspectRatio] ?? '1024x1024'
 
       let imageBuffer: Buffer
 
@@ -416,7 +438,6 @@ export async function POST(request: NextRequest) {
       // Kling image API is async (task-based) — submit then poll
       const klingToken = await generateKlingToken()
 
-      // Kling supports a subset of aspect ratios
       const klingAspectMap: Record<string, string> = {
         '1:1': '1:1', '4:3': '4:3', '3:4': '3:4',
         '16:9': '16:9', '9:16': '9:16', '3:2': '3:2',
@@ -425,24 +446,31 @@ export async function POST(request: NextRequest) {
       }
       const klingAR = klingAspectMap[aspectRatio] ?? '1:1'
 
-      // Append resolution as a hidden hint (Kling has no native resolution param)
-      const klingResPx: Record<string, string> = { '1K': '1024', '2K': '2048', '4K': '4096' }
-      const klingResHint = resolution && klingResPx[resolution]
-        ? ` High quality output, approximately ${klingResPx[resolution]}px on the longer side.`
-        : ''
-      const klingPrompt = prompt + klingResHint
+      // kling-image-o1 uses /v1/images/omni-image with native resolution param
+      const isOmni = aiModel.model_id === 'kling-image-o1'
+      const submitUrl = isOmni
+        ? 'https://api.klingai.com/v1/images/omni-image'
+        : 'https://api.klingai.com/v1/images/generations'
 
       const klingPayload: Record<string, any> = {
         model_name: aiModel.model_id,
-        prompt: klingPrompt,
+        prompt,
         aspect_ratio: klingAR,
         n: 1,
       }
-      if (imageUrls && imageUrls.length > 0 && isSafeUrl(imageUrls[0])) {
-        klingPayload.image_reference = { image: imageUrls[0] }
+
+      if (isOmni) {
+        klingPayload.resolution = (resolution || '1K').toLowerCase() // "1k", "2k", "4k"
+        if (imageUrls && imageUrls.length > 0) {
+          klingPayload.image_list = imageUrls.filter(isSafeUrl).map((url: string) => ({ image: url }))
+        }
+      } else {
+        if (imageUrls && imageUrls.length > 0 && isSafeUrl(imageUrls[0])) {
+          klingPayload.image_reference = { image: imageUrls[0] }
+        }
       }
 
-      const submitRes = await fetch('https://api.klingai.com/v1/images/generations', {
+      const submitRes = await fetch(submitUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${klingToken}` },
         body: JSON.stringify(klingPayload),
@@ -457,11 +485,15 @@ export async function POST(request: NextRequest) {
       if (!taskId) throw new Error('Kling returned no task_id')
 
       // Poll every 3s, up to 35 attempts (~105s within the 120s route timeout)
+      const pollBase = isOmni
+        ? 'https://api.klingai.com/v1/images/omni-image'
+        : 'https://api.klingai.com/v1/images/generations'
+
       let imageUrl: string | null = null
       for (let attempt = 0; attempt < 35; attempt++) {
         await new Promise(r => setTimeout(r, 3000))
         const pollToken = await generateKlingToken()
-        const checkRes = await fetch(`https://api.klingai.com/v1/images/generations/${taskId}`, {
+        const checkRes = await fetch(`${pollBase}/${taskId}`, {
           headers: { 'Authorization': `Bearer ${pollToken}` },
           signal: AbortSignal.timeout(15_000),
         })
