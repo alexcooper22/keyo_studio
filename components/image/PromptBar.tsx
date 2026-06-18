@@ -64,9 +64,7 @@ export default function PromptBar({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const modelButtonRef = useRef<HTMLButtonElement>(null);
   const ratioButtonRef = useRef<HTMLButtonElement>(null);
-  const ratioButtonMobileRef = useRef<HTMLButtonElement>(null);
   const qualityButtonRef = useRef<HTMLButtonElement>(null);
-  const qualityButtonMobileRef = useRef<HTMLButtonElement>(null);
 
   const [isFocused, setIsFocused] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -93,9 +91,7 @@ export default function PromptBar({
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (ratioButtonRef.current?.contains(e.target as Node)) return;
-      if (ratioButtonMobileRef.current?.contains(e.target as Node)) return;
       if (qualityButtonRef.current?.contains(e.target as Node)) return;
-      if (qualityButtonMobileRef.current?.contains(e.target as Node)) return;
       setShowRatioDropdown(false);
       setShowQualityModal(false);
     };
@@ -129,9 +125,8 @@ export default function PromptBar({
   };
 
   const handleOpenRatio = () => {
-    const ref = window.innerWidth < 768 ? ratioButtonMobileRef : ratioButtonRef;
-    if (ref.current) {
-      const rect = ref.current.getBoundingClientRect();
+    if (ratioButtonRef.current) {
+      const rect = ratioButtonRef.current.getBoundingClientRect();
       setPopupPosition({ bottom: window.innerHeight - rect.top + 8, left: rect.left + rect.width / 2 });
     }
     setShowQualityModal(false);
@@ -139,9 +134,8 @@ export default function PromptBar({
   };
 
   const handleOpenQuality = () => {
-    const ref = window.innerWidth < 768 ? qualityButtonMobileRef : qualityButtonRef;
-    if (ref.current) {
-      const rect = ref.current.getBoundingClientRect();
+    if (qualityButtonRef.current) {
+      const rect = qualityButtonRef.current.getBoundingClientRect();
       const popupWidth = 140;
       const centered = rect.left + rect.width / 2 - popupWidth / 2;
       const left = Math.max(8, Math.min(centered, window.innerWidth - popupWidth - 8));
@@ -188,6 +182,48 @@ export default function PromptBar({
       >
         <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={onImageUpload} />
 
+        {/* Top-right corner: attachment + clear */}
+        <div className="absolute top-3 right-3 flex items-center gap-1 z-10">
+          {supportsImageInput && (
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="flex items-center justify-center transition-colors"
+              style={{
+                width: '28px', height: '28px', borderRadius: '8px',
+                background: 'rgba(255,255,255,0.05)',
+                border: '0.5px solid rgba(255,255,255,0.08)',
+                color: 'rgba(255,255,255,0.35)',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.8)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)'; }}
+              onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.35)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; }}
+              title="Attach image"
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+              </svg>
+            </button>
+          )}
+          {prompt.length > 0 && (
+            <button
+              onClick={handleClear}
+              className="flex items-center justify-center transition-colors"
+              style={{
+                width: '28px', height: '28px', borderRadius: '8px',
+                background: 'rgba(255,255,255,0.05)',
+                border: '0.5px solid rgba(255,255,255,0.08)',
+                color: 'rgba(255,255,255,0.35)',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.color = 'rgba(255,100,100,0.8)'; e.currentTarget.style.borderColor = 'rgba(255,80,80,0.2)'; }}
+              onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.35)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; }}
+              title="Clear prompt"
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          )}
+        </div>
+
         {/* Uploaded images preview — only for models that support image input */}
         {supportsImageInput && uploadedImages.length > 0 && (
           <div className="flex items-center gap-2.5 px-4 pt-4 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
@@ -225,7 +261,7 @@ export default function PromptBar({
         )}
 
         {/* Textarea */}
-        <div className="px-4 pt-4 pb-2">
+        <div className="pl-4 pr-20 pt-4 pb-2">
           <textarea
             ref={textareaRef}
             value={prompt}
@@ -253,93 +289,11 @@ export default function PromptBar({
           />
         </div>
 
-        {/* Bottom toolbar */}
-        <div className="flex flex-col gap-1.5 px-3 pb-3 md:flex-row md:items-center md:justify-between md:gap-3">
+        {/* Bottom toolbar — single row */}
+        <div className="flex items-center justify-between px-3 pb-3 gap-2">
 
-          {/* Mobile-only secondary row: aspect ratio + quality */}
-          <div className="flex items-center gap-1.5 md:hidden">
-            <button
-              ref={ratioButtonMobileRef}
-              onClick={(e) => { e.stopPropagation(); handleOpenRatio(); }}
-              className="flex items-center gap-1.5 font-dm transition-colors"
-              style={{
-                height: '28px', padding: '0 10px', borderRadius: '8px',
-                background: showRatioDropdown ? 'rgba(83,47,207,0.15)' : 'rgba(255,255,255,0.05)',
-                border: showRatioDropdown ? '0.5px solid rgba(83,47,207,0.4)' : '0.5px solid rgba(255,255,255,0.08)',
-                color: showRatioDropdown ? 'rgba(160,120,255,0.9)' : 'rgba(255,255,255,0.45)',
-                fontSize: '11px',
-              }}
-            >
-              {aspectRatio}
-            </button>
-            <button
-              ref={qualityButtonMobileRef}
-              onClick={handleOpenQuality}
-              className="flex items-center gap-1.5 font-dm transition-colors"
-              style={{
-                height: '28px', padding: '0 10px', borderRadius: '8px',
-                background: showQualityModal ? 'rgba(83,47,207,0.15)' : 'rgba(255,255,255,0.05)',
-                border: showQualityModal ? '0.5px solid rgba(83,47,207,0.4)' : '0.5px solid rgba(255,255,255,0.08)',
-                color: showQualityModal ? 'rgba(160,120,255,0.9)' : 'rgba(255,255,255,0.45)',
-                fontSize: '11px',
-              }}
-            >
-              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-              </svg>
-              {quality}
-            </button>
-          </div>
-
-          {/* Main row: left controls + generate */}
-          <div className="flex items-center justify-between gap-2 md:flex-1 md:gap-3">
-
-          {/* Toolbar */}
+          {/* Left controls */}
           <div className="flex items-center gap-1 flex-nowrap overflow-hidden min-w-0">
-
-            {/* Upload — only for models that support image input */}
-            {supportsImageInput && (
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="flex items-center justify-center transition-colors"
-                style={{
-                  width: '30px', height: '30px', borderRadius: '8px',
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '0.5px solid rgba(255,255,255,0.08)',
-                  color: 'rgba(255,255,255,0.4)',
-                }}
-                onMouseEnter={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.8)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)'; }}
-                onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.4)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; }}
-                title="Attach image"
-              >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
-                </svg>
-              </button>
-            )}
-
-            {/* Clear — only when there's text */}
-            {prompt.length > 0 && (
-              <button
-                onClick={handleClear}
-                className="flex items-center justify-center transition-colors"
-                style={{
-                  width: '30px', height: '30px', borderRadius: '8px',
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '0.5px solid rgba(255,255,255,0.08)',
-                  color: 'rgba(255,255,255,0.4)',
-                }}
-                onMouseEnter={e => { e.currentTarget.style.color = 'rgba(255,100,100,0.8)'; e.currentTarget.style.borderColor = 'rgba(255,80,80,0.2)'; }}
-                onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.4)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; }}
-                title="Clear prompt"
-              >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-              </button>
-            )}
-
-            <div className="hidden md:block" style={{ width: '0.5px', height: '18px', background: 'rgba(255,255,255,0.07)', margin: '0 2px' }} />
 
             {/* Model dropdown */}
             <div ref={dropdownRef}>
@@ -460,67 +414,62 @@ export default function PromptBar({
               )}
             </div>
 
-            {/* Aspect ratio - desktop only */}
-            <div className="hidden md:block">
-              <button
-                ref={ratioButtonRef}
-                onClick={(e) => { e.stopPropagation(); handleOpenRatio(); }}
-                className="flex items-center gap-1.5 font-dm transition-colors"
-                style={{
-                  height: '30px', padding: '0 10px', borderRadius: '8px',
-                  background: showRatioDropdown ? 'rgba(83,47,207,0.15)' : 'rgba(255,255,255,0.05)',
-                  border: showRatioDropdown ? '0.5px solid rgba(83,47,207,0.4)' : '0.5px solid rgba(255,255,255,0.08)',
-                  color: showRatioDropdown ? 'rgba(160,120,255,0.9)' : 'rgba(255,255,255,0.45)',
-                  fontSize: '11px',
-                }}
-                onMouseEnter={e => { if (!showRatioDropdown) { e.currentTarget.style.color = 'rgba(255,255,255,0.8)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)'; } }}
-                onMouseLeave={e => { if (!showRatioDropdown) { e.currentTarget.style.color = 'rgba(255,255,255,0.45)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; } }}
-              >
-                {aspectRatio}
-              </button>
-            </div>
+            {/* Aspect ratio */}
+            <button
+              ref={ratioButtonRef}
+              onClick={(e) => { e.stopPropagation(); handleOpenRatio(); }}
+              className="flex items-center gap-1.5 font-dm transition-colors"
+              style={{
+                height: '30px', padding: '0 10px', borderRadius: '8px',
+                background: showRatioDropdown ? 'rgba(83,47,207,0.15)' : 'rgba(255,255,255,0.05)',
+                border: showRatioDropdown ? '0.5px solid rgba(83,47,207,0.4)' : '0.5px solid rgba(255,255,255,0.08)',
+                color: showRatioDropdown ? 'rgba(160,120,255,0.9)' : 'rgba(255,255,255,0.45)',
+                fontSize: '11px',
+              }}
+              onMouseEnter={e => { if (!showRatioDropdown) { e.currentTarget.style.color = 'rgba(255,255,255,0.8)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)'; } }}
+              onMouseLeave={e => { if (!showRatioDropdown) { e.currentTarget.style.color = 'rgba(255,255,255,0.45)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; } }}
+            >
+              {aspectRatio}
+            </button>
 
-            {/* Quality - desktop only */}
-            <div className="hidden md:block">
-              <button
-                ref={qualityButtonRef}
-                onClick={handleOpenQuality}
-                className="flex items-center gap-1.5 font-dm transition-colors"
-                style={{
-                  height: '30px', padding: '0 10px', borderRadius: '8px',
-                  background: showQualityModal ? 'rgba(83,47,207,0.15)' : 'rgba(255,255,255,0.05)',
-                  border: showQualityModal ? '0.5px solid rgba(83,47,207,0.4)' : '0.5px solid rgba(255,255,255,0.08)',
-                  color: showQualityModal ? 'rgba(160,120,255,0.9)' : 'rgba(255,255,255,0.45)',
-                  fontSize: '11px',
-                }}
-                onMouseEnter={e => { if (!showQualityModal) { e.currentTarget.style.color = 'rgba(255,255,255,0.8)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)'; } }}
-                onMouseLeave={e => { if (!showQualityModal) { e.currentTarget.style.color = 'rgba(255,255,255,0.45)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; } }}
-              >
-                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                </svg>
-                {quality}
-              </button>
-            </div>
+            {/* Quality */}
+            <button
+              ref={qualityButtonRef}
+              onClick={handleOpenQuality}
+              className="flex items-center gap-1.5 font-dm transition-colors"
+              style={{
+                height: '30px', padding: '0 10px', borderRadius: '8px',
+                background: showQualityModal ? 'rgba(83,47,207,0.15)' : 'rgba(255,255,255,0.05)',
+                border: showQualityModal ? '0.5px solid rgba(83,47,207,0.4)' : '0.5px solid rgba(255,255,255,0.08)',
+                color: showQualityModal ? 'rgba(160,120,255,0.9)' : 'rgba(255,255,255,0.45)',
+                fontSize: '11px',
+              }}
+              onMouseEnter={e => { if (!showQualityModal) { e.currentTarget.style.color = 'rgba(255,255,255,0.8)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)'; } }}
+              onMouseLeave={e => { if (!showQualityModal) { e.currentTarget.style.color = 'rgba(255,255,255,0.45)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; } }}
+            >
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+              {quality}
+            </button>
           </div>
 
           {/* Generate button */}
           <button
             onClick={onGenerate}
-            disabled={isLoaded && !!isSignedIn && (!prompt.trim() || noCredits)}
+            disabled={isLoading || (isLoaded && !!isSignedIn && (!prompt.trim() || noCredits))}
             className={`flex-shrink-0 flex items-center gap-1.5 font-dm font-[500] ${noCredits ? 'generate-btn-empty' : 'generate-btn'}`}
             style={{
               height: '32px', padding: '0 14px', borderRadius: '50px', fontSize: '12px', letterSpacing: '0.01em',
               background: noCredits ? 'rgba(255,255,255,0.05)' : undefined,
               border: noCredits ? '0.5px solid rgba(255,255,255,0.08)' : 'none',
               color: noCredits ? 'rgba(255,255,255,0.25)' : '#fff',
-              cursor: (isLoaded && !!isSignedIn && noCredits) ? 'not-allowed' : 'pointer',
+              cursor: (isLoading || (isLoaded && !!isSignedIn && noCredits)) ? 'not-allowed' : 'pointer',
             }}
           >
             <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg>
             {noCredits ? t('noCredits') : `${t('generate')} · ${creditCost}`}
           </button>
-          </div>{/* end main row */}
 
           {/* Ratio popup portal — rendered once, shared by mobile + desktop buttons */}
           {showRatioDropdown && (
