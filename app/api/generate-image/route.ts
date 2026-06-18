@@ -446,8 +446,8 @@ export async function POST(request: NextRequest) {
       }
       const klingAR = klingAspectMap[aspectRatio] ?? '1:1'
 
-      // kling-image-o1 uses /v1/images/omni-image with native resolution param
-      const isOmni = aiModel.model_id === 'kling-image-o1'
+      // kling-image-v3-omni uses /v1/images/omni-image with native resolution param (1k/2k/4k)
+      const isOmni = aiModel.model_id === 'kling-image-v3-omni'
       const submitUrl = isOmni
         ? 'https://api.klingai.com/v1/images/omni-image'
         : 'https://api.klingai.com/v1/images/generations'
