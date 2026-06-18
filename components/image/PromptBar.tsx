@@ -182,27 +182,8 @@ export default function PromptBar({
       >
         <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={onImageUpload} />
 
-        {/* Top-right corner: attachment + clear */}
+        {/* Top-right corner: clear only */}
         <div className="absolute top-3 right-3 flex items-center gap-1 z-10">
-          {supportsImageInput && (
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="flex items-center justify-center transition-colors"
-              style={{
-                width: '28px', height: '28px', borderRadius: '8px',
-                background: 'rgba(255,255,255,0.05)',
-                border: '0.5px solid rgba(255,255,255,0.08)',
-                color: 'rgba(255,255,255,0.35)',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.8)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)'; }}
-              onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.35)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; }}
-              title="Attach image"
-            >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
-              </svg>
-            </button>
-          )}
           {prompt.length > 0 && (
             <button
               onClick={handleClear}
@@ -294,6 +275,27 @@ export default function PromptBar({
 
           {/* Left controls */}
           <div className="flex items-center gap-1 flex-nowrap overflow-hidden min-w-0">
+
+            {/* Attach image */}
+            {supportsImageInput && (
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="flex items-center justify-center transition-colors flex-shrink-0"
+                style={{
+                  width: '30px', height: '30px', borderRadius: '8px',
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '0.5px solid rgba(255,255,255,0.08)',
+                  color: 'rgba(255,255,255,0.35)',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.8)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)'; }}
+                onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.35)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; }}
+                title="Attach image"
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+                </svg>
+              </button>
+            )}
 
             {/* Model dropdown */}
             <div ref={dropdownRef}>
@@ -457,14 +459,14 @@ export default function PromptBar({
           {/* Generate button */}
           <button
             onClick={onGenerate}
-            disabled={isLoading || (isLoaded && !!isSignedIn && (!prompt.trim() || noCredits))}
+            disabled={isLoaded && !!isSignedIn && (!prompt.trim() || noCredits)}
             className={`flex-shrink-0 flex items-center gap-1.5 font-dm font-[500] ${noCredits ? 'generate-btn-empty' : 'generate-btn'}`}
             style={{
               height: '32px', padding: '0 14px', borderRadius: '50px', fontSize: '12px', letterSpacing: '0.01em',
               background: noCredits ? 'rgba(255,255,255,0.05)' : undefined,
               border: noCredits ? '0.5px solid rgba(255,255,255,0.08)' : 'none',
               color: noCredits ? 'rgba(255,255,255,0.25)' : '#fff',
-              cursor: (isLoading || (isLoaded && !!isSignedIn && noCredits)) ? 'not-allowed' : 'pointer',
+              cursor: (isLoaded && !!isSignedIn && noCredits) ? 'not-allowed' : 'pointer',
             }}
           >
             <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg>

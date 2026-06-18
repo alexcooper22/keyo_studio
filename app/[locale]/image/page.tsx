@@ -231,13 +231,13 @@ export default function ImageDashboard() {
 
       if (data.error) throw new Error(data.error);
 
-      localStorage.removeItem('image_generation_pending');
       if (data.remainingCredits !== undefined) setCreditCount(data.remainingCredits);
       window.dispatchEvent(new Event('credits-updated'));
       await fetchImages();
     } catch (err: any) {
       setError(err.message || 'Generation failed');
     } finally {
+      localStorage.removeItem('image_generation_pending');
       setLoadingCount(c => Math.max(0, c - 1));
     }
   }
