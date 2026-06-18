@@ -3,6 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { GoogleGenAI } from "@google/genai";
 import OpenAI, { toFile } from 'openai'
 import * as jose from 'jose'
+import sharp from 'sharp'
 import { supabaseAdmin } from "../../../lib/supabase";
 import { rateLimit, isAllowedImageUrl } from "../../../lib/rateLimit";
 import { getModelById, getCreditCost, resolveApiKey } from '../../../lib/models'
@@ -617,8 +618,20 @@ export async function POST(request: NextRequest) {
       throw new Error("No image data received");
     }
 
-    // 5. Upload base64 image to Supabase Storage
-    const imageBuffer = Buffer.from(imageBase64, 'base64');
+    // 5. Upscale if 2K/4K requested (Gemini generates at ~1024px natively)
+    const targetPx: Record<string, number> = { '2K': 2048, '4K': 4096 };
+    let imageBuffer: Buffer = Buffer.from(imageBase64, 'base64');
+    if (resolution && targetPx[resolution]) {
+      imageBuffer = Buffer.from(await sharp(imageBuffer)
+        .resize(targetPx[resolution], targetPx[resolution], {
+          fit: 'inside',
+          withoutEnlargement: false,
+          kernel: sharp.kernel.lanczos3,
+        })
+        .png({ quality: 95 })
+        .toBuffer()) as Buffer;
+      imageMimeType = 'image/png';
+    }
     const ext = imageMimeType.includes('jpeg') ? 'jpg' : 'png';
     const fileName = `${userId}/${Date.now()}.${ext}`;
     const bucketName = 'user-images';
