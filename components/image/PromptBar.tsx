@@ -154,6 +154,12 @@ export default function PromptBar({
 
   return (
     <div className="fixed bottom-[80px] md:bottom-0 left-0 md:left-[48px] right-0 z-50 px-3 md:px-8 pb-3 md:pb-6 pointer-events-none">
+      <style>{`
+        .model-dropdown-scroll::-webkit-scrollbar { width: 3px; }
+        .model-dropdown-scroll::-webkit-scrollbar-track { background: transparent; }
+        .model-dropdown-scroll::-webkit-scrollbar-thumb { background: rgba(120,80,255,0.35); border-radius: 4px; }
+        .model-dropdown-scroll::-webkit-scrollbar-thumb:hover { background: rgba(120,80,255,0.6); }
+      `}</style>
       {/* Purple radial glow behind the bar */}
       <div aria-hidden className="w-full max-w-4xl mx-auto pointer-events-none absolute left-1/2 -translate-x-1/2" style={{ bottom: '0', height: '220px', zIndex: -1 }}>
         <div style={{
@@ -319,13 +325,15 @@ export default function PromptBar({
                 <Portal>
                   <div className="fixed inset-0 z-[40]" onMouseDown={() => setIsModelDropdownOpen(false)} />
                   <div
-                    className="fixed z-[60] w-[260px]"
+                    className="fixed z-[60] w-[260px] model-dropdown-scroll"
                     onMouseDown={e => e.stopPropagation()}
                     style={{
                       bottom: `${modelPopupPos.bottom}px`, left: `${modelPopupPos.left}px`,
                       background: 'rgba(12,12,18,0.98)', border: '0.5px solid rgba(255,255,255,0.1)',
                       borderRadius: '14px', boxShadow: '0 16px 40px rgba(0,0,0,0.6)',
                       maxHeight: '400px', overflowY: 'auto',
+                      scrollbarWidth: 'thin',
+                      scrollbarColor: 'rgba(120,80,255,0.35) transparent',
                     }}
                   >
                     {(() => {

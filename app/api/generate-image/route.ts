@@ -165,7 +165,7 @@ export async function POST(request: NextRequest) {
       }
       const size = sizeMap[aspectRatio] ?? '1024x1024'
 
-      let b64: string | null | undefined
+      let imageBuffer: Buffer
 
       if (imageUrls && imageUrls.length > 0) {
         // Image editing mode — use /images/edits endpoint
@@ -185,9 +185,17 @@ export async function POST(request: NextRequest) {
           prompt,
           n: 1,
           size,
-          response_format: 'b64_json',
-        })
-        b64 = editResponse.data[0]?.b64_json
+        } as any)
+        const editData = editResponse.data[0]
+        if (editData?.b64_json) {
+          imageBuffer = Buffer.from(editData.b64_json, 'base64')
+        } else if (editData?.url) {
+          const r = await fetch(editData.url, { signal: AbortSignal.timeout(30_000) })
+          if (!r.ok) throw new Error('Failed to fetch edited image from OpenAI')
+          imageBuffer = Buffer.from(await r.arrayBuffer())
+        } else {
+          throw new Error('No image data from OpenAI edit')
+        }
       } else {
         // Text-to-image mode
         const genResponse = await openai.images.generate({
@@ -195,14 +203,18 @@ export async function POST(request: NextRequest) {
           prompt,
           n: 1,
           size,
-          response_format: 'b64_json',
-        })
-        b64 = genResponse.data[0]?.b64_json
+        } as any)
+        const genData = genResponse.data[0]
+        if (genData?.b64_json) {
+          imageBuffer = Buffer.from(genData.b64_json, 'base64')
+        } else if (genData?.url) {
+          const r = await fetch(genData.url, { signal: AbortSignal.timeout(30_000) })
+          if (!r.ok) throw new Error('Failed to fetch generated image from OpenAI')
+          imageBuffer = Buffer.from(await r.arrayBuffer())
+        } else {
+          throw new Error('No image data from OpenAI')
+        }
       }
-
-      if (!b64) throw new Error('No image data from OpenAI')
-
-      const imageBuffer = Buffer.from(b64, 'base64')
       const fileName = `${userId}/${Date.now()}.png`
       const bucketName = 'user-images'
 
