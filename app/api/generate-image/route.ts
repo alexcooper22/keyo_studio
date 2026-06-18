@@ -680,7 +680,21 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     console.error("Generation error:", error);
-    const message = error?.message || error?.toString() || "Failed to generate image";
+    let message: string = error?.message || error?.toString() || "Failed to generate image";
+
+    // Parse structured API error responses (e.g. Google returns JSON strings as error messages)
+    try {
+      const parsed = typeof message === 'string' ? JSON.parse(message) : null;
+      if (parsed?.error?.message) message = parsed.error.message;
+    } catch {}
+
+    // User-friendly messages for known transient errors
+    if (/503|UNAVAILABLE|high demand|overloaded|capacity/i.test(message)) {
+      message = 'This model is currently overloaded. Please try again in a moment.';
+    } else if (/429|quota|rate.?limit/i.test(message)) {
+      message = 'Rate limit reached. Please wait a moment and try again.';
+    }
+
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
