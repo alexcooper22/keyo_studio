@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '../../../lib/supabase';
-import { isAllowedMime, sanitizeFileName } from '../../../lib/rateLimit';
+import { isAllowedMime } from '../../../lib/rateLimit';
 
 const ALLOWED_IMAGE_EXT = new Set(['jpg', 'jpeg', 'png', 'webp']);
 const ALLOWED_VIDEO_EXT = new Set(['mp4', 'webm']);
@@ -19,8 +19,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'File type not allowed' }, { status: 400 });
   }
 
-  const safeName = sanitizeFileName(fileName);
-  const ext = safeName.split('.').pop()?.toLowerCase() ?? '';
+  const baseName = fileName.split(/[\\/]/).pop() ?? '';
+  const ext = (baseName.split('.').pop() ?? '').toLowerCase().replace(/[^a-z0-9]/g, '');
   const isVideo = ALLOWED_VIDEO_EXT.has(ext);
   const isImage = ALLOWED_IMAGE_EXT.has(ext);
 
