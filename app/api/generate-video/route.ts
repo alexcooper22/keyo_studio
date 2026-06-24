@@ -120,7 +120,7 @@ export async function POST(req: NextRequest) {
       );
       const body: Record<string, unknown> = {
         instances: [{ prompt }],
-        parameters: { aspectRatio, durationSeconds: String(nearestDuration) },
+        parameters: { aspectRatio, durationSeconds: nearestDuration },
       };
       const response = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${aiModel.model_id}:predictLongRunning?key=${apiKey}`,
