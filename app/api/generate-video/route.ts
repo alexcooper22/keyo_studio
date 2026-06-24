@@ -114,9 +114,13 @@ export async function POST(req: NextRequest) {
       taskId = data.id ?? data.task_id ?? null;
 
     } else if (aiModel.provider === 'google') {
+      const googleDurations = [4, 6, 8];
+      const nearestDuration = googleDurations.reduce((best, v) =>
+        Math.abs(v - duration) < Math.abs(best - duration) ? v : best
+      );
       const body: Record<string, unknown> = {
         instances: [{ prompt }],
-        parameters: { aspectRatio, durationSeconds: duration, sampleCount: 1, enhancePrompt: true },
+        parameters: { aspectRatio, durationSeconds: String(nearestDuration) },
       };
       const response = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${aiModel.model_id}:predictLongRunning?key=${apiKey}`,
@@ -177,7 +181,8 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ taskId, remainingCredits: subscription.credits_remaining - creditCost });
-  } catch {
-    return NextResponse.json({ error: 'Failed to generate video' }, { status: 500 });
+  } catch (err: any) {
+    console.error('[generate-video] Uncaught error:', err?.message ?? err);
+    return NextResponse.json({ error: err?.message ?? 'Failed to generate video' }, { status: 500 });
   }
 }

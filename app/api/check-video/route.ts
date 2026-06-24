@@ -51,13 +51,19 @@ export async function GET(req: NextRequest) {
       const data = await response.json();
       if (!response.ok) return NextResponse.json({ error: 'Failed to check video status' }, { status: 502 });
       if (data.done) {
-        const videoUrl = data.response?.generatedSamples?.[0]?.video?.uri ?? null;
+        // Google wraps the response in generateVideoResponse when using predictLongRunning
+        const samples = data.response?.generateVideoResponse?.generatedSamples
+          ?? data.response?.generatedSamples
+          ?? null;
+        const videoUrl = samples?.[0]?.video?.uri ?? null;
         if (videoUrl) {
           await supabaseAdmin.from('generated_videos').update({ status: 'succeed', video_url: videoUrl }).eq('task_id', taskId);
           return NextResponse.json({ status: 'succeed', videoUrl, duration: null });
         }
+        const googleError = data.error?.message ?? JSON.stringify(data.error) ?? 'Unknown Google Veo error';
+        console.error('[check-video] Google operation failed:', googleError, JSON.stringify(data));
         await supabaseAdmin.from('generated_videos').update({ status: 'failed' }).eq('task_id', taskId);
-        return NextResponse.json({ status: 'failed', videoUrl: null, duration: null });
+        return NextResponse.json({ status: 'failed', videoUrl: null, duration: null, googleError });
       }
       return NextResponse.json({ status: 'processing', videoUrl: null, duration: null });
     }

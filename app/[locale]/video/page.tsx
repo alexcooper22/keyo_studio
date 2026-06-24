@@ -1,5 +1,9 @@
 'use client';
 import React, { useState, useRef, useEffect } from 'react';
+
+// Inclusive range descending: range(3,10) → [10,9,8,7,6,5,4,3]
+const range = (min: number, max: number): number[] =>
+  Array.from({ length: max - min + 1 }, (_, i) => max - i);
 import Navbar from '@/components/layout/Navbar';
 import { fetchModelsWithCache } from '@/lib/modelCache';
 import { useUser } from '@clerk/nextjs';
@@ -117,11 +121,23 @@ export default function VideoDashboard() {
   const [likedVideos, setLikedVideos] = useState<Set<string>>(new Set());
   const [creditCount, setCreditCount] = useState<number | null>(null);
 
-  // Kling only supports 5s or 10s — clamp when model changes
+  // Returns valid duration options per model (per official API docs)
+  const getDurationOptions = (model: { name: string; provider?: string } | undefined): number[] => {
+    if (!model) return range(3, 10);
+    const { provider, name } = model;
+    if (provider === 'google') return [8, 6, 4];
+    if (provider === 'kling') return range(3, 15);
+    if (provider === 'alibaba') return range(2, 15);
+    if (provider === 'bytedance') return name.includes('1.5') ? range(4, 12) : range(4, 15);
+    return range(3, 10);
+  };
+
+  // Clamp duration to valid options when model changes
   useEffect(() => {
     const selected = videoModels.find(m => m.id === selectedVideoModelId);
-    if (selected?.provider === 'kling' && duration !== 5 && duration !== 10) {
-      setDuration(5);
+    const options = getDurationOptions(selected);
+    if (!options.includes(duration)) {
+      setDuration(options.reduce((best, v) => Math.abs(v - duration) < Math.abs(best - duration) ? v : best));
     }
   }, [selectedVideoModelId, videoModels]);
 
@@ -135,7 +151,10 @@ export default function VideoDashboard() {
   };
 
   const downloadVideo = async (url: string, id: string) => {
-    const res = await fetch(url);
+    const src = url.includes('generativelanguage.googleapis.com')
+      ? `/api/video-proxy?url=${encodeURIComponent(url)}`
+      : url;
+    const res = await fetch(src);
     const blob = await res.blob();
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
@@ -451,7 +470,7 @@ export default function VideoDashboard() {
           if (feedRef.current) feedRef.current.scrollTo({ top: 0, behavior: 'smooth' });
         } else if (result.status === 'failed') {
           clearInterval(pollRef.current!);
-          setError('Generation failed');
+          setError(result.googleError ?? result.error ?? 'Generation failed');
           setIsGenerating(false);
           setStatus('');
           localStorage.removeItem('video_generation_pending');
@@ -758,7 +777,7 @@ export default function VideoDashboard() {
             </div>
             <div style={{ display: 'flex', gap: '6px' }}>
               {[
-                { label: `◷ ${duration}s`, show: showDurationMenu, toggle: () => { setShowDurationMenu(v => !v); setShowQualityMenu(false); setShowAspectMenu(false); setShowModelMenu(false); }, items: (selectedVideoModel?.provider === 'kling' ? [10, 5] : [10,9,8,7,6,5,4,3]).map(d => ({ label: `${d}s`, value: d, active: duration === d, onClick: () => { setDuration(d); setShowDurationMenu(false); } })) },
+                { label: `◷ ${duration}s`, show: showDurationMenu, toggle: () => { setShowDurationMenu(v => !v); setShowQualityMenu(false); setShowAspectMenu(false); setShowModelMenu(false); }, items: getDurationOptions(selectedVideoModel).map(d => ({ label: `${d}s`, value: d, active: duration === d, onClick: () => { setDuration(d); setShowDurationMenu(false); } })) },
                 { label: `▭ ${aspectRatio}`, show: showAspectMenu, toggle: () => { setShowAspectMenu(v => !v); setShowQualityMenu(false); setShowDurationMenu(false); setShowModelMenu(false); }, items: (['9:16','16:9','1:1'] as const).map(r => ({ label: r, value: r, active: aspectRatio === r, onClick: () => { setAspectRatio(r); setShowAspectMenu(false); } })) },
                 { label: `◇ ${quality}`, show: showQualityMenu, toggle: () => { setShowQualityMenu(v => !v); setShowAspectMenu(false); setShowDurationMenu(false); setShowModelMenu(false); }, items: (['720p','1080p'] as const).map(q => ({ label: q, value: q, active: quality === q, onClick: () => { setQuality(q); setShowQualityMenu(false); } })) },
               ].map(({ label, show, toggle, items }) => (
@@ -1011,7 +1030,11 @@ export default function VideoDashboard() {
                     if (dl && likedVideos.has(v.id)) dl.style.display = 'none';
                   }}
                 >
-                  <video src={v.videoUrl} controls loop style={{ width: '100%', display: 'block', maxHeight: '80vh', minHeight: '160px', objectFit: 'contain', background: '#000' }} />
+                  <video
+                    src={v.videoUrl?.includes('generativelanguage.googleapis.com') ? `/api/video-proxy?url=${encodeURIComponent(v.videoUrl)}` : v.videoUrl}
+                    controls loop
+                    style={{ width: '100%', display: 'block', maxHeight: '80vh', minHeight: '160px', objectFit: 'contain', background: '#000' }}
+                  />
 
                   {/* Delete confirmation overlay */}
                   {confirmingDeleteId === v.id && (
