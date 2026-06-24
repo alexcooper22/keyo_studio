@@ -139,8 +139,11 @@ export async function POST(req: NextRequest) {
       const size = sizeMap[quality]?.[aspectRatio] ?? '1280*720';
       console.log('[generate-video] Alibaba request:', { model: aiModel.model_id, size, duration, keyPrefix: apiKey?.slice(0, 12) });
       const alibabaBase = process.env.ALIBABA_API_BASE_URL ?? 'https://dashscope-intl.aliyuncs.com';
+      const alibabaVideoPath = alibabaBase.includes('maas.aliyuncs.com')
+        ? '/api/v1/services/video-generation/generation'
+        : '/api/v1/services/aigc/video-generation/generation';
       const response = await fetch(
-        `${alibabaBase}/api/v1/services/aigc/video-generation/generation`,
+        `${alibabaBase}${alibabaVideoPath}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}`, 'X-DashScope-Async': 'enable' },
