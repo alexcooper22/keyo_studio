@@ -746,7 +746,7 @@ export default function VideoDashboard() {
                   return acc;
                 }, {} as Record<string, typeof videoModels>);
                 return (
-                  <div data-menu="true" style={{ position: 'absolute', bottom: 'calc(100% + 4px)', left: 0, right: 0, background: 'rgba(12,12,18,0.98)', border: '0.5px solid rgba(255,255,255,0.1)', borderRadius: '12px', overflow: 'hidden', zIndex: 100, boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
+                  <div data-menu="true" style={{ position: 'absolute', bottom: 'calc(100% + 4px)', left: 0, right: 0, background: 'rgba(12,12,18,0.98)', border: '0.5px solid rgba(255,255,255,0.1)', borderRadius: '12px', overflowY: 'auto', overflowX: 'hidden', maxHeight: '60vh', zIndex: 100, boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
                     {Object.entries(groups).map(([provider, providerModels], gi) => (
                       <div key={provider}>
                         <div style={{ padding: '8px 12px 5px', borderTop: gi > 0 ? '0.5px solid rgba(255,255,255,0.06)' : 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
