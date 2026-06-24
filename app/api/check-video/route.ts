@@ -72,7 +72,7 @@ export async function GET(req: NextRequest) {
       const alibabaApiKey = process.env.QWEN_API_KEY;
       if (!alibabaApiKey) return NextResponse.json({ error: 'Alibaba API key not configured' }, { status: 500 });
       const response = await fetch(
-        `https://dashscope.aliyuncs.com/api/v1/tasks/${taskId}`,
+        `${process.env.ALIBABA_API_BASE_URL ?? 'https://dashscope-intl.aliyuncs.com'}/api/v1/tasks/${taskId}`,
         { headers: { 'Authorization': `Bearer ${alibabaApiKey}` }, signal: AbortSignal.timeout(15_000) }
       );
       const data = await response.json();

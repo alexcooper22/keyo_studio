@@ -137,8 +137,10 @@ export async function POST(req: NextRequest) {
         '1080p': { '9:16': '1080*1920', '16:9': '1920*1080', '1:1': '1080*1080' },
       };
       const size = sizeMap[quality]?.[aspectRatio] ?? '1280*720';
+      console.log('[generate-video] Alibaba request:', { model: aiModel.model_id, size, duration, keyPrefix: apiKey?.slice(0, 12) });
+      const alibabaBase = process.env.ALIBABA_API_BASE_URL ?? 'https://dashscope-intl.aliyuncs.com';
       const response = await fetch(
-        'https://dashscope.aliyuncs.com/api/v1/services/aigc/video-generation/generation',
+        `${alibabaBase}/api/v1/services/aigc/video-generation/generation`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}`, 'X-DashScope-Async': 'enable' },
@@ -147,7 +149,10 @@ export async function POST(req: NextRequest) {
         }
       );
       const data = await response.json();
-      if (!response.ok) return NextResponse.json({ error: data?.message ?? 'Alibaba error' }, { status: response.status });
+      if (!response.ok) {
+        console.error('[generate-video] Alibaba error:', JSON.stringify(data));
+        return NextResponse.json({ error: data?.message ?? 'Alibaba error' }, { status: response.status });
+      }
       taskId = data.output?.task_id ?? null;
 
     } else {
