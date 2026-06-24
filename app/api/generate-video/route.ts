@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
   }
 
   let apiKey: string | undefined;
-  if (aiModel.provider === 'bytedance') {
+  if (aiModel.provider === 'bytedance' || aiModel.provider === 'google' || aiModel.provider === 'alibaba') {
     ({ apiKey } = resolveApiKey(aiModel));
   }
 
@@ -113,6 +113,39 @@ export async function POST(req: NextRequest) {
       if (!response.ok) return NextResponse.json({ error: data?.message ?? 'ByteDance error' }, { status: response.status });
       taskId = data.id ?? data.task_id ?? null;
 
+    } else if (aiModel.provider === 'google') {
+      const body: Record<string, unknown> = {
+        instances: [{ prompt }],
+        parameters: { aspectRatio, durationSeconds: duration, sampleCount: 1, enhancePrompt: true },
+      };
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${aiModel.model_id}:predictLongRunning?key=${apiKey}`,
+        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: AbortSignal.timeout(30_000) }
+      );
+      const data = await response.json();
+      if (!response.ok) return NextResponse.json({ error: data?.error?.message ?? 'Google Veo error' }, { status: response.status });
+      // Store only the operation ID (last segment of operation name)
+      taskId = (data.name as string)?.split('/').pop() ?? null;
+
+    } else if (aiModel.provider === 'alibaba') {
+      const sizeMap: Record<string, Record<string, string>> = {
+        '720p':  { '9:16': '720*1280',  '16:9': '1280*720',  '1:1': '720*720'  },
+        '1080p': { '9:16': '1080*1920', '16:9': '1920*1080', '1:1': '1080*1080' },
+      };
+      const size = sizeMap[quality]?.[aspectRatio] ?? '1280*720';
+      const response = await fetch(
+        'https://dashscope.aliyuncs.com/api/v1/services/aigc/video-generation/generation',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}`, 'X-DashScope-Async': 'enable' },
+          body: JSON.stringify({ model: aiModel.model_id, input: { prompt, size, duration } }),
+          signal: AbortSignal.timeout(30_000),
+        }
+      );
+      const data = await response.json();
+      if (!response.ok) return NextResponse.json({ error: data?.message ?? 'Alibaba error' }, { status: response.status });
+      taskId = data.output?.task_id ?? null;
+
     } else {
       return NextResponse.json({ error: `Provider "${aiModel.provider}" not yet implemented for video` }, { status: 501 });
     }
@@ -126,6 +159,7 @@ export async function POST(req: NextRequest) {
         aspect_ratio: aspectRatio,
         mode,
         model: aiModel.name,
+        model_api_id: aiModel.model_id,
         provider: aiModel.provider,
         status: 'processing',
       });
