@@ -69,7 +69,7 @@ export async function GET(req: NextRequest) {
     }
 
     if (provider === 'alibaba') {
-      const alibabaApiKey = process.env.QWEN_API_KEY;
+      const alibabaApiKey = process.env.ALIBABA_API_KEY;
       if (!alibabaApiKey) return NextResponse.json({ error: 'Alibaba API key not configured' }, { status: 500 });
       const response = await fetch(
         `${process.env.ALIBABA_API_BASE_URL ?? 'https://dashscope-intl.aliyuncs.com'}/api/v1/tasks/${taskId}`,
@@ -101,14 +101,16 @@ export async function GET(req: NextRequest) {
 
       const status = data.status; // queued | running | succeeded | failed
       const videoUrl = data.content?.video_url ?? null;
+      const failReason = data.error?.message ?? data.message ?? null;
 
       if (status === 'succeeded' && videoUrl) {
         await supabaseAdmin.from('generated_videos').update({ status: 'succeed', video_url: videoUrl }).eq('task_id', taskId);
       } else if (status === 'failed') {
+        console.error('[check-video] ByteDance task failed:', JSON.stringify(data));
         await supabaseAdmin.from('generated_videos').update({ status: 'failed' }).eq('task_id', taskId);
       }
 
-      return NextResponse.json({ status: status === 'succeeded' ? 'succeed' : status, videoUrl, duration: null });
+      return NextResponse.json({ status: status === 'succeeded' ? 'succeed' : status, videoUrl, duration: null, error: failReason });
     }
 
     // Default: Kling

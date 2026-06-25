@@ -70,6 +70,13 @@ const ALLOWED_MIME = new Set([
   'image/gif',
   'video/mp4',
   'video/webm',
+  'audio/mpeg',
+  'audio/mp3',
+  'audio/wav',
+  'audio/ogg',
+  'audio/webm',
+  'audio/aac',
+  'audio/flac',
 ]);
 
 export function isAllowedMime(mime: string): boolean {

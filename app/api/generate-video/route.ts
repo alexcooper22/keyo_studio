@@ -29,7 +29,8 @@ export async function POST(req: NextRequest) {
   const { allowed } = rateLimit(`gen-video:${userId}`, 5, 60_000);
   if (!allowed) return NextResponse.json({ error: 'Too many requests. Please wait a moment.' }, { status: 429 });
 
-  const { prompt, duration = 5, aspectRatio = '9:16', mode = 'std', quality = '720p', audio = false, startFrame = null, endFrame = null, modelId } = await req.json();
+  const { prompt, duration = 5, aspectRatio = '9:16', mode = 'std', quality = '720p', audio = false, startFrame = null, endFrame = null, modelId, mediaAssets = [] } = await req.json();
+  type MediaItem = { type: 'image' | 'audio' | 'video'; url: string; name: string; };
   if (!prompt) return NextResponse.json({ error: 'Prompt required' }, { status: 400 });
   if (!modelId) return NextResponse.json({ error: 'modelId is required' }, { status: 400 });
 
@@ -96,12 +97,22 @@ export async function POST(req: NextRequest) {
       taskId = data.data?.task_id;
 
     } else if (aiModel.provider === 'bytedance') {
+      const content: unknown[] = [{ type: 'text', text: prompt }];
+      for (const item of (mediaAssets as MediaItem[])) {
+        if (item.type === 'image') {
+          content.push({ type: 'image_url', image_url: { url: item.url }, role: 'reference_image' });
+        } else if (item.type === 'video') {
+          content.push({ type: 'video_url', video_url: { url: item.url }, role: 'reference_video' });
+        } else if (item.type === 'audio') {
+          content.push({ type: 'audio_url', audio_url: { url: item.url }, role: 'reference_audio' });
+        }
+      }
       const response = await fetch('https://ark.ap-southeast.bytepluses.com/api/v3/contents/generations/tasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
         body: JSON.stringify({
           model: aiModel.model_id,
-          content: [{ type: 'text', text: prompt }],
+          content,
           ratio: aspectRatio,
           resolution: quality,
           duration,
@@ -110,7 +121,11 @@ export async function POST(req: NextRequest) {
         signal: AbortSignal.timeout(30_000),
       });
       const data = await response.json();
-      if (!response.ok) return NextResponse.json({ error: data?.message ?? 'ByteDance error' }, { status: response.status });
+      if (!response.ok) {
+        const errMsg = data?.error?.message ?? data?.message ?? JSON.stringify(data);
+        console.error('[generate-video] ByteDance error:', errMsg, 'status:', response.status);
+        return NextResponse.json({ error: errMsg }, { status: response.status });
+      }
       taskId = data.id ?? data.task_id ?? null;
 
     } else if (aiModel.provider === 'google') {
@@ -132,22 +147,18 @@ export async function POST(req: NextRequest) {
       taskId = (data.name as string)?.split('/').pop() ?? null;
 
     } else if (aiModel.provider === 'alibaba') {
-      const sizeMap: Record<string, Record<string, string>> = {
-        '720p':  { '9:16': '720*1280',  '16:9': '1280*720',  '1:1': '720*720'  },
-        '1080p': { '9:16': '1080*1920', '16:9': '1920*1080', '1:1': '1080*1080' },
-      };
-      const size = sizeMap[quality]?.[aspectRatio] ?? '1280*720';
-      console.log('[generate-video] Alibaba request:', { model: aiModel.model_id, size, duration, keyPrefix: apiKey?.slice(0, 12) });
+      const resolutionMap: Record<string, string> = { '720p': '720P', '1080p': '1080P' };
+      const ratioMap: Record<string, string> = { '9:16': '9:16', '16:9': '16:9', '1:1': '1:1' };
+      const resolution = resolutionMap[quality] ?? '720P';
+      const ratio = ratioMap[aspectRatio] ?? '16:9';
+      console.log('[generate-video] Alibaba request:', { model: aiModel.model_id, resolution, ratio, duration, keyPrefix: apiKey?.slice(0, 12) });
       const alibabaBase = process.env.ALIBABA_API_BASE_URL ?? 'https://dashscope-intl.aliyuncs.com';
-      const alibabaVideoPath = alibabaBase.includes('maas.aliyuncs.com')
-        ? '/api/v1/services/video-generation/generation'
-        : '/api/v1/services/aigc/video-generation/generation';
       const response = await fetch(
-        `${alibabaBase}${alibabaVideoPath}`,
+        `${alibabaBase}/api/v1/services/aigc/video-generation/generation`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}`, 'X-DashScope-Async': 'enable' },
-          body: JSON.stringify({ model: aiModel.model_id, input: { prompt, size, duration } }),
+          body: JSON.stringify({ model: aiModel.model_id, input: { prompt, resolution, ratio, duration } }),
           signal: AbortSignal.timeout(30_000),
         }
       );

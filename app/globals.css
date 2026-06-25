@@ -293,6 +293,11 @@ body {
   );
 }
 
+/* Placeholder for the overlay-backed prompt textarea (text color is transparent) */
+.prompt-bar-orbit textarea::placeholder {
+  color: rgba(255,255,255,0.25);
+}
+
 .prompt-bar-loading {
   animation-duration: 1.4s;
   box-shadow: 0 0 90px rgba(83,47,207,0.55), 0 0 160px rgba(100,60,220,0.28), 0 8px 40px rgba(0,0,0,0.5);

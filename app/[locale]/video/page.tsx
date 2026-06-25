@@ -60,6 +60,18 @@ export default function VideoDashboard() {
   const [mobileShowOptions, setMobileShowOptions] = useState(false);
   const [mobileShowModelMenu, setMobileShowModelMenu] = useState(false);
 
+  type MediaAsset = { id: string; type: 'image' | 'audio' | 'video'; url: string; name: string; uploading?: boolean; };
+  type TrimState = { file: File; duration: number; startTime: number; endTime: number; mediaType: 'audio' | 'video'; objectUrl: string; };
+  const [mediaAssets, setMediaAssets] = useState<MediaAsset[]>([]);
+  const [showAtMenu, setShowAtMenu] = useState(false);
+  const [previewAsset, setPreviewAsset] = useState<MediaAsset | null>(null);
+  const [trimState, setTrimState] = useState<TrimState | null>(null);
+  const [isTrimming, setIsTrimming] = useState(false);
+  const mediaUploadRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const mobileTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
+
   // Restore settings from localStorage on mount
   useEffect(() => {
     const savedPrompt = localStorage.getItem('video_prompt_draft');
@@ -151,15 +163,24 @@ export default function VideoDashboard() {
   };
 
   const downloadVideo = async (url: string, id: string) => {
-    const src = url.includes('generativelanguage.googleapis.com')
-      ? `/api/video-proxy?url=${encodeURIComponent(url)}`
-      : url;
-    const res = await fetch(src);
-    const blob = await res.blob();
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `video-${id}.mp4`;
-    a.click();
+    try {
+      const res = await fetch(`/api/video-proxy?url=${encodeURIComponent(url)}`);
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error ?? `HTTP ${res.status}`);
+      }
+      const blob = await res.blob();
+      const ext = blob.type.includes('webm') ? 'webm' : 'mp4';
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `video-${id}.${ext}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(a.href), 60_000);
+    } catch (e: any) {
+      setError(`Download failed: ${e?.message ?? 'unknown error'}`);
+    }
   };
 
   const deleteVideo = async (taskId: string) => {
@@ -414,6 +435,192 @@ export default function VideoDashboard() {
     };
   }, []);
 
+  const audioBufferToWav = (buffer: AudioBuffer): Blob => {
+    const numChannels = buffer.numberOfChannels;
+    const sampleRate = buffer.sampleRate;
+    const numSamples = buffer.length;
+    const dataSize = numSamples * numChannels * 2;
+    const ab = new ArrayBuffer(44 + dataSize);
+    const view = new DataView(ab);
+    const ws = (o: number, s: string) => { for (let i = 0; i < s.length; i++) view.setUint8(o + i, s.charCodeAt(i)); };
+    ws(0, 'RIFF'); view.setUint32(4, 36 + dataSize, true); ws(8, 'WAVE');
+    ws(12, 'fmt '); view.setUint32(16, 16, true); view.setUint16(20, 1, true);
+    view.setUint16(22, numChannels, true); view.setUint32(24, sampleRate, true);
+    view.setUint32(28, sampleRate * numChannels * 2, true); view.setUint16(32, numChannels * 2, true);
+    view.setUint16(34, 16, true); ws(36, 'data'); view.setUint32(40, dataSize, true);
+    let offset = 44;
+    for (let i = 0; i < numSamples; i++) {
+      for (let c = 0; c < numChannels; c++) {
+        const s = Math.max(-1, Math.min(1, buffer.getChannelData(c)[i]));
+        view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+        offset += 2;
+      }
+    }
+    return new Blob([ab], { type: 'audio/wav' });
+  };
+
+  const trimAudioFile = async (file: File, startSec: number, endSec: number): Promise<File> => {
+    const ctx = new AudioContext();
+    const audioBuffer = await ctx.decodeAudioData(await file.arrayBuffer());
+    const sr = audioBuffer.sampleRate;
+    const start = Math.floor(startSec * sr);
+    const len = Math.min(Math.floor((endSec - startSec) * sr), audioBuffer.length - start);
+    const out = ctx.createBuffer(audioBuffer.numberOfChannels, len, sr);
+    for (let c = 0; c < audioBuffer.numberOfChannels; c++) {
+      out.getChannelData(c).set(audioBuffer.getChannelData(c).subarray(start, start + len));
+    }
+    await ctx.close();
+    return new File([audioBufferToWav(out)], 'trimmed.wav', { type: 'audio/wav' });
+  };
+
+  const trimVideoFile = (file: File, startSec: number, endSec: number): Promise<File> =>
+    new Promise((resolve, reject) => {
+      const video = document.createElement('video');
+      video.src = URL.createObjectURL(file);
+      video.muted = true;
+      video.onloadedmetadata = () => { video.currentTime = startSec; };
+      video.onseeked = () => {
+        const chunks: Blob[] = [];
+        const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+        const stream = (video as HTMLVideoElement & { captureStream: () => MediaStream }).captureStream();
+        const recorder = new MediaRecorder(stream, { mimeType });
+        recorder.ondataavailable = (e: BlobEvent) => { if (e.data.size > 0) chunks.push(e.data); };
+        recorder.onstop = () => {
+          URL.revokeObjectURL(video.src);
+          resolve(new File([new Blob(chunks, { type: 'video/webm' })], 'trimmed.webm', { type: 'video/webm' }));
+        };
+        recorder.start();
+        video.play().catch(reject);
+        setTimeout(() => { recorder.stop(); video.pause(); }, (endSec - startSec) * 1000);
+      };
+      video.onerror = () => reject(new Error('Video load failed'));
+    });
+
+  const confirmTrim = async () => {
+    if (!trimState) return;
+    setIsTrimming(true);
+    try {
+      const trimmed = trimState.mediaType === 'audio'
+        ? await trimAudioFile(trimState.file, trimState.startTime, trimState.endTime)
+        : await trimVideoFile(trimState.file, trimState.startTime, trimState.endTime);
+      URL.revokeObjectURL(trimState.objectUrl);
+      setTrimState(null);
+      // Upload trimmed file
+      const type = trimState.mediaType;
+      const placeholder: MediaAsset = { id: Math.random().toString(36).slice(2), type, url: URL.createObjectURL(trimmed), name: `${type.charAt(0).toUpperCase() + type.slice(1)} 1`, uploading: true };
+      setMediaAssets(prev => {
+        const idx = prev.filter(a => a.type === type).length + 1;
+        return [...prev, { ...placeholder, name: `${type.charAt(0).toUpperCase() + type.slice(1)} ${idx}` }];
+      });
+      const form = new FormData();
+      form.append('file', trimmed);
+      const res = await fetch('/api/upload-media', { method: 'POST', body: form });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? 'Upload failed');
+      setMediaAssets(prev => prev.map(a => a.id === placeholder.id ? { ...a, url: data.url, uploading: false } : a));
+    } catch (e: any) {
+      setError(e?.message ?? 'Trim failed');
+    } finally {
+      setIsTrimming(false);
+    }
+  };
+
+  const renderPromptChips = (text: string): React.ReactNode[] => {
+    const parts = text.split(/(@(?:Image|Audio|Video) \d+)/g);
+    return parts.map((part, i) => {
+      const m = part.match(/^@(Image|Audio|Video) \d+$/);
+      if (m) {
+        const t = m[1].toLowerCase() as 'image' | 'audio' | 'video';
+        const color = t === 'image' ? 'rgba(130,185,255,1)' : t === 'audio' ? 'rgba(180,130,255,1)' : 'rgba(100,220,160,1)';
+        const bg = t === 'image' ? 'rgba(30,80,180,0.22)' : t === 'audio' ? 'rgba(83,30,150,0.22)' : 'rgba(20,100,60,0.22)';
+        // No padding/border/inline-flex — must match textarea character dimensions exactly
+        return <span key={i} style={{ color, background: bg, borderRadius: '3px' }}>{part}</span>;
+      }
+      return <span key={i} style={{ color: 'rgba(255,255,255,0.85)' }}>{part}</span>;
+    });
+  };
+
+  const handleMediaUpload = async (files: FileList | null) => {
+    if (!files) return;
+    const allFiles = Array.from(files);
+    if (allFiles.length === 0) return;
+    const getType = (f: File): MediaAsset['type'] => f.type.startsWith('image/') ? 'image' : f.type.startsWith('audio/') ? 'audio' : 'video';
+
+    // Validate audio duration (ByteDance limit: ≤15s)
+    const getAudioDuration = (file: File): Promise<number> =>
+      new Promise(resolve => {
+        const el = file.type.startsWith('video/') ? document.createElement('video') : document.createElement('audio');
+        const url = URL.createObjectURL(file);
+        el.src = url;
+        el.onloadedmetadata = () => { URL.revokeObjectURL(url); resolve(el.duration); };
+        el.onerror = () => { URL.revokeObjectURL(url); resolve(0); };
+      });
+
+    const newFiles: File[] = [];
+    for (const file of allFiles) {
+      const type = getType(file);
+      if (type === 'audio' || type === 'video') {
+        const dur = await getAudioDuration(file);
+        if (dur > 15) {
+          setTrimState({ file, duration: dur, startTime: 0, endTime: Math.min(15, dur), mediaType: type, objectUrl: URL.createObjectURL(file) });
+          continue;
+        }
+      }
+      newFiles.push(file);
+    }
+    if (newFiles.length === 0) return;
+
+    // Add placeholders with blob URLs immediately for preview
+    const placeholders: MediaAsset[] = [];
+    setMediaAssets(prev => {
+      newFiles.forEach(file => {
+        const type = getType(file);
+        const idx = prev.filter(a => a.type === type).length + placeholders.filter(a => a.type === type).length + 1;
+        const label = type.charAt(0).toUpperCase() + type.slice(1);
+        placeholders.push({ id: Math.random().toString(36).slice(2), type, url: URL.createObjectURL(file), name: `${label} ${idx}`, uploading: true });
+      });
+      return [...prev, ...placeholders];
+    });
+
+    // Upload each file and replace blob URL with public URL
+    await Promise.all(newFiles.map(async (file, i) => {
+      const placeholder = placeholders[i];
+      try {
+        const form = new FormData();
+        form.append('file', file);
+        const res = await fetch('/api/upload-media', { method: 'POST', body: form });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error ?? 'Upload failed');
+        setMediaAssets(prev => prev.map(a => a.id === placeholder.id ? { ...a, url: data.url, uploading: false } : a));
+      } catch {
+        setMediaAssets(prev => prev.filter(a => a.id !== placeholder.id));
+      }
+    }));
+  };
+
+  const insertAtMention = (asset: MediaAsset, ref: React.RefObject<HTMLTextAreaElement | null>) => {
+    const el = ref.current;
+    if (!el) return;
+    const start = el.selectionStart ?? prompt.length;
+    const atPos = prompt.lastIndexOf('@', start - 1);
+    const before = atPos >= 0 ? prompt.slice(0, atPos) : prompt.slice(0, start);
+    const after = prompt.slice(start);
+    const newVal = `${before}@${asset.name} ${after}`;
+    setPrompt(newVal);
+    setShowAtMenu(false);
+    setTimeout(() => {
+      el.focus();
+      const pos = before.length + asset.name.length + 2;
+      el.setSelectionRange(pos, pos);
+    }, 0);
+  };
+
+  const handlePromptChange = (val: string) => {
+    setPrompt(val);
+    if (val.endsWith('@') && isSeedanceV2 && mediaAssets.length > 0) setShowAtMenu(true);
+    else if (showAtMenu) setShowAtMenu(false);
+  };
+
   const handleGenerate = async () => {
     if (!prompt.trim() || isGenerating) return;
     if (!selectedVideoModelId) return;
@@ -421,10 +628,16 @@ export default function VideoDashboard() {
     setError(null);
     setStatus('Submitting...');
     try {
+      // Pass public URLs for Seedance 2.0 media attachments
+      type SerializedMedia = { type: string; url: string; name: string; };
+      const serializedMedia: SerializedMedia[] = isSeedanceV2
+        ? mediaAssets.filter(a => !a.uploading && a.url).map(a => ({ type: a.type, url: a.url, name: a.name }))
+        : [];
+
       const res = await fetch('/api/generate-video', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, duration, aspectRatio, mode: 'std', quality, audio: audioEnabled, startFrame, endFrame, modelId: selectedVideoModelId }),
+        body: JSON.stringify({ prompt, duration, aspectRatio, mode: 'std', quality, audio: audioEnabled, startFrame, endFrame, modelId: selectedVideoModelId, mediaAssets: serializedMedia }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed');
@@ -484,6 +697,7 @@ export default function VideoDashboard() {
   };
 
   const selectedVideoModel = videoModels.find(m => m.id === selectedVideoModelId);
+  const isSeedanceV2 = selectedVideoModel?.name?.startsWith('Seedance 2.0') ?? false;
   const perSecond = selectedVideoModel?.pricing.find(p => p.quality === quality)?.credits ?? (quality === '1080p' ? 4 : 3);
   const videoCreditCost = (perSecond + (audioEnabled ? 1 : 0)) * duration;
   const mcModel = videoModels.find(m => m.name === 'Kling Motion Control');
@@ -628,7 +842,7 @@ export default function VideoDashboard() {
 
           {activeTab === 'create' && (
             <>
-          <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, overflowY: 'auto' }}>
+          <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
 
             {/* Model card */}
             <div style={{ background: '#0c0c14', border: '0.5px solid rgba(83,47,207,0.25)', borderRadius: '12px', overflow: 'hidden' }}>
@@ -643,7 +857,7 @@ export default function VideoDashboard() {
             </div>
 
             {/* Frames */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+            {!isSeedanceV2 && <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
               {(['start', 'end'] as const).map(type => {
                 const frame = type === 'start' ? startFrame : endFrame;
                 const ref = type === 'start' ? startFrameRef : endFrameRef;
@@ -667,7 +881,7 @@ export default function VideoDashboard() {
                   </div>
                 );
               })}
-            </div>
+            </div>}
 
             {/* Audio toggle */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
@@ -677,23 +891,110 @@ export default function VideoDashboard() {
               </div>
             </div>
 
+            {/* Seedance 2.0 media panel */}
+            {isSeedanceV2 && (
+              <div style={{ marginBottom: '6px' }}>
+                <input ref={mediaUploadRef} type="file" accept="image/*,audio/*,video/*" multiple style={{ display: 'none' }} onChange={e => { handleMediaUpload(e.target.files); e.target.value = ''; }} />
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '5px' }}>
+                  {mediaAssets.map(asset => (
+                    <div key={asset.id} onClick={() => !asset.uploading && setPreviewAsset(asset)} style={{ position: 'relative', aspectRatio: '1', borderRadius: '10px', overflow: 'hidden', background: 'rgba(255,255,255,0.05)', border: '0.5px solid rgba(255,255,255,0.1)', cursor: asset.uploading ? 'default' : 'pointer' }}>
+                      {asset.type === 'image' && <img src={asset.url} alt={asset.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
+                      {asset.type === 'video' && <video src={asset.url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} muted />}
+                      {asset.type === 'audio' && (
+                        <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'rgba(40,20,70,0.6)' }}>
+                          <div style={{ display: 'flex', alignItems: 'flex-end', gap: '2px', height: '28px', padding: '0 8px' }}>
+                            {[10,18,12,22,16,26,14,20,10,18,12,22,16,14].map((h, j) => (
+                              <div key={j} style={{ width: '3px', height: `${h}px`, background: 'rgba(160,120,255,0.55)', borderRadius: '2px', flexShrink: 0 }} />
+                            ))}
+                          </div>
+                          <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-dm)', textAlign: 'center', padding: '0 4px', lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>{asset.name}</span>
+                        </div>
+                      )}
+                      {asset.uploading && (
+                        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" style={{ animation: 'spin 1s linear infinite' }}><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                        </div>
+                      )}
+                      {!asset.uploading && (
+                        <div style={{ position: 'absolute', top: '4px', left: '4px', background: 'rgba(0,0,0,0.6)', borderRadius: '4px', padding: '2px 4px', display: 'flex', alignItems: 'center' }}>
+                          {asset.type === 'image' && <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="rgba(120,180,255,0.9)" strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>}
+                          {asset.type === 'video' && <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="rgba(120,255,180,0.9)" strokeWidth="2" strokeLinecap="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>}
+                          {asset.type === 'audio' && <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="rgba(160,120,255,0.9)" strokeWidth="2" strokeLinecap="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>}
+                        </div>
+                      )}
+                      {!asset.uploading && <button onClick={e => { e.stopPropagation(); setMediaAssets(p => p.filter(a => a.id !== asset.id)); }} style={{ position: 'absolute', top: '3px', right: '3px', width: '16px', height: '16px', borderRadius: '50%', background: 'rgba(0,0,0,0.7)', border: 'none', color: 'rgba(255,255,255,0.7)', fontSize: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, padding: 0 }}>×</button>}
+                    </div>
+                  ))}
+                  <div onClick={() => mediaUploadRef.current?.click()} style={{ aspectRatio: '1', borderRadius: '10px', background: 'rgba(255,255,255,0.02)', border: '0.5px dashed rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.25)', fontSize: '22px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</div>
+                </div>
+              </div>
+            )}
+
             {/* Prompt textarea */}
             <div
               className={`prompt-bar-orbit${isPromptFocused ? ' prompt-bar-focused' : ''}${isGenerating ? ' prompt-bar-loading' : ''}`}
-              style={{ borderRadius: '12px' }}
+              style={{ borderRadius: '12px', position: 'relative', background: 'rgba(10,10,14,0.97)' }}
             >
-              <textarea
-                value={prompt}
-                onChange={e => setPrompt(e.target.value)}
-                onFocus={() => setIsPromptFocused(true)}
-                onBlur={() => setIsPromptFocused(false)}
-                placeholder={t('promptPlaceholder')}
-                style={{ background: 'rgba(10,10,14,0.97)', border: 'none', borderRadius: '10px', padding: '10px 12px', fontSize: '13px', color: 'rgba(255,255,255,0.85)', flex: 1, minHeight: '110px', resize: 'none', outline: 'none', width: '100%', fontFamily: 'var(--font-dm)', boxSizing: 'border-box', lineHeight: 1.6, display: 'block' }}
-              />
+              <div style={{ position: 'relative' }}>
+                {/* Overlay for inline @mention chips */}
+                <div
+                  ref={overlayRef}
+                  aria-hidden
+                  style={{
+                    position: 'absolute', inset: 0,
+                    padding: '10px 12px',
+                    fontSize: '13px', lineHeight: 1.6,
+                    fontFamily: 'var(--font-dm)',
+                    pointerEvents: 'none',
+                    whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+                    overflowY: 'hidden', borderRadius: '10px',
+                    zIndex: 0,
+                  }}
+                >
+                  {renderPromptChips(prompt)}
+                </div>
+                <textarea
+                  ref={textareaRef}
+                  value={prompt}
+                  onChange={e => handlePromptChange(e.target.value)}
+                  onScroll={e => { if (overlayRef.current) overlayRef.current.scrollTop = (e.target as HTMLTextAreaElement).scrollTop; }}
+                  onFocus={() => setIsPromptFocused(true)}
+                  onBlur={() => { setIsPromptFocused(false); setTimeout(() => setShowAtMenu(false), 150); }}
+                  placeholder={prompt ? '' : t('promptPlaceholder')}
+                  style={{ background: 'transparent', border: 'none', borderRadius: '10px', padding: '10px 12px', fontSize: '13px', color: 'transparent', caretColor: 'rgba(255,255,255,0.85)', flex: 1, minHeight: '110px', resize: 'none', outline: 'none', width: '100%', fontFamily: 'var(--font-dm)', boxSizing: 'border-box', lineHeight: 1.6, display: 'block', position: 'relative', zIndex: 1 }}
+                />
+              </div>
+              {/* @ mention menu */}
+              {showAtMenu && mediaAssets.length > 0 && (
+                <div style={{ position: 'absolute', bottom: 'calc(100% + 4px)', left: 0, right: 0, background: 'rgba(12,12,18,0.98)', border: '0.5px solid rgba(255,255,255,0.1)', borderRadius: '10px', overflow: 'hidden', zIndex: 200, boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
+                  <div style={{ padding: '6px 10px 4px', fontSize: '10px', color: 'rgba(255,255,255,0.3)', fontFamily: 'var(--font-dm)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Insert reference</div>
+                  {mediaAssets.map(asset => (
+                    <button key={asset.id} onMouseDown={e => { e.preventDefault(); insertAtMention(asset, textareaRef); }} style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%', textAlign: 'left', padding: '6px 10px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '12px', fontFamily: 'var(--font-dm)' }}>
+                      {/* Thumbnail preview */}
+                      <div style={{ width: '28px', height: '28px', borderRadius: '5px', overflow: 'hidden', flexShrink: 0, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {asset.type === 'image' && <img src={asset.url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
+                        {asset.type === 'video' && <video src={asset.url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} muted />}
+                        {asset.type === 'audio' && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(160,120,255,0.8)" strokeWidth="1.5" strokeLinecap="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>}
+                      </div>
+                      <span style={{ color: asset.type === 'image' ? 'rgba(120,180,255,0.9)' : asset.type === 'audio' ? 'rgba(160,120,255,0.9)' : 'rgba(120,255,180,0.9)' }}>@{asset.name}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
-            {error && <div style={{ fontSize: '11px', color: '#ef4444', fontFamily: 'var(--font-dm)' }}>{error}</div>}
+            {/* @ Elements button (Seedance 2.0 only) */}
+            {isSeedanceV2 && mediaAssets.length > 0 && (
+              <div style={{ marginTop: '4px', display: 'flex', gap: '6px' }}>
+                <button onClick={() => setShowAtMenu(v => !v)} style={{ height: '24px', padding: '0 10px', borderRadius: '6px', background: showAtMenu ? 'rgba(83,47,207,0.15)' : 'rgba(255,255,255,0.04)', border: showAtMenu ? '0.5px solid rgba(83,47,207,0.4)' : '0.5px solid rgba(255,255,255,0.08)', color: showAtMenu ? 'rgba(160,120,255,0.9)' : 'rgba(255,255,255,0.4)', fontSize: '11px', fontFamily: 'var(--font-dm)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <span>@</span> Elements
+                </button>
+              </div>
+            )}
+
           </div>
+
+          {error && <div style={{ fontSize: '11px', color: '#ef4444', fontFamily: 'var(--font-dm)', padding: '6px 12px', lineHeight: 1.5, wordBreak: 'break-word' }}>{error}</div>}
 
           {/* Footer */}
           <div style={{ borderTop: '0.5px solid rgba(255,255,255,0.06)', padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -760,7 +1061,7 @@ export default function VideoDashboard() {
                           const credits = m.pricing.find(p => p.quality === quality)?.credits ?? m.pricing[0]?.credits;
                           const isSelected = selectedVideoModelId === m.id;
                           return (
-                            <button key={m.id} onClick={() => { setSelectedVideoModelId(m.id); setShowModelMenu(false); }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', textAlign: 'left', padding: '8px 12px', background: isSelected ? 'rgba(83,47,207,0.12)' : 'none', border: 'none', cursor: 'pointer', transition: 'background 0.15s' }}>
+                            <button key={m.id} onClick={() => { if (isSeedanceV2 && !m.name?.startsWith('Seedance 2.0')) { setPrompt(''); setMediaAssets([]); } setSelectedVideoModelId(m.id); setShowModelMenu(false); }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', textAlign: 'left', padding: '8px 12px', background: isSelected ? 'rgba(83,47,207,0.12)' : 'none', border: 'none', cursor: 'pointer', transition: 'background 0.15s' }}>
                               <div>
                                 <div style={{ fontSize: '12px', fontFamily: 'var(--font-dm)', fontWeight: 500, color: isSelected ? 'rgba(160,120,255,0.9)' : 'rgba(255,255,255,0.75)' }}>{m.name}</div>
                                 {credits && <div style={{ fontSize: '10px', fontFamily: 'var(--font-dm)', color: 'rgba(255,255,255,0.28)', marginTop: '1px' }}>{credits} credit/s</div>}
@@ -832,7 +1133,7 @@ export default function VideoDashboard() {
               <input ref={mcCharacterImageRef} type="file" accept="image/*" style={{ display: 'none' }}
                 onChange={e => e.target.files?.[0] && handleMcUpload(e.target.files[0], 'characterImage')} />
 
-              <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, overflowY: 'auto' }}>
+              <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
 
                 {/* Upload boxes */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
@@ -1192,7 +1493,7 @@ export default function VideoDashboard() {
                 {mobileShowModelMenu && (
                   <div style={{ background: 'rgba(12,12,18,0.99)', border: '0.5px solid rgba(255,255,255,0.1)', borderRadius: '10px', overflow: 'hidden' }}>
                     {videoModels.map(m => (
-                      <button key={m.id} onClick={() => { setSelectedVideoModelId(m.id); setMobileShowModelMenu(false); }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', textAlign: 'left', padding: '10px 14px', background: selectedVideoModelId === m.id ? 'rgba(83,47,207,0.12)' : 'none', border: 'none', cursor: 'pointer' }}>
+                      <button key={m.id} onClick={() => { if (isSeedanceV2 && !m.name?.startsWith('Seedance 2.0')) { setPrompt(''); setMediaAssets([]); } setSelectedVideoModelId(m.id); setMobileShowModelMenu(false); }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', textAlign: 'left', padding: '10px 14px', background: selectedVideoModelId === m.id ? 'rgba(83,47,207,0.12)' : 'none', border: 'none', cursor: 'pointer' }}>
                         <span style={{ fontSize: '12px', fontFamily: 'var(--font-dm)', fontWeight: 500, color: selectedVideoModelId === m.id ? 'rgba(160,120,255,0.9)' : 'rgba(255,255,255,0.75)' }}>{m.name}</span>
                         {selectedVideoModelId === m.id && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(160,120,255,0.9)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
                       </button>
@@ -1204,17 +1505,64 @@ export default function VideoDashboard() {
               </div>
             )}
 
+            {/* Mobile Seedance 2.0 media panel */}
+            {isSeedanceV2 && (
+              <div style={{ padding: '10px 14px 0' }}>
+                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
+                  {mediaAssets.map(asset => (
+                    <div key={asset.id} onClick={() => !asset.uploading && setPreviewAsset(asset)} style={{ position: 'relative', width: '48px', height: '48px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, background: 'rgba(255,255,255,0.05)', border: '0.5px solid rgba(255,255,255,0.1)', cursor: asset.uploading ? 'default' : 'pointer' }}>
+                      {asset.type === 'image' && <img src={asset.url} alt={asset.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
+                      {asset.type === 'video' && <video src={asset.url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} muted />}
+                      {asset.type === 'audio' && (
+                        <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'rgba(83,47,207,0.15)' }}>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(160,120,255,0.7)" strokeWidth="1.5" strokeLinecap="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                        </div>
+                      )}
+                      {asset.uploading && (
+                        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" style={{ animation: 'spin 1s linear infinite' }}><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                        </div>
+                      )}
+                      {!asset.uploading && <div style={{ position: 'absolute', top: '3px', left: '3px', background: 'rgba(0,0,0,0.65)', borderRadius: '4px', padding: '2px 3px', display: 'flex', alignItems: 'center' }}>
+                        {asset.type === 'image' && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(120,180,255,0.9)" strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>}
+                        {asset.type === 'video' && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(120,255,180,0.9)" strokeWidth="2" strokeLinecap="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>}
+                        {asset.type === 'audio' && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(160,120,255,0.9)" strokeWidth="2" strokeLinecap="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>}
+                      </div>}
+                      {!asset.uploading && <button onClick={e => { e.stopPropagation(); setMediaAssets(p => p.filter(a => a.id !== asset.id)); }} style={{ position: 'absolute', top: '2px', right: '2px', width: '14px', height: '14px', borderRadius: '50%', background: 'rgba(0,0,0,0.7)', border: 'none', color: 'rgba(255,255,255,0.7)', fontSize: '9px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>×</button>}
+                    </div>
+                  ))}
+                  <button onClick={() => mediaUploadRef.current?.click()} style={{ width: '48px', height: '48px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '0.5px dashed rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.3)', fontSize: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>+</button>
+                </div>
+              </div>
+            )}
+
             {/* Textarea */}
-            <div style={{ padding: '14px 14px 8px' }}>
+            <div style={{ padding: '14px 14px 8px', position: 'relative' }}>
               <textarea
+                ref={mobileTextareaRef}
                 value={prompt}
-                onChange={e => setPrompt(e.target.value)}
+                onChange={e => handlePromptChange(e.target.value)}
                 placeholder={t('promptPlaceholder')}
                 rows={1}
                 onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (!isSignedIn) { setShowModal(true); } else { handleGenerate(); } } }}
                 onInput={e => { const el = e.currentTarget; el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 120) + 'px'; }}
+                onBlur={() => setTimeout(() => setShowAtMenu(false), 150)}
                 style={{ width: '100%', background: 'transparent', border: 'none', outline: 'none', resize: 'none', fontSize: '16px', lineHeight: '1.6', minHeight: '40px', maxHeight: '120px', overflowY: 'auto', color: 'rgba(255,255,255,0.9)', fontFamily: 'var(--font-dm)' }}
               />
+              {showAtMenu && mediaAssets.length > 0 && (
+                <div style={{ position: 'absolute', bottom: 'calc(100% + 4px)', left: '14px', right: '14px', background: 'rgba(12,12,18,0.98)', border: '0.5px solid rgba(255,255,255,0.1)', borderRadius: '10px', overflow: 'hidden', zIndex: 200, boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
+                  {mediaAssets.map(asset => (
+                    <button key={asset.id} onMouseDown={e => { e.preventDefault(); insertAtMention(asset, mobileTextareaRef); }} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', textAlign: 'left', padding: '8px 12px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '13px', fontFamily: 'var(--font-dm)' }}>
+                      <div style={{ width: '32px', height: '32px', borderRadius: '6px', overflow: 'hidden', flexShrink: 0, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {asset.type === 'image' && <img src={asset.url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
+                        {asset.type === 'video' && <video src={asset.url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} muted />}
+                        {asset.type === 'audio' && <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(160,120,255,0.8)" strokeWidth="1.5" strokeLinecap="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>}
+                      </div>
+                      <span style={{ color: asset.type === 'image' ? 'rgba(120,180,255,0.9)' : asset.type === 'audio' ? 'rgba(160,120,255,0.9)' : 'rgba(120,255,180,0.9)' }}>@{asset.name}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Bottom toolbar */}
@@ -1268,6 +1616,102 @@ export default function VideoDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Trim modal */}
+      {trimState && (() => {
+        const { duration, startTime, endTime } = trimState;
+        const segDur = endTime - startTime;
+        const over15 = segDur > 15.2;
+        const startPct = (startTime / duration) * 100;
+        const endPct = (endTime / duration) * 100;
+        const fmt = (s: number) => `${Math.floor(s / 60)}:${(s % 60).toFixed(1).padStart(4, '0')}`;
+        const handleSliderDown = (e: React.PointerEvent<HTMLDivElement>) => {
+          const rect = e.currentTarget.getBoundingClientRect();
+          const ratio = (e.clientX - rect.left) / rect.width;
+          const t = ratio * duration;
+          const which: 'start' | 'end' = Math.abs(t - startTime) <= Math.abs(t - endTime) ? 'start' : 'end';
+          const move = (ev: PointerEvent) => {
+            const r = Math.max(0, Math.min(1, (ev.clientX - rect.left) / rect.width));
+            const pos = r * duration;
+            setTrimState(s => {
+              if (!s) return s;
+              if (which === 'start') return { ...s, startTime: Math.max(0, Math.min(pos, s.endTime - 0.2)) };
+              return { ...s, endTime: Math.min(s.duration, Math.max(pos, s.startTime + 0.2)) };
+            });
+          };
+          const up = () => { document.removeEventListener('pointermove', move); document.removeEventListener('pointerup', up); };
+          document.addEventListener('pointermove', move);
+          document.addEventListener('pointerup', up);
+        };
+        return (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.88)', zIndex: 1001, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+            <div style={{ background: '#0f0f16', border: '0.5px solid rgba(255,255,255,0.1)', borderRadius: '16px', padding: '24px', width: '100%', maxWidth: '440px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div>
+                <div style={{ fontSize: '15px', fontWeight: 600, color: 'rgba(255,255,255,0.9)', fontFamily: 'var(--font-dm)' }}>Trim {trimState.mediaType === 'audio' ? 'Audio' : 'Video'}</div>
+                <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', fontFamily: 'var(--font-dm)', marginTop: '3px' }}>Drag handles to select segment · Max 15s for Seedance 2.0</div>
+              </div>
+              {trimState.mediaType === 'audio'
+                ? <audio src={trimState.objectUrl} controls style={{ width: '100%', height: '36px' }} />
+                : <video src={trimState.objectUrl} controls muted style={{ width: '100%', borderRadius: '8px', maxHeight: '180px', background: '#000' }} />
+              }
+              {/* Time labels */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.6)', fontFamily: 'var(--font-dm)', fontVariantNumeric: 'tabular-nums' }}>{fmt(startTime)}</span>
+                <span style={{ fontSize: '12px', fontFamily: 'var(--font-dm)', fontVariantNumeric: 'tabular-nums', color: over15 ? '#ef4444' : 'rgba(160,120,255,0.9)', fontWeight: 500 }}>{segDur.toFixed(1)}s{over15 ? ' ⚠ max 15s' : ''}</span>
+                <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.6)', fontFamily: 'var(--font-dm)', fontVariantNumeric: 'tabular-nums' }}>{fmt(endTime)}</span>
+              </div>
+              {/* Two-handle slider */}
+              <div
+                onPointerDown={handleSliderDown}
+                style={{ position: 'relative', height: '28px', cursor: 'pointer', userSelect: 'none' }}
+              >
+                {/* Track bg */}
+                <div style={{ position: 'absolute', top: '12px', left: 0, right: 0, height: '4px', background: 'rgba(255,255,255,0.08)', borderRadius: '2px' }} />
+                {/* Selected range */}
+                <div style={{ position: 'absolute', top: '12px', height: '4px', background: over15 ? 'rgba(239,68,68,0.7)' : 'rgba(83,47,207,0.8)', borderRadius: '2px', left: `${startPct}%`, width: `${endPct - startPct}%`, transition: 'background 0.2s' }} />
+                {/* Start handle */}
+                <div style={{ position: 'absolute', top: '50%', left: `${startPct}%`, transform: 'translate(-50%, -50%)', width: '18px', height: '18px', borderRadius: '50%', background: 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.5)', cursor: 'grab', zIndex: 2 }} />
+                {/* End handle */}
+                <div style={{ position: 'absolute', top: '50%', left: `${endPct}%`, transform: 'translate(-50%, -50%)', width: '18px', height: '18px', borderRadius: '50%', background: 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.5)', cursor: 'grab', zIndex: 2 }} />
+                {/* Total duration labels */}
+                <div style={{ position: 'absolute', top: '22px', left: 0, fontSize: '10px', color: 'rgba(255,255,255,0.25)', fontFamily: 'var(--font-dm)' }}>0s</div>
+                <div style={{ position: 'absolute', top: '22px', right: 0, fontSize: '10px', color: 'rgba(255,255,255,0.25)', fontFamily: 'var(--font-dm)' }}>{Math.round(duration)}s</div>
+              </div>
+              {/* Buttons */}
+              <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                <button onClick={() => { URL.revokeObjectURL(trimState.objectUrl); setTrimState(null); }} disabled={isTrimming} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '0.5px solid rgba(255,255,255,0.12)', background: 'transparent', color: 'rgba(255,255,255,0.5)', fontSize: '13px', fontFamily: 'var(--font-dm)', cursor: 'pointer' }}>Cancel</button>
+                <button onClick={confirmTrim} disabled={isTrimming || over15} style={{ flex: 2, padding: '10px', borderRadius: '8px', border: 'none', background: isTrimming || over15 ? 'rgba(83,47,207,0.35)' : 'rgba(83,47,207,0.85)', color: 'white', fontSize: '13px', fontFamily: 'var(--font-dm)', cursor: isTrimming || over15 ? 'default' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                  {isTrimming ? <><div style={{ width: '12px', height: '12px', border: '1.5px solid rgba(255,255,255,0.3)', borderTop: '1.5px solid white', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />Trimming...</> : `Trim & Add (${segDur.toFixed(1)}s)`}
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* Media preview modal */}
+      {previewAsset && (
+        <div onClick={() => setPreviewAsset(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position: 'relative', maxWidth: '90vw', maxHeight: '90vh', borderRadius: '12px', overflow: 'hidden', background: '#0a0a0e' }}>
+            <button onClick={() => setPreviewAsset(null)} style={{ position: 'absolute', top: '10px', right: '10px', zIndex: 10, width: '28px', height: '28px', borderRadius: '50%', background: 'rgba(0,0,0,0.7)', border: '0.5px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.8)', fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
+            <div style={{ padding: '6px 12px 8px', fontSize: '11px', color: 'rgba(255,255,255,0.4)', fontFamily: 'var(--font-dm)', borderBottom: '0.5px solid rgba(255,255,255,0.07)' }}>{previewAsset.name}</div>
+            {previewAsset.type === 'image' && (
+              <img src={previewAsset.url} alt={previewAsset.name} style={{ display: 'block', maxWidth: '80vw', maxHeight: '80vh', objectFit: 'contain' }} />
+            )}
+            {previewAsset.type === 'video' && (
+              <video src={previewAsset.url} controls autoPlay style={{ display: 'block', maxWidth: '80vw', maxHeight: '80vh' }} />
+            )}
+            {previewAsset.type === 'audio' && (
+              <div style={{ padding: '24px 32px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', minWidth: '260px' }}>
+                <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'rgba(83,47,207,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(160,120,255,0.8)" strokeWidth="1.5" strokeLinecap="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                </div>
+                <audio src={previewAsset.url} controls style={{ width: '100%' }} />
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
