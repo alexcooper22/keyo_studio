@@ -26,7 +26,7 @@ export default function VideoDashboard() {
   const { isLoaded, isSignedIn } = useUser();
   const { setShowModal } = useAuth();
   const [prompt, setPrompt] = useState('');
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatingCount, setGeneratingCount] = useState(0);
   const [videos, setVideos] = useState<VideoItem[]>([]);
   const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -295,7 +295,7 @@ export default function VideoDashboard() {
             if (feedRef.current) feedRef.current.scrollTo({ top: 0, behavior: 'smooth' });
           } else if (result.status === 'failed') {
             clearInterval(mcPollRef.current!);
-            setMcError('Generation failed. Please try again.');
+            setMcError(result.failReason ?? 'Generation failed. Please try again.');
             setIsMcGenerating(false);
             setStatus('');
           }
@@ -315,14 +315,15 @@ export default function VideoDashboard() {
       const models = await fetchModelsWithCache('video');
       if (models.length) {
         setVideoModels(models);
-        setSelectedVideoModelId(models[0].id);
+        const klingV3 = models.find((m: { name?: string }) => m.name === 'Kling v3');
+        setSelectedVideoModelId((klingV3 ?? models[0]).id);
       }
     } catch (err) {
       console.error('Failed to fetch video models', err);
     }
   };
 
-  const pollRef = useRef<NodeJS.Timeout | null>(null);
+  const pollsRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
   const feedRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -382,15 +383,15 @@ export default function VideoDashboard() {
         const pending = JSON.parse(pendingVideo);
         // Only restore if started less than 10 minutes ago
         if (Date.now() - pending.startTime < 10 * 60 * 1000) {
-          setIsGenerating(true);
-          setStatus('Processing...');
+          setGeneratingCount(c => c + 1);
           // Resume polling
-          pollRef.current = setInterval(async () => {
+          const resumeInterval = setInterval(async () => {
             try {
               const check = await fetch(`/api/check-video?taskId=${pending.taskId}`);
               const result = await check.json();
               if (result.status === 'succeed' && result.videoUrl) {
-                clearInterval(pollRef.current!);
+                clearInterval(resumeInterval);
+                pollsRef.current.delete(pending.taskId);
                 const newVideo: VideoItem = {
                   id: pending.taskId,
                   videoUrl: result.videoUrl,
@@ -402,8 +403,7 @@ export default function VideoDashboard() {
                   model: pending.modelName,
                 };
                 setVideos(prev => [newVideo, ...prev]);
-                setIsGenerating(false);
-                setStatus('');
+                setGeneratingCount(c => c - 1);
                 localStorage.removeItem('video_generation_pending');
                 localStorage.removeItem('video_start_frame');
                 localStorage.removeItem('video_end_frame');
@@ -411,15 +411,16 @@ export default function VideoDashboard() {
                 setEndFrame(null);
                 window.dispatchEvent(new Event('credits-updated'));
               } else if (result.status === 'failed') {
-                clearInterval(pollRef.current!);
-                setIsGenerating(false);
-                setStatus('');
+                clearInterval(resumeInterval);
+                pollsRef.current.delete(pending.taskId);
+                setGeneratingCount(c => c - 1);
                 localStorage.removeItem('video_generation_pending');
               }
             } catch (err) {
               console.error('Polling error:', err);
             }
           }, 5000);
+          pollsRef.current.set(pending.taskId, resumeInterval);
         } else {
           localStorage.removeItem('video_generation_pending');
         }
@@ -622,13 +623,13 @@ export default function VideoDashboard() {
   };
 
   const handleGenerate = async () => {
-    if (!prompt.trim() || isGenerating) return;
+    if (!prompt.trim()) return;
     if (!selectedVideoModelId) return;
-    setIsGenerating(true);
     setError(null);
-    setStatus('Submitting...');
+    setGeneratingCount(c => c + 1);
+    const snapshotPrompt = prompt;
+    const snapshotModel = videoModels.find(m => m.id === selectedVideoModelId)?.name;
     try {
-      // Pass public URLs for Seedance 2.0 media attachments
       type SerializedMedia = { type: string; url: string; name: string; };
       const serializedMedia: SerializedMedia[] = isSeedanceV2
         ? mediaAssets.filter(a => !a.uploading && a.url).map(a => ({ type: a.type, url: a.url, name: a.name }))
@@ -637,62 +638,59 @@ export default function VideoDashboard() {
       const res = await fetch('/api/generate-video', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, duration, aspectRatio, mode: 'std', quality, audio: audioEnabled, startFrame, endFrame, modelId: selectedVideoModelId, mediaAssets: serializedMedia }),
+        body: JSON.stringify({ prompt: snapshotPrompt, duration, aspectRatio, mode: 'std', quality, audio: audioEnabled, startFrame, endFrame, modelId: selectedVideoModelId, mediaAssets: serializedMedia }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed');
       const taskId = data.taskId;
-      setStatus('Processing...');
-      
-      // Save to localStorage for cross-page persistence
+
       localStorage.setItem('video_generation_pending', JSON.stringify({
         taskId,
-        prompt,
+        prompt: snapshotPrompt,
         startTime: Date.now(),
         quality,
         duration,
         aspectRatio,
-        modelName: videoModels.find(m => m.id === selectedVideoModelId)?.name,
+        modelName: snapshotModel,
       }));
 
-      pollRef.current = setInterval(async () => {
+      const interval = setInterval(async () => {
         const check = await fetch(`/api/check-video?taskId=${taskId}`);
         const result = await check.json();
         if (result.status === 'succeed' && result.videoUrl) {
-          clearInterval(pollRef.current!);
+          clearInterval(interval);
+          pollsRef.current.delete(taskId);
           const newVideo: VideoItem = {
             id: taskId,
             videoUrl: result.videoUrl,
-            prompt: prompt,
+            prompt: snapshotPrompt,
             createdAt: new Date(),
             quality,
             duration,
             aspectRatio,
-            model: videoModels.find(m => m.id === selectedVideoModelId)?.name,
+            model: snapshotModel,
           };
           setVideos(prev => [newVideo, ...prev]);
-          setIsGenerating(false);
-          setStatus('');
+          setGeneratingCount(c => c - 1);
           localStorage.removeItem('video_generation_pending');
           localStorage.removeItem('video_start_frame');
           localStorage.removeItem('video_end_frame');
           setStartFrame(null);
           setEndFrame(null);
           window.dispatchEvent(new Event('credits-updated'));
-          // Scroll to top of feed
           if (feedRef.current) feedRef.current.scrollTo({ top: 0, behavior: 'smooth' });
         } else if (result.status === 'failed') {
-          clearInterval(pollRef.current!);
+          clearInterval(interval);
+          pollsRef.current.delete(taskId);
           setError(result.googleError ?? result.error ?? 'Generation failed');
-          setIsGenerating(false);
-          setStatus('');
+          setGeneratingCount(c => c - 1);
           localStorage.removeItem('video_generation_pending');
         }
       }, 5000);
+      pollsRef.current.set(taskId, interval);
     } catch (err: any) {
       setError(err.message);
-      setIsGenerating(false);
-      setStatus('');
+      setGeneratingCount(c => c - 1);
     }
   };
 
@@ -932,7 +930,7 @@ export default function VideoDashboard() {
 
             {/* Prompt textarea */}
             <div
-              className={`prompt-bar-orbit${isPromptFocused ? ' prompt-bar-focused' : ''}${isGenerating ? ' prompt-bar-loading' : ''}`}
+              className={`prompt-bar-orbit${isPromptFocused ? ' prompt-bar-focused' : ''}${generatingCount > 0 ? ' prompt-bar-loading' : ''}`}
               style={{ borderRadius: '12px', position: 'relative', background: 'rgba(10,10,14,0.97)' }}
             >
               <div style={{ position: 'relative' }}>
@@ -1061,7 +1059,7 @@ export default function VideoDashboard() {
                           const credits = m.pricing.find(p => p.quality === quality)?.credits ?? m.pricing[0]?.credits;
                           const isSelected = selectedVideoModelId === m.id;
                           return (
-                            <button key={m.id} onClick={() => { if (isSeedanceV2 && !m.name?.startsWith('Seedance 2.0')) { setPrompt(''); setMediaAssets([]); } setSelectedVideoModelId(m.id); setShowModelMenu(false); }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', textAlign: 'left', padding: '8px 12px', background: isSelected ? 'rgba(83,47,207,0.12)' : 'none', border: 'none', cursor: 'pointer', transition: 'background 0.15s' }}>
+                            <button key={m.id} onClick={() => { if (isSeedanceV2 && !m.name?.startsWith('Seedance 2.0')) { setPrompt(''); setMediaAssets([]); } setSelectedVideoModelId(m.id); setShowModelMenu(false); if (m.name === 'Kling Motion Control') { setActiveTab('motion-control'); } }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', textAlign: 'left', padding: '8px 12px', background: isSelected ? 'rgba(83,47,207,0.12)' : 'none', border: 'none', cursor: 'pointer', transition: 'background 0.15s' }}>
                               <div>
                                 <div style={{ fontSize: '12px', fontFamily: 'var(--font-dm)', fontWeight: 500, color: isSelected ? 'rgba(160,120,255,0.9)' : 'rgba(255,255,255,0.75)' }}>{m.name}</div>
                                 {credits && <div style={{ fontSize: '10px', fontFamily: 'var(--font-dm)', color: 'rgba(255,255,255,0.28)', marginTop: '1px' }}>{credits} credit/s</div>}
@@ -1099,26 +1097,34 @@ export default function VideoDashboard() {
             </div>
             <button
               onClick={handleGenerate}
-              disabled={isGenerating || !prompt.trim() || !selectedVideoModelId || (creditCount !== null && creditCount < videoCreditCost)}
+              disabled={!prompt.trim() || !selectedVideoModelId || (creditCount !== null && creditCount < videoCreditCost)}
               style={{
-                background: (creditCount !== null && creditCount <= 0) ? 'rgba(255,255,255,0.04)' : isGenerating ? 'rgba(83,47,207,0.5)' : 'linear-gradient(135deg, #7c5cf0 0%, #9b7eff 100%)',
+                background: (creditCount !== null && creditCount <= 0) ? 'rgba(255,255,255,0.04)' : 'linear-gradient(135deg, #7c5cf0 0%, #9b7eff 100%)',
                 border: (creditCount !== null && creditCount <= 0) ? '0.5px solid rgba(255,255,255,0.08)' : 'none',
                 borderRadius: '11px', padding: '13px', fontSize: '13px', fontWeight: 700,
                 fontFamily: 'var(--font-dm)', letterSpacing: '0.1px',
                 color: (creditCount !== null && creditCount <= 0) ? 'rgba(255,255,255,0.25)' : '#fff',
-                cursor: (isGenerating || (creditCount !== null && creditCount <= 0)) ? 'not-allowed' : 'pointer',
-                opacity: isGenerating ? 0.85 : 1, width: '100%',
+                cursor: (creditCount !== null && creditCount <= 0) ? 'not-allowed' : 'pointer',
+                width: '100%',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '7px',
-                boxShadow: (creditCount !== null && creditCount <= 0) || isGenerating ? 'none' : '0 4px 20px rgba(83,47,207,0.4), inset 0 1px 0 rgba(255,255,255,0.15)',
+                boxShadow: (creditCount !== null && creditCount <= 0) ? 'none' : '0 4px 20px rgba(83,47,207,0.4), inset 0 1px 0 rgba(255,255,255,0.15)',
                 transition: 'opacity 0.2s',
               }}
             >
-              {isGenerating ? (
-                <><div style={{ width: '13px', height: '13px', border: '1.5px solid rgba(255,255,255,0.35)', borderTop: '1.5px solid #fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />{status || t('generating')}</>
-              ) : (creditCount !== null && creditCount <= 0) ? (
+              {(creditCount !== null && creditCount <= 0) ? (
                 <><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg>{t('noCredits')}</>
               ) : (
-                <><span style={{ fontSize: '10px', color: 'rgba(220,200,255,0.9)' }}>✦</span>{t('generate')}<span style={{ color: 'rgba(200,170,255,0.7)', fontSize: '11px', fontWeight: 500 }}>· {videoCreditCost}</span></>
+                <>
+                  <span style={{ fontSize: '10px', color: 'rgba(220,200,255,0.9)' }}>✦</span>
+                  {t('generate')}
+                  <span style={{ color: 'rgba(200,170,255,0.7)', fontSize: '11px', fontWeight: 500 }}>· {videoCreditCost}</span>
+                  {generatingCount > 0 && (
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px', marginLeft: '2px', color: 'rgba(255,255,255,0.6)', fontSize: '10px', fontWeight: 400 }}>
+                      <div style={{ width: '8px', height: '8px', border: '1.5px solid rgba(255,255,255,0.4)', borderTop: '1.5px solid #fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />
+                      {generatingCount}
+                    </span>
+                  )}
+                </>
               )}
             </button>
           </div>
@@ -1128,7 +1134,7 @@ export default function VideoDashboard() {
           {activeTab === 'motion-control' && (
             <>
               {/* Hidden file inputs */}
-              <input ref={mcMotionVideoRef} type="file" accept="video/mp4,video/webm" style={{ display: 'none' }}
+              <input ref={mcMotionVideoRef} type="file" accept="video/mp4,video/webm,video/quicktime,.mov" style={{ display: 'none' }}
                 onChange={e => e.target.files?.[0] && handleMcUpload(e.target.files[0], 'motionVideo')} />
               <input ref={mcCharacterImageRef} type="file" accept="image/*" style={{ display: 'none' }}
                 onChange={e => e.target.files?.[0] && handleMcUpload(e.target.files[0], 'characterImage')} />
@@ -1239,7 +1245,6 @@ export default function VideoDashboard() {
                   style={{ background: 'rgba(10,10,14,0.97)', border: '0.5px solid rgba(255,255,255,0.07)', borderRadius: '10px', padding: '10px 12px', fontSize: '13px', color: 'rgba(255,255,255,0.85)', minHeight: '60px', resize: 'none', outline: 'none', width: '100%', fontFamily: 'var(--font-dm)', boxSizing: 'border-box', lineHeight: 1.6 }}
                 />
 
-                {mcError && <div style={{ fontSize: '11px', color: '#ef4444', fontFamily: 'var(--font-dm)' }}>{mcError}</div>}
               </div>
 
               {/* MC Footer */}
@@ -1280,15 +1285,15 @@ export default function VideoDashboard() {
 
         {/* CENTER PANEL — scrollable feed */}
         <div ref={feedRef} className="feed" style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px', minWidth: 0, minHeight: 0 }}>
-          {/* Generating placeholder */}
-          {isGenerating && (
-            <div style={{ width: '100%', aspectRatio: '16/9', background: 'var(--bg-card)', border: 'var(--border)', borderRadius: 'var(--radius-card)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
+          {/* Generating placeholders */}
+          {Array.from({ length: generatingCount }).map((_, i) => (
+            <div key={i} style={{ width: '100%', aspectRatio: '16/9', background: 'var(--bg-card)', border: 'var(--border)', borderRadius: 'var(--radius-card)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
               <div style={{ width: '36px', height: '36px', border: '2px solid var(--accent)', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
-              <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{status || t('generating')}</span>
+              <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{t('generating')}</span>
             </div>
-          )}
+          ))}
           {/* Empty state */}
-          {videos.length === 0 && !isGenerating && (
+          {videos.length === 0 && generatingCount === 0 && (
             <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 'calc(100vh - 154px)', position: 'relative' }}>
               {isLoaded && !isSignedIn ? (
                 <div className="hidden md:flex flex-col items-center text-center" style={{ padding: '0 24px' }}>
@@ -1453,7 +1458,7 @@ export default function VideoDashboard() {
           <div style={{ position: 'absolute', bottom: 0, left: '10%', right: '10%', height: '160px', background: 'radial-gradient(ellipse at 50% 100%, rgba(83,47,207,0.2) 0%, rgba(83,47,207,0.05) 45%, transparent 70%)', pointerEvents: 'none' }} />
         </div>
 
-        <div className={`pointer-events-auto prompt-bar-orbit${isGenerating ? ' prompt-bar-loading' : ''}`}>
+        <div className={`pointer-events-auto prompt-bar-orbit${generatingCount > 0 ? ' prompt-bar-loading' : ''}`}>
           <div style={{ background: 'rgba(10,10,14,0.97)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderRadius: '14px', overflow: 'hidden', boxShadow: '0 -1px 0 rgba(255,255,255,0.04) inset' }}>
 
             {/* Frames preview strip (when options open) */}
@@ -1599,17 +1604,14 @@ export default function VideoDashboard() {
               {/* Generate */}
               <button
                 onClick={() => { if (!isSignedIn) { setShowModal(true); return; } handleGenerate(); }}
-                disabled={isGenerating || (!!isSignedIn && (!prompt.trim() || !selectedVideoModelId || (creditCount !== null && creditCount < videoCreditCost)))}
+                disabled={!!isSignedIn && (!prompt.trim() || !selectedVideoModelId || (creditCount !== null && creditCount < videoCreditCost))}
                 className={`flex-shrink-0 flex items-center gap-1.5 font-dm font-[500] ${isSignedIn && creditCount !== null && creditCount <= 0 ? 'generate-btn-empty' : 'generate-btn'}`}
                 style={{ height: '32px', padding: '0 14px', borderRadius: '50px', fontSize: '12px', border: 'none', color: '#fff', cursor: 'pointer' }}
               >
-                {isGenerating ? (
-                  <div style={{ width: '12px', height: '12px', border: '1.5px solid rgba(255,255,255,0.35)', borderTop: '1.5px solid #fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-                ) : (
-                  <>
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg>
-                    {isSignedIn ? `${t('generate')} · ${videoCreditCost}` : t('tryForFree')}
-                  </>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg>
+                {isSignedIn ? `${t('generate')} · ${videoCreditCost}` : t('tryForFree')}
+                {generatingCount > 0 && (
+                  <div style={{ width: '8px', height: '8px', border: '1.5px solid rgba(255,255,255,0.4)', borderTop: '1.5px solid #fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />
                 )}
               </button>
             </div>
@@ -1709,6 +1711,35 @@ export default function VideoDashboard() {
                 <audio src={previewAsset.url} controls style={{ width: '100%' }} />
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* MC Error Modal */}
+      {mcError && (
+        <div
+          onClick={() => setMcError(null)}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{ background: '#0f0f16', border: '0.5px solid rgba(255,255,255,0.1)', borderRadius: '16px', padding: '24px', width: '100%', maxWidth: '400px', display: 'flex', flexDirection: 'column', gap: '16px', position: 'relative' }}
+          >
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(239,68,68,0.15)', border: '0.5px solid rgba(239,68,68,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              </div>
+              <div>
+                <div style={{ fontSize: '14px', fontWeight: 600, color: 'rgba(255,255,255,0.9)', fontFamily: 'var(--font-dm)', marginBottom: '6px' }}>Generation failed</div>
+                <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.55)', fontFamily: 'var(--font-dm)', lineHeight: 1.6 }}>{mcError}</div>
+              </div>
+            </div>
+            <button
+              onClick={() => setMcError(null)}
+              style={{ alignSelf: 'flex-end', padding: '7px 18px', background: 'rgba(255,255,255,0.06)', border: '0.5px solid rgba(255,255,255,0.12)', borderRadius: '8px', color: 'rgba(255,255,255,0.7)', fontSize: '12px', fontFamily: 'var(--font-dm)', cursor: 'pointer' }}
+            >
+              OK
+            </button>
           </div>
         </div>
       )}

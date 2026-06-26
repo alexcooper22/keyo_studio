@@ -57,8 +57,8 @@ export async function getModelById(id: string): Promise<AIModel> {
 
 export async function getCreditCost(modelId: string, quality: string): Promise<number> {
   const model = await getModelById(modelId)
-  const pricing = model.pricing.find(p => p.quality === quality)
-  if (!pricing) throw new Error(`No pricing for model ${modelId} quality ${quality}`)
+  const pricing = model.pricing.find(p => p.quality === quality) ?? model.pricing[0]
+  if (!pricing) throw new Error(`No pricing for model ${modelId}`)
   return pricing.credits
 }
 

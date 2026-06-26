@@ -4,7 +4,7 @@ import { supabaseAdmin } from '../../../lib/supabase';
 import { isAllowedMime } from '../../../lib/rateLimit';
 
 const ALLOWED_IMAGE_EXT = new Set(['jpg', 'jpeg', 'png', 'webp']);
-const ALLOWED_VIDEO_EXT = new Set(['mp4', 'webm']);
+const ALLOWED_VIDEO_EXT = new Set(['mp4', 'webm', 'mov']);
 
 export async function POST(req: NextRequest) {
   const { userId } = await auth();

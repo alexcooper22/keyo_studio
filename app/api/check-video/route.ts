@@ -132,10 +132,12 @@ export async function GET(req: NextRequest) {
     if (status === 'succeed' && videoUrl) {
       await supabaseAdmin.from('generated_videos').update({ status: 'succeed', video_url: videoUrl }).eq('task_id', taskId);
     } else if (status === 'failed') {
+      console.error('[check-video] Kling task failed:', JSON.stringify(data));
       await supabaseAdmin.from('generated_videos').update({ status: 'failed' }).eq('task_id', taskId);
     }
 
-    return NextResponse.json({ status, videoUrl, duration: task?.task_result?.videos?.[0]?.duration ?? null });
+    const failReason = task?.task_status_msg ?? null;
+    return NextResponse.json({ status, videoUrl, duration: task?.task_result?.videos?.[0]?.duration ?? null, failReason });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to check video status' }, { status: 500 });
   }

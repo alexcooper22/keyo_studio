@@ -133,8 +133,33 @@ export async function POST(req: NextRequest) {
       const nearestDuration = googleDurations.reduce((best, v) =>
         Math.abs(v - duration) < Math.abs(best - duration) ? v : best
       );
+      const instance: Record<string, unknown> = { prompt };
+      if (startFrame) {
+        try {
+          const parsedUrl = new URL(startFrame);
+          const allowedHost = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL!).hostname;
+          if (parsedUrl.protocol !== 'https:' || parsedUrl.hostname !== allowedHost) {
+            return NextResponse.json({ error: 'Invalid image URL' }, { status: 400 });
+          }
+          const imgRes = await fetch(startFrame, { signal: AbortSignal.timeout(15_000), redirect: 'error' });
+          const MAX_IMAGE_BYTES = 10 * 1024 * 1024; // 10 MB
+          const contentLength = Number(imgRes.headers.get('content-length') ?? 0);
+          if (contentLength > MAX_IMAGE_BYTES) {
+            return NextResponse.json({ error: 'Start frame image too large' }, { status: 400 });
+          }
+          const mimeType = imgRes.headers.get('content-type')?.split(';')[0] ?? 'image/jpeg';
+          const buffer = await imgRes.arrayBuffer();
+          if (buffer.byteLength > MAX_IMAGE_BYTES) {
+            return NextResponse.json({ error: 'Start frame image too large' }, { status: 400 });
+          }
+          const bytesBase64Encoded = Buffer.from(buffer).toString('base64');
+          instance.image = { bytesBase64Encoded, mimeType };
+        } catch (e) {
+          console.error('[generate-video] Failed to fetch start frame for Veo:', e);
+        }
+      }
       const body: Record<string, unknown> = {
-        instances: [{ prompt }],
+        instances: [instance],
         parameters: { aspectRatio, durationSeconds: nearestDuration },
       };
       const response = await fetch(

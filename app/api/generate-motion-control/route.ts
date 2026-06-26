@@ -83,6 +83,8 @@ export async function POST(req: NextRequest) {
       image_url: characterImageUrl,
       video_url: motionVideoUrl,
       character_orientation: characterOrientation,
+      mode: quality === '1080p' ? 'pro' : 'std',
+      video_mode: quality === '1080p' ? 'pro' : 'std',
     };
     if (prompt) klingBody.prompt = prompt;
 
@@ -94,7 +96,9 @@ export async function POST(req: NextRequest) {
     });
     const data = await response.json();
     if (!response.ok) {
-      return NextResponse.json({ error: data?.message ?? `Kling error ${response.status}` }, { status: response.status });
+      console.error('[motion-control] Kling error:', JSON.stringify(data));
+      console.error('[motion-control] Request body was:', JSON.stringify(klingBody));
+      return NextResponse.json({ error: data?.message ?? `Kling error ${response.status}`, klingRaw: data }, { status: response.status });
     }
 
     const taskId = data.data?.task_id;
@@ -107,7 +111,6 @@ export async function POST(req: NextRequest) {
       model: aiModel.name,
       provider: 'kling',
       task_type: 'motion-control',
-      quality,
       status: 'processing',
     });
 

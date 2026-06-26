@@ -70,6 +70,7 @@ const ALLOWED_MIME = new Set([
   'image/gif',
   'video/mp4',
   'video/webm',
+  'video/quicktime',
   'audio/mpeg',
   'audio/mp3',
   'audio/wav',

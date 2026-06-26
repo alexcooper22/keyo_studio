@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 
 const ALLOWED_MIME = new Set([
   'image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif',
-  'video/mp4', 'video/webm',
+  'video/mp4', 'video/webm', 'video/quicktime',
   'audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/ogg', 'audio/webm', 'audio/aac', 'audio/flac',
 ]);
 
